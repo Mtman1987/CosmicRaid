@@ -74,6 +74,8 @@ export default function SettingsPage() {
   const pathname = usePathname();
   const [guildId, setGuildId] = React.useState('');
   const [testChannelId, setTestChannelId] = React.useState('');
+  const [botToken, setBotToken] = React.useState('');
+  const [isSavingToken, setIsSavingToken] = React.useState(false);
 
   const [syncState, syncAction] = useActionState(syncDiscordData, { status: 'idle', message: '' });
   const [testState, testAction] = useActionState(testCalendarPostAction, { status: 'idle', message: '', logs: [] });
@@ -111,12 +113,42 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="discord-token">Bot Token</Label>
-                <Input
-                  id="discord-token"
-                  type="password"
-                  placeholder="Set in your .env file"
-                  disabled
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="discord-token"
+                    type="password"
+                    placeholder="Enter your Discord bot token"
+                    value={botToken}
+                    onChange={(e) => setBotToken(e.target.value)}
+                  />
+                  <Button 
+                    onClick={async () => {
+                      if (!guildId || !botToken) return;
+                      setIsSavingToken(true);
+                      try {
+                        const response = await fetch('/api/save-token', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ serverId: guildId, token: botToken })
+                        });
+                        if (response.ok) {
+                          alert('Bot token saved successfully!');
+                          setBotToken('');
+                        } else {
+                          alert('Failed to save bot token');
+                        }
+                      } catch (error) {
+                        alert('Failed to save bot token');
+                      } finally {
+                        setIsSavingToken(false);
+                      }
+                    }}
+                    disabled={!guildId || !botToken || isSavingToken}
+                    size="sm"
+                  >
+                    {isSavingToken ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="discord-server-id">Server ID</Label>
