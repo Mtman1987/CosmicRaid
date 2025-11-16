@@ -3,9 +3,9 @@
 
 runConfig:
   maxInstances: 1
-  
+
   env:
-    GOOGLE_CLOUD_PROJECT: studio-5587063777-d2e6c
+    GOOGLE_CLOUD_PROJECT: studio-9468926194-e03ac
     FIREBASE_ADMIN_PROJECT_ID: studio-9468926194-e03ac
     BOT_SECRET_KEY: ${secret:BOT_SECRET_KEY}
     CLOUDE_API_KEY: ${secret:CLOUDE_API_KEY}
