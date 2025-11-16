@@ -1,6 +1,6 @@
 'use server';
 
-import { isFfmpegDisabled } from './runtime-env';
+
 
 interface MediaOptions {
   serverId?: string;
@@ -21,10 +21,8 @@ class MediaFallbackService {
     const { username, mediaType, contentType, serverId } = options;
 
     // Step 1: Try local services (if available)
-    if (!isFfmpegDisabled()) {
-      const localResult = await this.tryLocalServices(options);
-      if (localResult) return localResult;
-    }
+    const localResult = await this.tryLocalServices(options);
+    if (localResult) return localResult;
 
     // Step 2: Try FreeConvert API
     const freeConvertResult = await this.tryFreeConvert(options);
