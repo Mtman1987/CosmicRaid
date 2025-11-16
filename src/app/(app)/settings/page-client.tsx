@@ -85,8 +85,12 @@ export default function SettingsPage() {
 
   React.useEffect(() => {
     const storedGuildId = localStorage.getItem('discordServerId');
+    const storedToken = localStorage.getItem('discordBotToken');
     if (storedGuildId) {
       setGuildId(storedGuildId);
+    }
+    if (storedToken) {
+      setBotToken(storedToken);
     }
   }, []);
 
@@ -122,28 +126,13 @@ export default function SettingsPage() {
                     onChange={(e) => setBotToken(e.target.value)}
                   />
                   <Button 
-                    onClick={async () => {
-                      if (!guildId || !botToken) return;
-                      setIsSavingToken(true);
-                      try {
-                        const response = await fetch('/api/save-token', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ serverId: guildId, token: botToken })
-                        });
-                        if (response.ok) {
-                          alert('Bot token saved successfully!');
-                          setBotToken('');
-                        } else {
-                          alert('Failed to save bot token');
-                        }
-                      } catch (error) {
-                        alert('Failed to save bot token');
-                      } finally {
-                        setIsSavingToken(false);
-                      }
+                    onClick={() => {
+                      if (!botToken) return;
+                      localStorage.setItem('discordBotToken', botToken);
+                      alert('Bot token saved to browser storage!');
+                      setBotToken('');
                     }}
-                    disabled={!guildId || !botToken || isSavingToken}
+                    disabled={!botToken}
                     size="sm"
                   >
                     {isSavingToken ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
