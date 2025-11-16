@@ -11,7 +11,7 @@ interface FreshContentBatch {
   isComplete: boolean; // true when we have all 6 clips
 }
 
-export class FreshContentService {
+class FreshContentService {
   
   async handleStreamerGoesLive(username: string, serverId: string): Promise<void> {
     console.log(`🔴 ${username} went live - checking fresh content status`);
