@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { FirebaseApp, FirebaseOptions, getApp, getApps, initializeApp } from 'firebase/app';
+import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
 import {
   Auth,
   User,
@@ -23,6 +23,7 @@ import { FirebaseStorage, connectStorageEmulator, getStorage } from 'firebase/st
 
 import { FirebaseErrorEmitter } from './error-emitter';
 import { EMULATORS_STARTED } from './errors';
+import { firebaseConfig as sharedFirebaseConfig } from './config';
 
 type FirebaseContextValue = {
   app: FirebaseApp;
@@ -36,23 +37,11 @@ export const FirebaseContext = React.createContext<FirebaseContextValue | null>(
 
 export const useFirebase = () => React.useContext(FirebaseContext);
 
-const firebaseConfig: FirebaseOptions = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? process.env.NEXT_PUBLIC_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? process.env.NEXT_PUBLIC_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? process.env.NEXT_PUBLIC_PROJECT_ID,
-  storageBucket:
-    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? process.env.NEXT_PUBLIC_STORAGE_BUCKET,
-  messagingSenderId:
-    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ??
-    process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? process.env.NEXT_PUBLIC_APP_ID,
-};
-
 function createFirebaseApp(): FirebaseApp {
   if (getApps().length > 0) {
     return getApp();
   }
-  return initializeApp(firebaseConfig);
+  return initializeApp(sharedFirebaseConfig);
 }
 
 export const FirebaseProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
