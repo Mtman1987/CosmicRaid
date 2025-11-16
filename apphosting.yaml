@@ -19,6 +19,7 @@ runConfig:
     FIREBASE_SERVICE_ACCOUNT_DOC_PATH: infrastructure/credentials/adminServiceAccount
     FIREBASE_SERVICE_ACCOUNT_DOC_FIELD: serviceAccountBase64
     GOOGLE_CLOUD_PROJECT: ${secret:GOOGLE_CLOUD_PROJECT}
+    NPM_CONFIG_LEGACY_PEER_DEPS: "true"
     
     # API Keys
     GEMINI_API_KEY: ${secret:GEMINI_API_KEY}
