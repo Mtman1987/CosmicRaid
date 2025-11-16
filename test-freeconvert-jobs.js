@@ -3,8 +3,8 @@ const fetch = require('node-fetch');
 
 // Test the new FreeConvert Jobs API
 async function testJobsAPI() {
-    // Use a real Twitch clip URL for testing
-    const testClipUrl = 'https://clips-media-assets2.twitch.tv/AT-cm%7C1234567890.mp4';
+    // Use a real Twitch clip URL for testing - replace with actual clip
+    const testClipUrl = 'https://clips-media-assets2.twitch.tv/vod-2345678901-offset-1234.mp4';
     
     const apiKey = process.env.FREE_CONVERT_API_KEY;
     
@@ -39,7 +39,7 @@ async function testJobsAPI() {
             "export-1": {
                 "operation": "export/url",
                 "input": ["convert-1"],
-                "filename": "test_clip.gif"
+                "filename": "test_conversion.gif"
             }
         }
     };

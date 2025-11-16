@@ -25,10 +25,11 @@ async function resolveBotUserId(botToken: string): Promise<string | null> {
   }
 }
 
-export async function sendDiscordMessage(channelId: string, messageData: any): Promise<string | null> {
+export async function sendDiscordMessage(channelId: string, messageData: any, serverId?: string): Promise<string | null> {
   try {
-    const botToken = process.env.DISCORD_BOT_TOKEN;
-    
+    const { getServerConfig } = await import('./config-service');
+    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
+
     if (!botToken) {
       console.error('Discord bot token not found');
       return null;
@@ -59,10 +60,11 @@ export async function sendDiscordMessage(channelId: string, messageData: any): P
   }
 }
 
-export async function updateDiscordMessage(channelId: string, messageId: string, messageData: any): Promise<boolean> {
+export async function updateDiscordMessage(channelId: string, messageId: string, messageData: any, serverId?: string): Promise<boolean> {
   try {
-    const botToken = process.env.DISCORD_BOT_TOKEN;
-    
+    const { getServerConfig } = await import('./config-service');
+    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
+
     if (!botToken) {
       console.error('Discord bot token not found');
       return false;
@@ -92,10 +94,11 @@ export async function updateDiscordMessage(channelId: string, messageId: string,
   }
 }
 
-export async function deleteDiscordMessage(channelId: string, messageId: string): Promise<boolean> {
+export async function deleteDiscordMessage(channelId: string, messageId: string, serverId?: string): Promise<boolean> {
   try {
-    const botToken = process.env.DISCORD_BOT_TOKEN;
-    
+    const { getServerConfig } = await import('./config-service');
+    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
+
     if (!botToken) {
       console.error('Discord bot token not found');
       return false;
@@ -123,10 +126,11 @@ export async function deleteDiscordMessage(channelId: string, messageId: string)
   }
 }
 
-export async function cleanupDuplicateBotMessages(channelId: string, keepMessageIds: string[]): Promise<void> {
+export async function cleanupDuplicateBotMessages(channelId: string, keepMessageIds: string[], serverId?: string): Promise<void> {
   try {
-    const botToken = process.env.DISCORD_BOT_TOKEN;
-    
+    const { getServerConfig } = await import('./config-service');
+    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
+
     if (!botToken) {
       console.error('Discord bot token not found');
       return;

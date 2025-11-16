@@ -13,10 +13,14 @@ export async function getServerConfig(serverId: string, key: string): Promise<st
     await loadServerConfig(serverId);
   }
   
+  // Prioritize environment variables (from secrets manager or .env), then server config from Firestore
+  const envValue = process.env[key];
+  if (envValue) {
+    return envValue;
+  }
+
   const serverConfig = serverConfigCache.get(serverId) || {};
-  
-  // Try server config first, then environment variables
-  const value = serverConfig[key] || process.env[key];
+  const value = serverConfig[key];
   
   if (!value) {
     console.warn(`Config key '${key}' not found for server ${serverId}`);

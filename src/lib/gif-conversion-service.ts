@@ -16,18 +16,23 @@ export interface GifConversionOptions {
 }
 
 class GifConversionService {
-  private apiKey: string;
   private baseUrl = 'https://api.freeconvert.com/v1';
 
-  constructor() {
-    this.apiKey = process.env.FREE_CONVERT_API_KEY!;
+  private async getApiKey(serverId?: string): Promise<string> {
+    // Use environment variable directly - apphosting.yaml should provide it
+    const key = process.env.FREE_CONVERT_API_KEY;
+    if (!key) {
+      throw new Error(`FREE_CONVERT_API_KEY environment variable not found`);
+    }
+    return key;
   }
 
-  private async makeApiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
+  private async makeApiCall(endpoint: string, serverId: string, options: RequestInit = {}): Promise<any> {
+    const apiKey = await this.getApiKey(serverId);
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         ...options.headers,
       },
@@ -50,17 +55,62 @@ class GifConversionService {
   ): Promise<string | null> {
     const { serverId, fallbackGifUrl } = options;
     
-    // Use the new fallback service
+    // 1. Try local Puppeteer/FFmpeg service first (free)
+    try {
+      const localResult = await this.tryLocalConversion(clipUrl, clipId, streamerName, duration, contentType);
+      if (localResult) return localResult;
+    } catch (error) {
+      console.log('Local conversion unavailable, trying alternatives');
+    }
+    
+    // 2. Try cached/fallback media
     const { getMediaForUser } = await import('./media-fallback-service');
-    const result = await getMediaForUser({
+    const cachedResult = await getMediaForUser({
       username: streamerName,
       mediaType: 'gif',
       contentType: contentType === 'stream' ? 'spotlight' : 'shoutout',
       serverId
     });
+    if (cachedResult) return cachedResult;
     
-    if (result) return result;
-    if (fallbackGifUrl) return fallbackGifUrl;
+    // 3. Only use FreeConvert as last resort (costs money)
+    if (serverId) {
+      try {
+        return await this.convertUsingFreeConvert(clipUrl, clipId, streamerName, duration, contentType, serverId);
+      } catch (error) {
+        console.error('FreeConvert failed:', error);
+      }
+    }
+    
+    // 4. Final fallback
+    return fallbackGifUrl || null;
+  }
+  
+  private async tryLocalConversion(clipUrl: string, clipId: string, streamerName: string, duration: number, contentType: string): Promise<string | null> {
+    try {
+      // Check if local service is running on port 3300
+      const healthCheck = await fetch('http://localhost:3300/health', { 
+        method: 'GET',
+        signal: AbortSignal.timeout(2000) // 2 second timeout
+      });
+      
+      if (!healthCheck.ok) throw new Error('Local service not available');
+      
+      // Call local conversion service
+      const response = await fetch('http://localhost:3300/convert-gif', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clipUrl, clipId, streamerName, duration, contentType }),
+        signal: AbortSignal.timeout(30000) // 30 second timeout
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        return result.gifUrl;
+      }
+    } catch (error) {
+      // Local service not available, that's fine
+    }
     return null;
   }
 
@@ -69,14 +119,17 @@ class GifConversionService {
     clipId: string,
     streamerName: string,
     duration: number,
-    contentType: 'stream' | 'header' | 'footer'
+    contentType: 'stream' | 'header' | 'footer',
+    serverId: string
   ): Promise<string | null> {
     const { uploadGifFromUrl, generateFileName } = await import('./firebase-storage-service');
     const fileName = await generateFileName(clipId, streamerName);
     const dimensions = this.getDimensions(contentType);
 
+    console.log(`💰 Using FreeConvert API for ${streamerName} (costs money)`);
+    
     // Create job with new jobs API
-    const job = await this.makeApiCall('/process/jobs', {
+    const job = await this.makeApiCall('/process/jobs', serverId, {
       method: 'POST',
       body: JSON.stringify({
         tasks: {
@@ -96,7 +149,13 @@ class GifConversionService {
               video_to_gif_transparency: false,
               gif_fps: '15',
               video_to_gif_compression: '15',
-              video_to_gif_optimize_static_bg: false
+              video_to_gif_optimize_static_bg: false,
+              video_watermark_text: 'CLIP',
+              video_watermark_position: 'top-left',
+              video_watermark_font_size: 24,
+              video_watermark_font_color: 'white',
+              video_watermark_background_color: 'black',
+              video_watermark_opacity: 0.8
             }
           },
           'export-1': {
@@ -112,7 +171,7 @@ class GifConversionService {
       throw new Error('Failed to create FreeConvert job');
     }
 
-    const completedJob = await this.waitForJobCompletion(job.id);
+    const completedJob = await this.waitForJobCompletion(job.id, serverId);
     const exportTask = completedJob.tasks?.['export-1'];
     const tempGifUrl = exportTask?.result?.url;
 
@@ -120,7 +179,9 @@ class GifConversionService {
       throw new Error('No GIF URL returned from FreeConvert');
     }
 
-    return await uploadGifFromUrl(tempGifUrl, fileName);
+    const finalUrl = await uploadGifFromUrl(tempGifUrl, fileName);
+    console.log(`🏷️ Created watermarked CLIP GIF for ${streamerName}`);
+    return finalUrl;
   }
 
   private async uploadLocalClipForConversion(localPath: string, clipId: string, streamerName: string) {
@@ -181,9 +242,9 @@ class GifConversionService {
     return null;
   }
 
-  private async waitForJobCompletion(jobId: string, maxAttempts: number = 30): Promise<any> {
+  private async waitForJobCompletion(jobId: string, serverId: string, maxAttempts: number = 30): Promise<any> {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const job = await this.makeApiCall(`/process/jobs/${jobId}`);
+      const job = await this.makeApiCall(`/process/jobs/${jobId}`, serverId);
       
       if (job.status === 'completed') {
         return job;

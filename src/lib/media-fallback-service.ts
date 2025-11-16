@@ -20,19 +20,101 @@ class MediaFallbackService {
   async getMediaForUser(options: MediaOptions): Promise<string | null> {
     const { username, mediaType, contentType, serverId } = options;
 
-    // Step 1: Try local services (if available)
+    // Step 1: Try fresh content first (current stream clips with current context)
+    if (contentType === 'spotlight' && serverId) {
+      const { getFreshContentForShoutout } = await import('./fresh-content-service');
+      const freshContent = await getFreshContentForShoutout(username, serverId);
+      if (freshContent) {
+        console.log(`🎬 Serving FRESH content for ${username}`);
+        return freshContent;
+      }
+    }
+
+    // Step 2: Try local services (if available) - always current
     const localResult = await this.tryLocalServices(options);
     if (localResult) return localResult;
 
-    // Step 2: Try FreeConvert API
+    // Step 3: Check for permanent CLIP fallbacks (watermarked, safe to reuse)
+    if (serverId) {
+      const clipFallback = await this.getClipFallback(username, serverId);
+      if (clipFallback) {
+        console.log(`🎬 Serving permanent CLIP fallback for ${username}`);
+        return clipFallback;
+      }
+    }
+
+    // Step 4: Try FreeConvert API (costs money) - creates watermarked CLIP
+    console.log(`💰 Using FreeConvert API for ${username} (costs money)`);
     const freeConvertResult = await this.tryFreeConvert(options);
-    if (freeConvertResult) return freeConvertResult;
+    if (freeConvertResult) {
+      // Save this watermarked clip as permanent fallback
+      if (serverId) {
+        await this.saveClipFallback(username, freeConvertResult, serverId);
+      }
+      return freeConvertResult;
+    }
 
-    // Step 3: Check storage bucket for cached media
-    const cachedResult = await this.searchStorageBucket(username, mediaType, serverId);
-    if (cachedResult) return cachedResult;
-
+    // No content available
+    console.log(`❌ No content available for ${username}`);
     return null;
+  }
+
+  private async getClipFallback(username: string, serverId: string): Promise<string | null> {
+    try {
+      const { db } = await import('@/firebase/server-init');
+      const doc = await db.collection('servers')
+        .doc(serverId)
+        .collection('clipFallbacks')
+        .doc(username.toLowerCase())
+        .get();
+
+      if (!doc.exists) return null;
+
+      const data = doc.data();
+      const clips = data?.clips || [];
+      
+      if (clips.length === 0) return null;
+
+      // Return a random watermarked clip
+      const randomIndex = Math.floor(Math.random() * clips.length);
+      const selectedClip = clips[randomIndex];
+      
+      console.log(`🎬 Serving CLIP fallback for ${username} (watermarked)`);
+      return selectedClip.url;
+
+    } catch (error) {
+      console.error('Error fetching clip fallback:', error);
+      return null;
+    }
+  }
+
+  private async saveClipFallback(username: string, gifUrl: string, serverId: string): Promise<void> {
+    try {
+      const { db } = await import('@/firebase/server-init');
+      const docRef = db.collection('servers')
+        .doc(serverId)
+        .collection('clipFallbacks')
+        .doc(username.toLowerCase());
+      
+      const doc = await docRef.get();
+      const existingClips = doc.exists ? (doc.data()?.clips || []) : [];
+      
+      // Add new clip, keep max 5 clips per user
+      const updatedClips = [
+        { url: gifUrl, timestamp: Date.now(), watermarked: true },
+        ...existingClips
+      ].slice(0, 5);
+      
+      await docRef.set({
+        username: username.toLowerCase(),
+        clips: updatedClips,
+        lastUpdated: new Date()
+      });
+      
+      console.log(`💾 Saved watermarked CLIP fallback for ${username}`);
+    } catch (error) {
+      console.error('Error saving clip fallback:', error);
+    }
   }
 
   private async tryLocalServices(options: MediaOptions): Promise<string | null> {
