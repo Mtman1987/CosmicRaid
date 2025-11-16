@@ -70,6 +70,33 @@ POINTS_SERVER_ID="YOUR_DISCORD_SERVER_ID"
 
 ```
 
+### Service Account Storage (Local + Hosted)
+
+Keep your Firebase Admin JSON file locally (outside of git) and point to it when running
+`npm run dev`/`npm run dev:hosted`:
+
+```
+GOOGLE_APPLICATION_CREDENTIALS=./studio-9468926194-e03ac-firebase-adminsdk.json
+```
+
+For Firebase App Hosting, load the same JSON via secrets and add an optional Firestore fallback:
+
+1. **Secret** – store the entire JSON as a secret:
+   ```bash
+   firebase apphosting:secrets:set GOOGLE_APPLICATION_CREDENTIALS_JSON @path/to/service-account.json
+   ```
+   `apphosting.yaml` injects this into `GOOGLE_APPLICATION_CREDENTIALS_JSON`.
+
+2. **Firestore fallback** (optional) – create the document
+   `infrastructure/credentials/adminServiceAccount` with a field
+   `serviceAccountBase64` that contains the base64-encoded JSON. The helper in
+   `src/firebase/server-init.ts` will fetch it (requires read access in your Firestore rules).
+   You can configure a different doc/field via
+   `FIREBASE_SERVICE_ACCOUNT_DOC_PATH` / `FIREBASE_SERVICE_ACCOUNT_DOC_FIELD`.
+
+At runtime, the resolver tries secrets first, then the local file path, then the Firestore document,
+and finally `applicationDefault()` if the environment already has GCP credentials.
+
 ### Initial Data Sync
 
 After configuring your `.env` file, the first thing you must do is run the database sync.
