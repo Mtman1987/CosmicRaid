@@ -5,12 +5,12 @@ function readEnv(primary: string, fallback?: string) {
 }
 
 const fallbackConfig: FirebaseOptions = {
-  apiKey: 'AIzaSyD2W8vjLKUC7HqctFFIc6d164QG8w_IYKo',
-  authDomain: 'studio-5587063777-d2e6c.firebaseapp.com',
-  projectId: 'studio-5587063777-d2e6c',
-  storageBucket: 'studio-5587063777-d2e6c.appspot.com',
-  messagingSenderId: '2349523999',
-  appId: '1:2349523999:web:d1275bdff4c564e7bda12a',
+  apiKey: 'AIzaSyA3gXBNiLdpJdTpOuTJt6UJs-yyHJqorgA',
+  authDomain: 'studio-9468926194-e03ac.firebaseapp.com',
+  projectId: 'studio-9468926194-e03ac',
+  storageBucket: 'studio-9468926194-e03ac.firebasestorage.app',
+  messagingSenderId: '3344718739',
+  appId: '1:3344718739:web:a893f438d641753df1e666',
 };
 
 export const firebaseConfig: FirebaseOptions = {

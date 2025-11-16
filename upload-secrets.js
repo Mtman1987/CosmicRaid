@@ -2,11 +2,10 @@ const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
-// Initialize Firebase Admin
-const serviceAccount = require('./studio-9468926194-e03ac-firebase-adminsdk-fbsvc-75298e056b.json');
+// Initialize Firebase Admin - Use App Hosting project
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: 'studio-9468926194-e03ac'
+  credential: admin.credential.applicationDefault(),
+  projectId: 'studio-5587063777-d2e6c'
 });
 
 const db = admin.firestore();
