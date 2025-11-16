@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { useParams, usePathname } from 'next/navigation';
@@ -88,7 +88,7 @@ function SendShoutoutButton({ idleLabel }: { idleLabel: string }) {
       ) : (
         <Send className="mr-2 h-4 w-4" />
       )}
-      {pending ? 'PostingGǪ' : idleLabel}
+      {pending ? 'PostingGÇª' : idleLabel}
     </Button>
   );
 }
@@ -102,7 +102,7 @@ function VipTriggerButton({ idleLabel, disabled }: { idleLabel: string; disabled
       ) : (
         <Star className="mr-2 h-4 w-4" />
       )}
-      {pending ? 'DispatchingGǪ' : idleLabel}
+      {pending ? 'DispatchingGÇª' : idleLabel}
     </Button>
   );
 }
@@ -287,7 +287,7 @@ function OnlineStreamerCard({
          <div className="grid grid-cols-3 gap-2 w-full text-xs text-center">
             <div className="flex flex-col items-center gap-1 bg-secondary p-2 rounded-md">
                 <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="font-semibold">{stats.viewerCount ?? 'G��'}</span>
+                <span className="font-semibold">{stats.viewerCount ?? 'GÇö'}</span>
                 <span className="text-muted-foreground">Viewers</span>
             </div>
              <div className="flex flex-col items-center gap-1 bg-secondary p-2 rounded-md">
@@ -455,7 +455,7 @@ function VipMemberCard({
                      <div className="grid grid-cols-3 gap-2 w-full text-xs text-center">
                         <div className="flex flex-col items-center gap-1 bg-secondary p-2 rounded-md">
                             <Users className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-semibold">{stats.viewerCount ?? 'G��'}</span>
+                            <span className="font-semibold">{stats.viewerCount ?? 'GÇö'}</span>
                             <span className="text-muted-foreground">Viewers</span>
                         </div>
                         <div className="flex flex-col items-center gap-1 bg-secondary p-2 rounded-md">
@@ -980,7 +980,7 @@ export default function GroupDetailPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Use this when you need an immediate refreshG��this mirrors the automated cycle but only targets the VIP channel.
+                  Use this when you need an immediate refreshGÇöthis mirrors the automated cycle but only targets the VIP channel.
                 </p>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
@@ -1270,3 +1270,4 @@ export default function GroupDetailPage() {
     </div>
   );
 }
+

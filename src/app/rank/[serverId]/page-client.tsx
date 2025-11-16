@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 export default function RankPage() {
   const params = useParams();
   const serverId = params.serverId as string;
-  const [message, setMessage] = useState('=ƒöì Checking your rank...');
+  const [message, setMessage] = useState('=Æ’Ã¶Ã¬ Checking your rank...');
 
   useEffect(() => {
     // Simple Discord OAuth simulation - in a real app you'd use proper OAuth
@@ -17,7 +17,7 @@ export default function RankPage() {
         const username = prompt('Enter your Discord username:') || 'User';
         
         if (!discordId) {
-          setMessage('G¥î Discord ID is required to check your rank.');
+          setMessage('GÂ¥Ã® Discord ID is required to check your rank.');
           return;
         }
 
@@ -28,9 +28,9 @@ export default function RankPage() {
         });
 
         const data = await response.json();
-        setMessage(data.content || 'G¥î Unable to fetch rank information.');
+        setMessage(data.content || 'GÂ¥Ã® Unable to fetch rank information.');
       } catch (error) {
-        setMessage('G¥î Error checking rank. Please try again.');
+        setMessage('GÂ¥Ã® Error checking rank. Please try again.');
       }
     };
 
@@ -44,7 +44,7 @@ export default function RankPage() {
       <div className="max-w-md w-full bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-blue-400/30">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-white mb-6">
-            =ƒÜÇ Space Mountain Rank Check
+            =Æ’ÃœÃ‡ Space Mountain Rank Check
           </h1>
           <div className="text-lg text-white whitespace-pre-line">
             {message}
@@ -62,3 +62,4 @@ export default function RankPage() {
     </div>
   );
 }
+
