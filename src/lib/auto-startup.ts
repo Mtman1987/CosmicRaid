@@ -1,5 +1,7 @@
 'use server';
 
+import { loadSecrets } from './secret-loader';
+
 let isInitialized = false;
 
 export async function initializeServices() {
@@ -10,6 +12,9 @@ export async function initializeServices() {
 
   try {
     console.log('[AutoStartup] Initializing services on app startup...');
+    
+    // Load secrets first
+    await loadSecrets();
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout

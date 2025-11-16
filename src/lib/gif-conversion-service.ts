@@ -49,47 +49,18 @@ class GifConversionService {
     options: GifConversionOptions = {}
   ): Promise<string | null> {
     const { serverId, fallbackGifUrl } = options;
-    const shouldUseFfmpeg = !isFfmpegDisabled() && !clipUrl.startsWith('http');
-
-    if (shouldUseFfmpeg) {
-      const ffmpegResult = await this.convertWithFFmpeg(clipUrl, clipId, streamerName, duration, contentType);
-      if (ffmpegResult) {
-        return ffmpegResult;
-      }
-      console.log('FFmpeg failed, trying FreeConvert API instead...');
-    }
-
-    let tempStoragePath: string | null = null;
-
-    try {
-      let remoteSource = clipUrl;
-
-      if (!clipUrl.startsWith('http')) {
-        const uploadResult = await this.uploadLocalClipForConversion(clipUrl, clipId, streamerName);
-        remoteSource = uploadResult.url;
-        tempStoragePath = uploadResult.storagePath || null;
-      }
-
-      const gifUrl = await this.convertUsingFreeConvert(remoteSource, clipId, streamerName, duration, contentType);
-      if (gifUrl) {
-        return gifUrl;
-      }
-    } catch (error) {
-      console.error('Error converting clip to GIF via FreeConvert:', error);
-    } finally {
-      await this.cleanupTempFile(tempStoragePath);
-    }
-
-    const cachedGif = await this.getCachedGif(streamerName, serverId);
-    if (cachedGif) {
-      console.log(`[GifConversion] Using cached GIF from storage for ${streamerName}`);
-      return cachedGif;
-    }
-
-    if (fallbackGifUrl) {
-      return fallbackGifUrl;
-    }
-
+    
+    // Use the new fallback service
+    const { getMediaForUser } = await import('./media-fallback-service');
+    const result = await getMediaForUser({
+      username: streamerName,
+      mediaType: 'gif',
+      contentType: contentType === 'stream' ? 'spotlight' : 'shoutout',
+      serverId
+    });
+    
+    if (result) return result;
+    if (fallbackGifUrl) return fallbackGifUrl;
     return null;
   }
 
