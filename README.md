@@ -89,8 +89,10 @@ For Firebase App Hosting, load the same JSON via secrets and add an optional Fir
 
 2. **Firestore fallback** (optional) – create the document
    `infrastructure/credentials/adminServiceAccount` with a field
-   `serviceAccountBase64` that contains the base64-encoded JSON. The helper in
-   `src/firebase/server-init.ts` will fetch it (requires read access in your Firestore rules).
+   `serviceAccountBase64` that contains the base64-encoded JSON. The helper
+   `node scripts/store-service-account.js path/to/serviceAccount.json` automates this.
+   It relies on your local service account to write the doc. Once stored, the hosted
+   runtime can read it with the configured API key (ensure Firestore rules allow it).
    You can configure a different doc/field via
    `FIREBASE_SERVICE_ACCOUNT_DOC_PATH` / `FIREBASE_SERVICE_ACCOUNT_DOC_FIELD`.
 
