@@ -18,18 +18,22 @@ export async function loadSecrets() {
       return;
     }
 
-    // List of secrets to load (add your secret names here)
+    // Load all secrets from your apphosting.yaml
     const secretNames = [
-      'DISCORD_BOT_TOKEN',
-      'DISCORD_CLIENT_ID', 
-      'DISCORD_CLIENT_SECRET',
-      'TWITCH_CLIENT_ID',
-      'TWITCH_CLIENT_SECRET',
-      'FIREBASE_ADMIN_KEY',
-      // Add other secret names as needed
+      'BOT_SECRET_KEY', 'CLOUDE_API_KEY', 'DISCORD_APP_ID', 'DISCORD_BOT_TOKEN',
+      'DISCORD_CALENDAR_CHANNEL_ID', 'DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET',
+      'DISCORD_ID', 'DISCORD_INVITE_URL', 'DISCORD_LEADERBOARD_CHANNEL_ID',
+      'DISCORD_PUBLIC_KEY', 'DISCORD_RAID_PILE_CHANNEL_ID', 'DISCORD_RAID_TRAIN_CHANNEL_ID',
+      'DISCORD_SHOUTOUT_CHANNEL_ID', 'DISCORD_VIP_CHANNEL_ID', 'DISCORD_WEBHOOK_URL',
+      'EMERGENCY_SLOTS_LOOKAHEAD_HOURS', 'EMERGENCY_SLOT_COST', 'FREE_CONVERT_API_KEY',
+      'GEMINI_API_KEY', 'GOOGLE_APPLICATION_CREDENTIALS', 'GUILD_ID',
+      'HARDCODED_ADMIN_DISCORD_ID', 'HARDCODED_ADMIN_TWITCH_ID', 'HARDCODED_GUILD_ID',
+      'NEXT_PUBLIC_BASE_URL', 'TWITCH_CLIENT_ID', 'TWITCH_CLIENT_SECRET',
+      'TWITCH_BOT_TOKEN', 'TWITCH_BROADCASTER_ID', 'TWITCH_EVENTSUB_SECRET'
+      // Add more as needed
     ];
 
-    console.log(`Loading ${secretNames.length} secrets from Secret Manager...`);
+    console.log(`Loading ${secretNames.length} critical secrets from Secret Manager...`);
 
     for (const secretName of secretNames) {
       try {

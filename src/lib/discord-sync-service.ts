@@ -26,7 +26,15 @@ class DiscordSyncService {
   private botToken = process.env.DISCORD_BOT_TOKEN;
   private baseUrl = 'https://discord.com/api/v10';
 
+  private validateToken(): void {
+    if (!this.botToken) {
+      throw new Error('DISCORD_BOT_TOKEN environment variable is not set');
+    }
+  }
+
   private async makeDiscordRequest(endpoint: string): Promise<any> {
+    this.validateToken();
+    
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       headers: {
         'Authorization': `Bot ${this.botToken}`,
@@ -35,6 +43,8 @@ class DiscordSyncService {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Discord API error: ${response.status} ${response.statusText}`, errorText);
       throw new Error(`Discord API error: ${response.status} ${response.statusText}`);
     }
 
