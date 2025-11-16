@@ -204,3 +204,4 @@ class RaidTrainService {
 }
 
 export const raidTrainService = new RaidTrainService();
+export { RaidTrainService };
