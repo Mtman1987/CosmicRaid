@@ -1,12 +1,10 @@
-import dynamic from 'next/dynamic';
+import { unstable_noStore } from 'next/cache';
+import CalendarClientPage from './page-client';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const CalendarClientPage = dynamic(() => import('./page-client'), {
-  ssr: false,
-});
-
 export default function CalendarPage() {
+  unstable_noStore();
   return <CalendarClientPage />;
 }
