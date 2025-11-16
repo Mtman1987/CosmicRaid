@@ -23,21 +23,23 @@ interface DiscordRole {
 }
 
 class DiscordSyncService {
-  private botToken = process.env.DISCORD_BOT_TOKEN;
   private baseUrl = 'https://discord.com/api/v10';
 
-  private validateToken(): void {
-    if (!this.botToken) {
-      throw new Error('DISCORD_BOT_TOKEN environment variable is not set');
+  private async getBotToken(serverId: string): Promise<string> {
+    const { getServerConfig } = await import('./config-service');
+    const token = await getServerConfig(serverId, 'DISCORD_BOT_TOKEN');
+    if (!token) {
+      throw new Error(`DISCORD_BOT_TOKEN not found for server ${serverId}`);
     }
+    return token;
   }
 
-  private async makeDiscordRequest(endpoint: string): Promise<any> {
-    this.validateToken();
+  private async makeDiscordRequest(serverId: string, endpoint: string): Promise<any> {
+    const botToken = await this.getBotToken(serverId);
     
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       headers: {
-        'Authorization': `Bot ${this.botToken}`,
+        'Authorization': `Bot ${botToken}`,
         'Content-Type': 'application/json',
       },
     });
@@ -73,7 +75,7 @@ class DiscordSyncService {
   }
 
   private async syncMembers(serverId: string): Promise<void> {
-    const members = await this.makeDiscordRequest(`/guilds/${serverId}/members?limit=1000`);
+    const members = await this.makeDiscordRequest(serverId, `/guilds/${serverId}/members?limit=1000`);
     const batch = db.batch();
 
     for (const member of members) {
@@ -99,7 +101,7 @@ class DiscordSyncService {
   }
 
   private async syncChannels(serverId: string): Promise<void> {
-    const channels = await this.makeDiscordRequest(`/guilds/${serverId}/channels`);
+    const channels = await this.makeDiscordRequest(serverId, `/guilds/${serverId}/channels`);
     const batch = db.batch();
 
     for (const channel of channels) {
@@ -122,7 +124,7 @@ class DiscordSyncService {
   }
 
   private async syncRoles(serverId: string): Promise<void> {
-    const guild = await this.makeDiscordRequest(`/guilds/${serverId}`);
+    const guild = await this.makeDiscordRequest(serverId, `/guilds/${serverId}`);
     const batch = db.batch();
 
     for (const role of guild.roles) {
@@ -165,10 +167,11 @@ class DiscordSyncService {
 
   async sendShoutout(serverId: string, channelId: string, shoutoutData: any): Promise<void> {
     try {
+      const botToken = await this.getBotToken(serverId);
       await fetch(`${this.baseUrl}/channels/${channelId}/messages`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bot ${this.botToken}`,
+          'Authorization': `Bot ${botToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(shoutoutData),

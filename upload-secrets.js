@@ -1,85 +1,46 @@
-const { execSync } = require('child_process');
+const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
-// Read the .env file
-const envPath = path.join(__dirname, '.env');
-const envContent = fs.readFileSync(envPath, 'utf8');
+// Initialize Firebase Admin
+const serviceAccount = require('./studio-9468926194-e03ac-firebase-adminsdk-fbsvc-75298e056b.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  projectId: 'studio-9468926194-e03ac'
+});
 
-// Parse environment variables
-const envVars = {};
-const lines = envContent.split('\n');
+const db = admin.firestore();
 
-for (const line of lines) {
-  const trimmedLine = line.trim();
-  if (trimmedLine && !trimmedLine.startsWith('#')) {
-    const [key, ...valueParts] = trimmedLine.split('=');
-    if (key && valueParts.length > 0) {
-      const value = valueParts.join('=');
-      envVars[key.trim()] = value.trim();
-    }
-  }
-}
-
-console.log(`Found ${Object.keys(envVars).length} environment variables to upload`);
-
-// Function to execute Firebase CLI commands
-function runFirebaseCommand(command) {
+async function uploadSecrets() {
   try {
-    const result = execSync(command, { 
-      stdio: 'pipe',
-      encoding: 'utf8',
-      cwd: __dirname
-    });
-    return { success: true, output: result };
-  } catch (error) {
-    return { success: false, error: error.message, output: error.stdout || error.stderr };
-  }
-}
-
-// Upload each secret
-let successCount = 0;
-let failCount = 0;
-const failed = [];
-
-console.log('\nUploading secrets to Firebase...\n');
-
-for (const [key, value] of Object.entries(envVars)) {
-  process.stdout.write(`Uploading ${key}... `);
-  
-  // Create the secret with the value
-  const command = `firebase functions:secrets:set ${key} --data-file=-`;
-  
-  try {
-    const child = execSync(command, {
-      input: value,
-      stdio: ['pipe', 'pipe', 'pipe'],
-      encoding: 'utf8',
-      cwd: __dirname
-    });
+    // Read .env file
+    const envPath = path.join(__dirname, '.env');
+    const envContent = fs.readFileSync(envPath, 'utf8');
     
-    console.log('✅ Success');
-    successCount++;
+    // Parse .env content
+    const secrets = {};
+    envContent.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const [key, ...valueParts] = trimmed.split('=');
+        if (key && valueParts.length > 0) {
+          secrets[key.trim()] = valueParts.join('=').trim();
+        }
+      }
+    });
+
+    // Upload to Firestore: servers/1240832965865635881/config/secrets
+    const serverId = '1240832965865635881'; // Your guild ID from .env
+    await db.collection('servers').doc(serverId).collection('config').doc('secrets').set(secrets);
+    
+    console.log(`✅ Uploaded ${Object.keys(secrets).length} secrets to servers/${serverId}/config/secrets`);
+    console.log('Keys uploaded:', Object.keys(secrets).sort());
+    
   } catch (error) {
-    console.log('❌ Failed');
-    console.log(`   Error: ${error.message}`);
-    failed.push({ key, error: error.message });
-    failCount++;
+    console.error('❌ Error uploading secrets:', error);
   }
+  
+  process.exit(0);
 }
 
-console.log('\n' + '='.repeat(50));
-console.log(`Upload Summary:`);
-console.log(`✅ Successful: ${successCount}`);
-console.log(`❌ Failed: ${failCount}`);
-
-if (failed.length > 0) {
-  console.log('\nFailed uploads:');
-  failed.forEach(({ key, error }) => {
-    console.log(`  - ${key}: ${error}`);
-  });
-}
-
-console.log('\n' + '='.repeat(50));
-console.log('Done! Your secrets are now available in Firebase Secret Manager.');
-console.log('You can view them in the Firebase Console under Functions > Secrets.');
+uploadSecrets();
