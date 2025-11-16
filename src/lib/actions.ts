@@ -91,11 +91,17 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
     return { status: 'error' as const, message: 'Guild ID is required.' }
   }
 
-  const headers = {
-    Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
-  }
-
   try {
+    const { getServerConfig } = await import('./config-service');
+    const botToken = await getServerConfig(guildId, 'DISCORD_BOT_TOKEN');
+    if (!botToken) {
+      return { status: 'error' as const, message: 'Discord bot token not found for this server.' }
+    }
+
+    const headers = {
+      Authorization: `Bot ${botToken}`,
+    }
+
     // 1. Fetch Server Info
     const serverResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}`, { headers })
     if (!serverResponse.ok) throw new Error(`Failed to fetch server info: ${await serverResponse.text()}`)
@@ -192,9 +198,10 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
  */
 export async function postNewCalendar(guildId: string, channelId: string) {
   try {
-    const botToken = process.env.DISCORD_BOT_TOKEN
+    const { getServerConfig } = await import('./config-service');
+    const botToken = await getServerConfig(guildId, 'DISCORD_BOT_TOKEN');
     if (!botToken) {
-      throw new Error('DISCORD_BOT_TOKEN is not configured.')
+      throw new Error('Discord bot token not found for this server.')
     }
 
     const calendarImage = await generateCalendarImage(guildId)
