@@ -75,56 +75,46 @@ class GifConversionService {
     const fileName = await generateFileName(clipId, streamerName);
     const dimensions = this.getDimensions(contentType);
 
-    // Create import task
-    const importTask = await this.makeApiCall('/process/import/url', {
+    // Create job with new jobs API
+    const job = await this.makeApiCall('/process/jobs', {
       method: 'POST',
       body: JSON.stringify({
-        url: sourceUrl,
-        filename: `clip_${Date.now()}.mp4`
-      }),
-    });
-
-    if (!importTask.id) {
-      throw new Error('Failed to create FreeConvert import task');
-    }
-
-    await this.waitForJobCompletion(importTask.id);
-
-    // Convert to GIF
-    const conversionTask = await this.makeApiCall('/process/convert', {
-      method: 'POST',
-      body: JSON.stringify({
-        input: importTask.id,
-        outputformat: 'gif',
-        options: {
-          video_codec: 'gif',
-          video_resolution: `${dimensions.width}x${dimensions.height}`,
-          video_fps: 15,
-          video_duration: Math.min(duration, 10),
+        tasks: {
+          'import-1': {
+            operation: 'import/url',
+            url: sourceUrl
+          },
+          'convert-1': {
+            operation: 'convert',
+            input: 'import-1',
+            input_format: 'mp4',
+            output_format: 'gif',
+            options: {
+              cut_start_video_to_gif: '00:00:00.00',
+              cut_end_gif: `00:00:${Math.min(duration, 10).toString().padStart(2, '0')}.00`,
+              video_custom_width_gif: dimensions.width,
+              video_to_gif_transparency: false,
+              gif_fps: '15',
+              video_to_gif_compression: '15',
+              video_to_gif_optimize_static_bg: false
+            }
+          },
+          'export-1': {
+            operation: 'export/url',
+            input: ['convert-1'],
+            filename: fileName
+          }
         }
-      }),
+      })
     });
 
-    if (!conversionTask.id) {
-      throw new Error('Failed to create FreeConvert conversion task');
+    if (!job.id) {
+      throw new Error('Failed to create FreeConvert job');
     }
 
-    await this.waitForJobCompletion(conversionTask.id);
-
-    // Export
-    const exportTask = await this.makeApiCall('/process/export/url', {
-      method: 'POST',
-      body: JSON.stringify({
-        input: conversionTask.id,
-      }),
-    });
-
-    if (!exportTask.id) {
-      throw new Error('Failed to create FreeConvert export task');
-    }
-
-    const completedExport = await this.waitForJobCompletion(exportTask.id);
-    const tempGifUrl = completedExport.result?.url;
+    const completedJob = await this.waitForJobCompletion(job.id);
+    const exportTask = completedJob.tasks?.['export-1'];
+    const tempGifUrl = exportTask?.result?.url;
 
     if (!tempGifUrl) {
       throw new Error('No GIF URL returned from FreeConvert');
@@ -193,18 +183,18 @@ class GifConversionService {
 
   private async waitForJobCompletion(jobId: string, maxAttempts: number = 30): Promise<any> {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const job = await this.makeApiCall(`/process/${jobId}`);
+      const job = await this.makeApiCall(`/process/jobs/${jobId}`);
       
       if (job.status === 'completed') {
         return job;
       }
       
-      if (job.status === 'failed') {
+      if (job.status === 'failed' || job.status === 'error') {
         throw new Error(`Job ${jobId} failed: ${job.message || 'Unknown error'}`);
       }
 
-      // Wait 2 seconds before checking again
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait 3 seconds before checking again
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
 
     throw new Error(`Job ${jobId} timed out after ${maxAttempts} attempts`);

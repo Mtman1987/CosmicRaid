@@ -6,6 +6,7 @@ runConfig:
   
   env:
     GOOGLE_CLOUD_PROJECT: studio-5587063777-d2e6c
+    FIREBASE_ADMIN_PROJECT_ID: studio-9468926194-e03ac
     BOT_SECRET_KEY: ${secret:BOT_SECRET_KEY}
     CLOUDE_API_KEY: ${secret:CLOUDE_API_KEY}
     DISCORD_APP_ID: ${secret:DISCORD_APP_ID}

@@ -14,7 +14,15 @@ export async function getServerConfig(serverId: string, key: string): Promise<st
   }
   
   const serverConfig = serverConfigCache.get(serverId) || {};
-  return serverConfig[key] || process.env[key];
+  
+  // Try server config first, then environment variables
+  const value = serverConfig[key] || process.env[key];
+  
+  if (!value) {
+    console.warn(`Config key '${key}' not found for server ${serverId}`);
+  }
+  
+  return value;
 }
 
 async function loadServerConfig(serverId: string) {
