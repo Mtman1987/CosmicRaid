@@ -1,0 +1,16 @@
+{
+    "images": [
+        {
+            "category": "space",
+            "url": "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=Mnw3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzcGFjZXxlbnwwfHx8fDE2NzgwMDQ2OTg&ixlib=rb-4.0.3&q=80&w=1080"
+        },
+        {
+            "category": "gaming",
+            "url": "https://images.unsplash.com/photo-1580327344181-c1163234e5a0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=Mnw3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnYW1pbmd8ZW58MHx8fHwxNjc4MDA0NzEy&ixlib=rb-4.0.3&q=80&w=1080"
+        },
+        {
+            "category": "tech",
+            "url": "https://images.unsplash.com/photo-1518770660439-4636190af475?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=Mnw3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0ZWNoJTIwY29tcHV0ZXJ8ZW58MHx8fHwxNjc4MDA0NzI4&ixlib=rb-4.0.3&q=80&w=1080"
+        }
+    ]
+}

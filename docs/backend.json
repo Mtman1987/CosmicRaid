@@ -1,0 +1,263 @@
+{
+  "entities": {
+    "DiscordServer": {
+      "title": "DiscordServer",
+      "type": "object",
+      "description": "Represents a Discord server's configuration within the application.",
+      "properties": {
+        "serverId": {
+          "type": "string",
+          "description": "The Discord server's unique ID."
+        },
+        "serverName": {
+          "type": "string",
+          "description": "The name of the Discord server."
+        },
+        "adminRoles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Array of role names that are considered administrative for earning admin points."
+        }
+      },
+      "required": ["serverId", "serverName"]
+    },
+    "PublicDiscordServerInfo": {
+      "title": "PublicDiscordServerInfo",
+      "type": "object",
+      "description": "Represents the public, non-sensitive information for a Discord server, used for lists.",
+       "properties": {
+        "serverId": {
+          "type": "string",
+          "description": "The Discord server's unique ID."
+        },
+        "serverName": {
+          "type": "string",
+          "description": "The name of the Discord server."
+        }
+      },
+      "required": ["serverId", "serverName"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile within a specific Discord server.",
+      "properties": {
+        "discordUserId": {
+          "type": "string",
+          "description": "The user's unique ID from Discord."
+        },
+        "username": {
+          "type": "string",
+          "description": "The user's Discord username."
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "URL of the user's Discord avatar.",
+          "format": "uri"
+        },
+        "isOnline": {
+          "type": "boolean"
+        },
+        "topic": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string",
+          "enum": ["VIP", "Community", "Raid Train", "Raid Pile"]
+        },
+        "roles": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "A list of the user's role names from the Discord server."
+        },
+        "dailyShoutout": {
+            "type": "object",
+            "description": "The AI-generated Discord embed JSON for the user's daily shoutout."
+        },
+        "shoutoutGeneratedAt": {
+            "type": "object",
+            "description": "Timestamp of when the last daily shoutout was generated.",
+            "properties": {
+                "seconds": { "type": "number" },
+                "nanoseconds": { "type": "number" }
+            }
+        }
+      },
+      "required": ["discordUserId", "username"]
+    },
+    "CalendarEvent": {
+      "title": "CalendarEvent",
+      "type": "object",
+      "description": "Represents an event in a server's calendar.",
+      "properties": {
+        "eventName": { "type": "string" },
+        "eventDateTime": {
+          "type": "object",
+          "properties": { "seconds": { "type": "number" }, "nanoseconds": { "type": "number" } }
+        },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["event", "meeting", "qotd", "captains-log"] },
+        "userId": { "type": "string", "description": "The ID of the user who created the event." },
+        "userAvatar": { "type": "string", "description": "The avatar URL of the user who created the event.", "format": "uri" },
+        "username": { "type": "string", "description": "The username of the user who created the event." }
+      },
+      "required": ["eventName", "eventDateTime", "description", "type", "userId", "userAvatar", "username"]
+    },
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "type": "object",
+      "description": "Represents a user's entry on the leaderboard for a server.",
+      "properties": {
+        "userProfileId": { "type": "string" },
+        "points": { "type": "number" },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userProfileId", "points"]
+    },
+    "LeaderboardSettings": {
+        "title": "LeaderboardSettings",
+        "type": "object",
+        "description": "Configuration for leaderboard point values for a specific server.",
+        "properties": {
+            "raidPoints": { "type": "number", "description": "Points for participating in a raid on another community member." },
+            "followPoints": { "type": "number", "description": "Points for following a community member's stream." },
+            "subPoints": { "type": "number", "description": "Points for subscribing to a community member." },
+            "giftedSubPoints": { "type": "number", "description": "Points for gifting a subscription in a community member's stream." },
+            "bitPoints": { "type": "number", "description": "Points per 100 bits cheered for a community member." },
+            "chatActivityPoints": { "type": "number", "description": "Points for being an active chatter in a community member's stream." },
+            "firstMessagePoints": { "type": "number", "description": "Points for sending the first message of the day in the Discord server." },
+            "messageReactionPoints": { "type": "number", "description": "Points for reacting to a message (e.g., an announcement)." },
+            "adminEventPoints": { "type": "number", "description": "Admin points for creating a calendar event." },
+            "adminLogPoints": { "type": "number", "description": "Admin points for adding a Captain's Log." },
+            "adminMessagePoints": { "type": "number", "description": "Admin points awarded for each message sent." }
+        }
+    },
+    "DiscordMessage": {
+      "title": "DiscordMessage",
+      "type": "object",
+      "description": "Represents a Discord message stored from a specific channel.",
+      "properties": {
+        "channelId": { "type": "string" },
+        "userProfileId": { "type": "string" },
+        "messageContent": { "type": "string" },
+        "timestamp": {
+          "type": "object",
+          "properties": {
+            "seconds": { "type": "number" },
+            "nanoseconds": { "type": "number" }
+          }
+        },
+        "originalAuthor": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "avatar": { "type": "string", "format": "uri" }
+          }
+        },
+        "forwardedMessageId": {
+          "type": "string",
+          "description": "The ID of the message created in the target channel after forwarding."
+        },
+        "reply": {
+          "type": "object",
+          "description": "A reply sent from the app to this message.",
+          "properties": {
+            "text": { "type": "string" },
+            "authorId": { "type": "string" },
+            "authorName": { "type": "string" },
+            "authorAvatar": { "type": "string", "format": "uri" },
+            "timestamp": {
+              "type": "object",
+              "properties": {
+                "seconds": { "type": "number" },
+                "nanoseconds": { "type": "number" }
+              }
+            }
+          }
+        }
+      },
+      "required": ["channelId", "userProfileId", "messageContent", "timestamp", "originalAuthor"]
+    },
+     "ForwardingRule": {
+      "title": "ForwardingRule",
+      "type": "object",
+      "description": "Represents a single rule for forwarding messages from a source channel to a target channel.",
+      "properties": {
+        "sourceChannel": { "type": "string" },
+        "targetChannel": { "type": "string" },
+        "targetServer": { "type": "string" }
+      },
+      "required": ["sourceChannel", "targetChannel", "targetServer"]
+    },
+    "ActiveCalendar": {
+      "title": "ActiveCalendar",
+      "type": "object",
+      "description": "Represents an active, posted calendar embed in a Discord channel.",
+      "properties": {
+        "channelId": { "type": "string" },
+        "messageId": { "type": "string" },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "seconds": { "type": "number" },
+            "nanoseconds": { "type": "number" }
+          }
+        }
+      },
+      "required": ["channelId", "messageId", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": ["anonymous"]
+  },
+  "firestore": {
+    "/discords/{serverId}": {
+      "schema": { "$ref": "#/entities/PublicDiscordServerInfo" },
+      "description": "Public-readable collection of servers for populating UI lists. Contains non-sensitive info."
+    },
+    "/servers/{serverId}": {
+      "schema": { "$ref": "#/entities/DiscordServer" },
+      "description": "Top-level collection for each onboarded Discord Server. Contains private config and subcollections."
+    },
+    "/servers/{serverId}/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profiles specific to a Discord server."
+    },
+    "/servers/{serverId}/calendarEvents/{eventId}": {
+      "schema": { "$ref": "#/entities/CalendarEvent" },
+      "description": "Calendar events for a specific Discord server."
+    },
+    "/servers/{serverId}/leaderboard/{entryId}": {
+      "schema": { "$ref": "#/entities/LeaderboardEntry" },
+      "description": "Leaderboard for a specific Discord server."
+    },
+     "/servers/{serverId}/adminLeaderboard/{entryId}": {
+      "schema": { "$ref": "#/entities/LeaderboardEntry" },
+      "description": "Admin-only leaderboard for a specific Discord server."
+    },
+    "/servers/{serverId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/DiscordMessage" },
+      "description": "Archived messages for a specific Discord server, used for forwarding."
+    },
+     "/servers/{serverId}/config/forwardingRules": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "rules": {
+            "type": "array",
+            "items": { "$ref": "#/entities/ForwardingRule" }
+          }
+        }
+      },
+      "description": "Configuration for message forwarding rules for a server."
+    },
+    "/servers/{serverId}/config/activeCalendars/{calendarId}": {
+      "schema": { "$ref": "#/entities/ActiveCalendar" },
+      "description": "A collection that tracks all active calendar embeds posted in various channels."
+    },
+    "/servers/{serverId}/config/leaderboardSettings": {
+        "schema": { "$ref": "#/entities/LeaderboardSettings" },
+        "description": "Singleton document for storing leaderboard point configuration for a server."
+    }
+  }
+}
