@@ -166,7 +166,7 @@ function createWindow() {
 function startDevServer() {
   // Add startup log
   if (isLoggingEnabled) {
-    serverLogs.push(`[SYS] ${new Date().toLocaleTimeString()}: Starting Cosmic Raid Local Services...`);
+    serverLogs.push(`[SYS] ${new Date().toLocaleTimeString()}: Starting Cosmic Raid Local Services (ngrok + dev server)...`);
   }
   
   const env = {
@@ -176,11 +176,11 @@ function startDevServer() {
     ELECTRON_MODE: '1'
   };
 
-  // Spawn child process for dev server with log capture
-  const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  // Spawn startup script that handles ngrok + dev server
+  const nodeCmd = process.platform === 'win32' ? 'node' : 'node';
   devServer = spawn(
-    npmCmd,
-    ['run', 'dev:hosted'],
+    nodeCmd,
+    ['startup.js'],
     {
       cwd: __dirname,
       env: {

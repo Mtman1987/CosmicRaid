@@ -7,6 +7,9 @@
   },
   "files": [
     "electron-main.js",
+    "startup.js",
+    "add-puppeteer-tunnel.js",
+    "studio-9468926194-e03ac-firebase-adminsdk-fbsvc-75298e056b.json",
     "package.json",
     "scripts/",
     "src/",

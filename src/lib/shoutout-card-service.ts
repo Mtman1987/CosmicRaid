@@ -58,7 +58,25 @@ export async function generateShoutoutCardGif(
     }
   }
   
-  const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+  // Check if we're running in a cloud environment without Puppeteer support
+  // K_SERVICE = Cloud Run, FUNCTION_TARGET = Cloud Functions
+  const isCloudEnvironment = process.env.K_SERVICE || process.env.FUNCTION_TARGET;
+  
+  // Check for ngrok tunnel to local Puppeteer service (e.g., https://abc123.ngrok.io)
+  const puppeteerServiceUrl = await getSecret('PUPPETEER_SERVICE_URL').catch(() => null);
+  
+  if (isCloudEnvironment && !puppeteerServiceUrl) {
+    console.log(`[Puppeteer] Cloud environment detected without Puppeteer support - skipping card generation`);
+    console.log(`[Puppeteer] No PUPPETEER_SERVICE_URL configured - service will fall back to Twitch clips or text-only shoutout`);
+    return null; // Let the caller handle Twitch clip fallback
+  }
+  
+  // Use ngrok tunnel URL if available (for cloud access to local service), otherwise use app URL
+  const appUrl = puppeteerServiceUrl || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+  
+  if (puppeteerServiceUrl) {
+    console.log(`[Puppeteer] Using tunneled service URL: ${puppeteerServiceUrl}`);
+  }
   const cardUrl = `${appUrl}/headless/shoutout-card/${serverId}?${new URLSearchParams({
     streamer: cardData.streamerName,
     title: cardData.streamTitle,

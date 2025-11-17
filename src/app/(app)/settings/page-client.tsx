@@ -27,6 +27,8 @@ import { UISettingsCard } from './_components/ui-settings';
 import { TwitchPollingSettings } from './_components/twitch-polling-settings';
 import { DiscordSyncSettings } from './_components/discord-sync-settings';
 import { ChannelSelectionSettings } from './_components/channel-selection-settings';
+import { ShoutoutAutomationSettings } from './_components/shoutout-automation-settings';
+import { useToast } from '@/hooks/use-toast';
 
 function SyncButton() {
     const { pending } = useFormStatus();
@@ -77,6 +79,7 @@ export default function SettingsPage() {
   const [testChannelId, setTestChannelId] = React.useState('');
   const [botToken, setBotToken] = React.useState('');
   const [isSavingToken, setIsSavingToken] = React.useState(false);
+  const { toast } = useToast();
 
   const [syncState, syncAction] = useActionState(syncDiscordData, { status: 'idle', message: '' });
   const [testState, testAction] = useActionState(testCalendarPostAction, { status: 'idle', message: '', logs: [] });
@@ -165,8 +168,8 @@ export default function SettingsPage() {
                                 id="sync-guild-id"
                                 name="guildId"
                                 value={guildId}
-                                onChange={(e) => setGuildId(e.target.value)}
-                                required
+                                readOnly
+                                disabled
                             />
                         </div>
                         {syncState.status !== 'idle' && (
@@ -181,6 +184,7 @@ export default function SettingsPage() {
                     </CardFooter>
                 </form>
             </Card>
+            <ShoutoutAutomationSettings />
             <UISettingsCard />
             <TwitchPollingSettings />
         </div>
