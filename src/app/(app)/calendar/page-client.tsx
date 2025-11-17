@@ -129,8 +129,6 @@ export default function CalendarPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
-  const [serverId, setServerId] = React.useState<string | null>(null);
-  const [currentUserId, setCurrentUserId] = React.useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = React.useState(startOfMonth(new Date()));
   const todayRef = React.useMemo(() => new Date(), []);
 
