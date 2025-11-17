@@ -236,12 +236,13 @@ class MediaFallbackService {
     let screenshotUrl: string;
 
     // Determine what to screenshot based on content type
+    const baseUrl = await getSecret('BASE_URL') || 'http://localhost:3001';
     switch (contentType) {
       case 'calendar':
-        screenshotUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/headless/calendar`;
+        screenshotUrl = `${baseUrl}/headless/calendar`;
         break;
       case 'leaderboard':
-        screenshotUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/headless/leaderboard`;
+        screenshotUrl = `${baseUrl}/headless/leaderboard`;
         break;
       default:
         screenshotUrl = `https://twitch.tv/${username}`;

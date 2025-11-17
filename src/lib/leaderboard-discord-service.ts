@@ -9,7 +9,7 @@ export async function generateAndPostLeaderboard(serverId: string): Promise<void
   try {
     console.log('[Leaderboard] Generating leaderboard screenshot...');
     
-    const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+    const appUrl = await getSecret('BASE_URL') || 'http://localhost:3001';
     const leaderboardUrl = `${appUrl}/headless/leaderboard/${serverId}`;
     
     let browser;
@@ -59,7 +59,7 @@ export async function generateAndPostLeaderboard(serverId: string): Promise<void
             embeds: [{
               image: { url: imageUrl },
               color: 0x7289DA,
-              footer: { text: "Space Mountain Community • Leaderboard" }
+              footer: { text: 'Space Mountain Fleet Standings' }
             }],
             components: [{
               type: 1,
@@ -67,7 +67,7 @@ export async function generateAndPostLeaderboard(serverId: string): Promise<void
                 type: 2,
                 style: 5,
                 label: "🔍 Check Your Rank",
-                url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/rank/${serverId}`
+                url: `${appUrl}/rank/${serverId}`
               }]
             }]
           };

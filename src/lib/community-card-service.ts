@@ -1,6 +1,7 @@
 'use server';
 
 import puppeteer from 'puppeteer';
+import { getSecret } from './firestore-secrets';
 import { uploadFileToFirebase } from './firebase-storage-service';
 
 export async function generateCommunityCard(
@@ -40,7 +41,7 @@ export async function generateCommunityCard(
       live: streamData.isLive ? 'true' : 'false'
     });
 
-    const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+    const appUrl = await getSecret('BASE_URL') || 'http://localhost:3001';
     const cardUrl = `${appUrl}/headless/community-card/${serverId}?${params.toString()}`;
     console.log(`[CommunityCard] Navigating to ${cardUrl}`);
 
