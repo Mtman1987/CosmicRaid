@@ -1,5 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
+# Updated: 2025-11-17 - Secrets configured
 
 runConfig:
   maxInstances: 1
