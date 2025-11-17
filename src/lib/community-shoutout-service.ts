@@ -1,3 +1,4 @@
+
 'use server'
 
 import { db } from "@/firebase/server-init"
@@ -7,7 +8,6 @@ import { generateShoutoutCardGif } from "./shoutout-card-service"
 import { generateCommunityCard } from "./community-card-service"
 import { getVipSpotlight } from "./vip-spotlight-service"
 import { addClipToPool, getRandomClipFromPool } from "./clip-management-service"
-import { addCommunityCardToPool, getReusableCommunityCard } from "./community-card-pool-service"
 
 const COMMUNITY_INVITE_URL =
   process.env.NEXT_PUBLIC_DISCORD_INVITE_URL ||
@@ -173,48 +173,32 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
           }
         }
       } else if (isCommunity) {
-        const desiredTitle = streamTitle;
-        const desiredGame = streamGame;
-
         if (freshShoutout && previousMediaUrl) {
           cardUrl = previousMediaUrl;
           console.log(`[Shoutout] Reusing fresh community card for ${streamerName}`);
         } else {
-          const pooledCard = await getReusableCommunityCard(serverId, userLookup, desiredTitle, desiredGame);
-          if (pooledCard?.imageUrl) {
-            cardUrl = pooledCard.imageUrl;
-            console.log(`[Shoutout] Using pooled community card for ${streamerName}`);
-          } else {
             try {
               cardUrl = await generateCommunityCard(serverId, streamerName, {
-                title: desiredTitle,
-                game: desiredGame,
+                title: streamTitle,
+                game: streamGame,
                 viewers: viewerCount,
                 avatarUrl: twitchAvatar,
                 thumbnailUrl: streamThumbnail,
                 isLive
               })
               console.log(`[Shoutout] Community card generated for ${streamerName}: ${cardUrl}`);
-              if (cardUrl) {
-                await addCommunityCardToPool(serverId, userLookup, {
-                  imageUrl: cardUrl,
-                  title: desiredTitle,
-                  game: desiredGame
-                });
-              }
             } catch (cardError) {
               console.error(`[Shoutout] Community card failed for ${streamerName}:`, cardError);
               cardUrl = null;
             }
-          }
         }
       }
       
-      // Different formats for different groups
-      let shoutoutData;
-
-      if (isCommunity) {
-        if (cardUrl) {
+      // Different formats for different groups
+      let shoutoutData;
+
+      if (isCommunity) {
+        if (cardUrl) {
           shoutoutData = {
             content: cardUrl,
             components: buildActionButtons(streamerName, {
@@ -222,49 +206,49 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
               metaLabel: `Updated ${readableTimestamp}`,
               metaUrl: cardUrl || `https://twitch.tv/${streamerName}`,
             }),
-          };
-        } else {
-          const communityDescription = isLive
-            ? `Space Cadet ${streamerName} is live with "${streamTitle}" in ${streamGame}. ${viewerCount > 0 ? `Currently holding ${viewerCount} viewers.` : 'Be the first to reinforce their mission crew.'}`
-            : `Space Cadet ${streamerName} is prepping the ${streamGame} mission "${streamTitle}". Tap in to boost morale before launch.`;
-          const communityFields: any[] = [
-            { name: 'Game', value: streamGame, inline: true },
-            { name: 'Viewers', value: viewerCount.toString(), inline: true },
-            { name: 'Status', value: isLive ? 'Live Now! dYs?' : 'Standing By', inline: true },
-            { name: 'Last Scan', value: discordRelativeTime, inline: true },
-          ];
-          if (isMatureStream) {
-            communityFields.push({ name: 'Content Advisory', value: 'Mature audience stream', inline: true });
-          }
-
-          const communityEmbed: any = {
-            author: {
-              name: `dYs? Captain ${streamerName}`,
-              url: `https://twitch.tv/${streamerName}`,
-              icon_url: twitchAvatar,
-            },
-            title: streamTitle,
-            url: `https://twitch.tv/${streamerName}`,
-            description: communityDescription,
-            color: 6570404,
-            footer: { text: 'dYOO Space Mountain Community Member' },
-            timestamp: timestampIso,
-          };
-          if (communityFields.length) {
-            communityEmbed.fields = communityFields;
-          }
-
-          shoutoutData = {
-            embeds: [communityEmbed],
-            components: buildActionButtons(streamerName, {
-              includeInvite: true,
-              metaLabel: `Updated ${readableTimestamp}`,
-              metaUrl: `https://twitch.tv/${streamerName}`,
-            }),
-          };
-        }
-      } else if (isVip) {
-        if (cardUrl) {
+          };
+        } else {
+          const communityDescription = isLive
+            ? `Space Cadet ${streamerName} is live with "${streamTitle}" in ${streamGame}. ${viewerCount > 0 ? `Currently holding ${viewerCount} viewers.` : 'Be the first to reinforce their mission crew.'}`
+            : `Space Cadet ${streamerName} is prepping the ${streamGame} mission "${streamTitle}". Tap in to boost morale before launch.`;
+          const communityFields: any[] = [
+            { name: 'Game', value: streamGame, inline: true },
+            { name: 'Viewers', value: viewerCount.toString(), inline: true },
+            { name: 'Status', value: isLive ? 'Live Now! dYs?' : 'Standing By', inline: true },
+            { name: 'Last Scan', value: discordRelativeTime, inline: true },
+          ];
+          if (isMatureStream) {
+            communityFields.push({ name: 'Content Advisory', value: 'Mature audience stream', inline: true });
+          }
+
+          const communityEmbed: any = {
+            author: {
+              name: `dYs? Captain ${streamerName}`,
+              url: `https://twitch.tv/${streamerName}`,
+              icon_url: twitchAvatar,
+            },
+            title: streamTitle,
+            url: `https://twitch.tv/${streamerName}`,
+            description: communityDescription,
+            color: 6570404,
+            footer: { text: 'dYOO Space Mountain Community Member' },
+            timestamp: timestampIso,
+          };
+          if (communityFields.length) {
+            communityEmbed.fields = communityFields;
+          }
+
+          shoutoutData = {
+            embeds: [communityEmbed],
+            components: buildActionButtons(streamerName, {
+              includeInvite: true,
+              metaLabel: `Updated ${readableTimestamp}`,
+              metaUrl: `https://twitch.tv/${streamerName}`,
+            }),
+          };
+        }
+      } else if (isVip) {
+        if (cardUrl) {
           shoutoutData = {
             content: cardUrl,
             components: buildActionButtons(streamerName, {
@@ -272,49 +256,49 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
               metaLabel: `Updated ${readableTimestamp}`,
               metaUrl: cardUrl || `https://twitch.tv/${streamerName}`,
             }),
-          };
-        } else {
-          const vipDescription = isLive
-            ? `Captain ${streamerName} is broadcasting "${streamTitle}" in ${streamGame}. ${viewerCount > 0 ? `Leading ${viewerCount} viewers through the mission.` : 'They could use reinforcements.'}`
-            : `Captain ${streamerName} is standing by with "${streamTitle}". Rally the crew before the next sortie.`;
-          const vipFields: any[] = [
-            { name: 'Game', value: streamGame, inline: true },
-            { name: 'Viewers', value: viewerCount.toString(), inline: true },
-            { name: 'Status', value: isLive ? 'LIVE in command' : 'Off-duty prep', inline: true },
-            { name: 'Last Scan', value: discordRelativeTime, inline: true },
-          ];
-          if (isMatureStream) {
-            vipFields.push({ name: 'Content Advisory', value: 'Mature audience stream', inline: true });
-          }
-
-          const vipEmbed: any = {
-            author: {
-              name: `Captain ${streamerName}`,
-              url: `https://twitch.tv/${streamerName}`,
-              icon_url: twitchAvatar,
-            },
-            title: streamTitle,
-            url: `https://twitch.tv/${streamerName}`,
-            description: vipDescription,
-            color: 9521663,
-            footer: { text: 'Space Mountain Command | Honored Crew VIP' },
-            timestamp: timestampIso,
-          };
-          if (vipFields.length) {
-            vipEmbed.fields = vipFields;
-          }
-
-          shoutoutData = {
-            embeds: [vipEmbed],
-            components: buildActionButtons(streamerName, {
-              includeInvite: false,
-              metaLabel: `Updated ${readableTimestamp}`,
-              metaUrl: `https://twitch.tv/${streamerName}`,
-            }),
-          };
-        }
-      }
-
+          };
+        } else {
+          const vipDescription = isLive
+            ? `Captain ${streamerName} is broadcasting "${streamTitle}" in ${streamGame}. ${viewerCount > 0 ? `Leading ${viewerCount} viewers through the mission.` : 'They could use reinforcements.'}`
+            : `Captain ${streamerName} is standing by with "${streamTitle}". Rally the crew before the next sortie.`;
+          const vipFields: any[] = [
+            { name: 'Game', value: streamGame, inline: true },
+            { name: 'Viewers', value: viewerCount.toString(), inline: true },
+            { name: 'Status', value: isLive ? 'LIVE in command' : 'Off-duty prep', inline: true },
+            { name: 'Last Scan', value: discordRelativeTime, inline: true },
+          ];
+          if (isMatureStream) {
+            vipFields.push({ name: 'Content Advisory', value: 'Mature audience stream', inline: true });
+          }
+
+          const vipEmbed: any = {
+            author: {
+              name: `Captain ${streamerName}`,
+              url: `https://twitch.tv/${streamerName}`,
+              icon_url: twitchAvatar,
+            },
+            title: streamTitle,
+            url: `https://twitch.tv/${streamerName}`,
+            description: vipDescription,
+            color: 9521663,
+            footer: { text: 'Space Mountain Command | Honored Crew VIP' },
+            timestamp: timestampIso,
+          };
+          if (vipFields.length) {
+            vipEmbed.fields = vipFields;
+          }
+
+          shoutoutData = {
+            embeds: [vipEmbed],
+            components: buildActionButtons(streamerName, {
+              includeInvite: false,
+              metaLabel: `Updated ${readableTimestamp}`,
+              metaUrl: `https://twitch.tv/${streamerName}`,
+            }),
+          };
+        }
+      }
+
 // Add the generated shoutout to the user's document in the batch update
       const updateData: any = {
         dailyShoutout: shoutoutData,
