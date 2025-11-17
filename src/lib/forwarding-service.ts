@@ -104,7 +104,7 @@ export async function forwardMessage({
   attachments,
   messageReference,
 }: ForwardMessagePayload) {
-  const botToken = process.env.DISCORD_BOT_TOKEN
+  const botToken = await getSecret('DISCORD_BOT_TOKEN');
   if (!botToken) {
     throw new Error('DISCORD_BOT_TOKEN is not configured.')
   }

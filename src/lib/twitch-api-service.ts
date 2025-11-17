@@ -1,5 +1,7 @@
 'use server';
 
+import { getSecrets } from './firestore-secrets';
+
 interface TwitchUser {
   id: string;
   login: string;
@@ -39,17 +41,30 @@ interface TwitchClip {
 }
 
 class TwitchApiService {
-  private clientId: string;
-  private clientSecret: string;
+  private clientId: string = '';
+  private clientSecret: string = '';
   private accessToken: string | null = null;
   private tokenExpiry: number = 0;
+  private initialized: boolean = false;
 
-  constructor() {
-    this.clientId = process.env.TWITCH_CLIENT_ID!;
-    this.clientSecret = process.env.TWITCH_CLIENT_SECRET!;
+  async initialize() {
+    if (this.initialized) return;
+    
+    const secrets = await getSecrets();
+    this.clientId = secrets.TWITCH_CLIENT_ID || '';
+    this.clientSecret = secrets.TWITCH_CLIENT_SECRET || '';
+    
+    if (!this.clientId || !this.clientSecret) {
+      throw new Error('Twitch credentials not found in Firestore secrets');
+    }
+    
+    this.initialized = true;
+    console.log('[TwitchAPI] Initialized with Firestore secrets');
   }
 
   private async getAccessToken(): Promise<string> {
+    await this.initialize(); // Ensure initialized
+    
     if (this.accessToken && Date.now() < this.tokenExpiry) {
       return this.accessToken;
     }

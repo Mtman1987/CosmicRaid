@@ -1,5 +1,7 @@
 'use server'
 
+import { getSecret } from './firestore-secrets';
+
 interface ReplyPayload {
   channelId: string
   replyText: string
@@ -18,9 +20,9 @@ export async function replyToMessage({
   originalAuthorName,
   forwardedMessageId,
 }: ReplyPayload): Promise<void> {
-  const botToken = process.env.DISCORD_BOT_TOKEN
+  const botToken = await getSecret('DISCORD_BOT_TOKEN');
   if (!botToken) {
-    throw new Error('DISCORD_BOT_TOKEN is not configured.')
+    throw new Error('DISCORD_BOT_TOKEN not found in Firestore secrets');
   }
 
   const discordApiEndpoint = `https://discord.com/api/v10/channels/${channelId}/messages`

@@ -137,6 +137,9 @@ export default function CalendarPage() {
   const [isEventDialogOpen, setIsEventDialogOpen] = React.useState(false);
   const [isLogDialogOpen, setIsLogDialogOpen] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
+  const serverId = useServerId();
+  const currentUserId = useUserId();
+  const { channelId, saveChannel } = useCalendarChannel();
   const [channelIdInput, setChannelIdInput] = React.useState('');
   const [isPostingCalendar, setIsPostingCalendar] = React.useState(false);
   
@@ -144,15 +147,11 @@ export default function CalendarPage() {
   const [isConflictDialogOpen, setIsConflictDialogOpen] = React.useState(false);
   const [conflictingEvent, setConflictingEvent] = React.useState<NewCalendarEvent | null>(null);
 
-
   React.useEffect(() => {
-    const storedServerId = localStorage.getItem('discordServerId');
-    const storedUserId = localStorage.getItem('discordUserId');
-    const storedChannelId = localStorage.getItem('calendarChannelId');
-    if (storedServerId) setServerId(storedServerId);
-    if (storedUserId) setCurrentUserId(storedUserId);
-    if (storedChannelId) setChannelIdInput(storedChannelId);
-  }, []);
+    if (channelId) {
+      setChannelIdInput(channelId);
+    }
+  }, [channelId]);
 
   const allEventsQuery = React.useMemo(() => {
     if (!firestore || !serverId) return null;
@@ -418,7 +417,7 @@ export default function CalendarPage() {
         throw new Error(data.error || 'Failed to send calendar.');
       }
 
-      localStorage.setItem('calendarChannelId', channelId);
+      await saveChannel(channelId);
       toast({
         title: 'Calendar dispatched',
         description: 'The latest calendar image was posted to Discord.',

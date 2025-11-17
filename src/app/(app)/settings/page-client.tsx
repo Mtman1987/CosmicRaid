@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useServerId } from '@/lib/get-server-id';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { PageHeader } from '@/components/page-header';
@@ -72,7 +73,7 @@ function ResetCalendarButton() {
 export default function SettingsPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const [guildId, setGuildId] = React.useState('');
+  const guildId = useServerId(); // Use hook instead of localStorage
   const [testChannelId, setTestChannelId] = React.useState('');
   const [botToken, setBotToken] = React.useState('');
   const [isSavingToken, setIsSavingToken] = React.useState(false);
@@ -83,19 +84,17 @@ export default function SettingsPage() {
   
   const logsAsString = React.useMemo(() => (testState.logs ?? []).join('\n'), [testState.logs]);
 
-  React.useEffect(() => {
-    const storedGuildId = localStorage.getItem('discordServerId');
-    const storedToken = localStorage.getItem('discordBotToken');
-    if (storedGuildId) {
-      setGuildId(storedGuildId);
-    }
-    if (storedToken) {
-      setBotToken(storedToken);
-    }
-  }, []);
+  // Bot token should be in Firestore secrets, not localStorage
+  // Remove localStorage loading
 
   const handleReset = () => {
-    localStorage.clear();
+    // Only clear auth tokens, not configuration
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('discordServerId');
+      localStorage.removeItem('discordUserId');
+      localStorage.removeItem('twitchUsername');
+    }
     router.push('/login');
   };
 
@@ -121,21 +120,23 @@ export default function SettingsPage() {
                   <Input
                     id="discord-token"
                     type="password"
-                    placeholder="Enter your Discord bot token"
+                    placeholder="Stored in Firestore secrets"
                     value={botToken}
                     onChange={(e) => setBotToken(e.target.value)}
+                    disabled={true}
                   />
                   <Button 
                     onClick={() => {
-                      if (!botToken) return;
-                      localStorage.setItem('discordBotToken', botToken);
-                      alert('Bot token saved to browser storage!');
-                      setBotToken('');
+                      toast({
+                        variant: 'destructive',
+                        title: 'Bot token in Firestore',
+                        description: 'Bot token is stored in Firestore secrets at servers/{serverId}/config/secrets',
+                      });
                     }}
-                    disabled={!botToken}
+                    disabled={true}
                     size="sm"
                   >
-                    {isSavingToken ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    <Save className="h-4 w-4" />
                   </Button>
                 </div>
               </div>

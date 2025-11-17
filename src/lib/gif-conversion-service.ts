@@ -264,7 +264,7 @@ class GifConversionService {
   // Alternative method using Shotstack API (if FreeConvert doesn't work well)
   async convertWithShotstack(clipUrl: string, clipId: string, streamerName: string): Promise<string | null> {
     try {
-      const shotstackApiKey = process.env.SHOTSTACK_API_KEY;
+      const shotstackApiKey = await getSecret('SHOTSTACK_API_KEY');
       if (!shotstackApiKey) {
         throw new Error('Shotstack API key not configured');
       }

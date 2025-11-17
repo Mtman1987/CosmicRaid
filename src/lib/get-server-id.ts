@@ -34,3 +34,13 @@ export function useServerId(): string {
   // This will be replaced with a proper context provider later
   return '1240832965865635881';
 }
+
+/**
+ * Client-side hook to get Discord user ID
+ * Use this in React components
+ * TODO: Get from auth context or user session
+ */
+export function useUserId(): string {
+  // Hardcoded for now - will be replaced with auth context
+  return '767875979561009173';
+}

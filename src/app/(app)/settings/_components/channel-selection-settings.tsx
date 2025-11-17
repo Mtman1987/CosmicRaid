@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useServerId } from '@/lib/get-server-id';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -22,8 +23,10 @@ export function ChannelSelectionSettings() {
   });
   const { toast } = useToast();
 
+  const serverId = useServerId();
+  
   React.useEffect(() => {
-    const id = localStorage.getItem('discordServerId');
+    const id = serverId;
     setServerId(id);
     if (id) {
       loadChannels(id);

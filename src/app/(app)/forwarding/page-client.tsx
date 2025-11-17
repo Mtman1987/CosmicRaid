@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useServerId, useUserId } from '@/lib/get-server-id';
 import { useActionState } from 'react';
 import {
   collection,
@@ -240,9 +241,12 @@ export default function ForwardingPage() {
 
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
 
+  const serverId = useServerId();
+  const userId = useUserId();
+  
   React.useEffect(() => {
-    const storedServerId = localStorage.getItem('discordServerId');
-    const storedUserId = localStorage.getItem('discordUserId');
+    const storedServerId = serverId;
+    const storedUserId = userId;
     if (storedServerId) setSourceServerId(storedServerId);
     if (storedUserId) setCurrentUserId(storedUserId);
   }, []);

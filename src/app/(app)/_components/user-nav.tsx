@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useServerId, useUserId } from '@/lib/get-server-id';
 import { doc } from 'firebase/firestore';
 import { useDoc, useFirestore, useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

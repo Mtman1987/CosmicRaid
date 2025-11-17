@@ -1,6 +1,8 @@
 "use server";
 
-let cachedBotUserId: string | null = process.env.DISCORD_APP_ID || null;
+import { getSecret } from './firestore-secrets';
+
+let cachedBotUserId: string | null = null;
 
 async function resolveBotUserId(botToken: string): Promise<string | null> {
   if (cachedBotUserId) {
@@ -27,11 +29,10 @@ async function resolveBotUserId(botToken: string): Promise<string | null> {
 
 export async function sendDiscordMessage(channelId: string, messageData: any, serverId?: string): Promise<string | null> {
   try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
+    const botToken = await getSecret('DISCORD_BOT_TOKEN');
 
     if (!botToken) {
-      console.error('Discord bot token not found');
+      console.error('Discord bot token not found in Firestore secrets');
       return null;
     }
     
@@ -62,11 +63,10 @@ export async function sendDiscordMessage(channelId: string, messageData: any, se
 
 export async function updateDiscordMessage(channelId: string, messageId: string, messageData: any, serverId?: string): Promise<boolean> {
   try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
+    const botToken = await getSecret('DISCORD_BOT_TOKEN');
 
     if (!botToken) {
-      console.error('Discord bot token not found');
+      console.error('Discord bot token not found in Firestore secrets');
       return false;
     }
     
@@ -96,11 +96,10 @@ export async function updateDiscordMessage(channelId: string, messageId: string,
 
 export async function deleteDiscordMessage(channelId: string, messageId: string, serverId?: string): Promise<boolean> {
   try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
+    const botToken = await getSecret('DISCORD_BOT_TOKEN');
 
     if (!botToken) {
-      console.error('Discord bot token not found');
+      console.error('Discord bot token not found in Firestore secrets');
       return false;
     }
     
@@ -128,11 +127,10 @@ export async function deleteDiscordMessage(channelId: string, messageId: string,
 
 export async function cleanupDuplicateBotMessages(channelId: string, keepMessageIds: string[], serverId?: string): Promise<void> {
   try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
+    const botToken = await getSecret('DISCORD_BOT_TOKEN');
 
     if (!botToken) {
-      console.error('Discord bot token not found');
+      console.error('Discord bot token not found in Firestore secrets');
       return;
     }
     const botId = await resolveBotUserId(botToken);

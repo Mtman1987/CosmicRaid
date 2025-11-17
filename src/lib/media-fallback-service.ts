@@ -1,6 +1,6 @@
 'use server';
 
-
+import { getSecret } from './firestore-secrets';
 
 interface MediaOptions {
   serverId?: string;
@@ -10,14 +10,18 @@ interface MediaOptions {
 }
 
 class MediaFallbackService {
-  private freeConvertApiKey: string;
+  private freeConvertApiKey: string = '';
   private baseUrl = 'https://api.freeconvert.com/v1';
+  private initialized: boolean = false;
 
-  constructor() {
-    this.freeConvertApiKey = process.env.FREE_CONVERT_API_KEY!;
+  async initialize() {
+    if (this.initialized) return;
+    this.freeConvertApiKey = await getSecret('FREE_CONVERT_API_KEY') || '';
+    this.initialized = true;
   }
 
   async getMediaForUser(options: MediaOptions): Promise<string | null> {
+    await this.initialize(); // Ensure initialized
     const { username, mediaType, contentType, serverId } = options;
 
     // Step 1: Try fresh content first (current stream clips with current context)

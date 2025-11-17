@@ -1,6 +1,7 @@
 'use server';
 
 import { db } from '@/firebase/server-init';
+import { getSecret } from './firestore-secrets';
 
 interface DiscordMember {
   id: string;
@@ -26,15 +27,14 @@ class DiscordSyncService {
   private baseUrl = 'https://discord.com/api/v10';
 
   private async getBotToken(serverId: string): Promise<string> {
-    // Debug what environment variables are actually available
-    console.log('Available env vars:', Object.keys(process.env).filter(k => k.includes('DISCORD')));
-    console.log('DISCORD_BOT_TOKEN exists:', !!process.env.DISCORD_BOT_TOKEN);
-    console.log('DISCORD_BOT_TOKEN length:', process.env.DISCORD_BOT_TOKEN?.length);
+    // Load from Firestore secrets instead of process.env
+    const token = await getSecret('DISCORD_BOT_TOKEN');
     
-    const token = process.env.DISCORD_BOT_TOKEN;
     if (!token) {
-      throw new Error(`DISCORD_BOT_TOKEN environment variable not found. Available: ${Object.keys(process.env).join(', ')}`);
+      throw new Error('DISCORD_BOT_TOKEN not found in Firestore secrets');
     }
+    
+    console.log('[DiscordSync] Bot token loaded from Firestore secrets');
     return token;
   }
 
