@@ -1,40 +1,115 @@
-"use server";
+'use server';
 
-let cachedBotUserId: string | null = process.env.DISCORD_APP_ID || null;
+import { db } from '@/firebase/server-init';
+import { isVipGroup } from './group-utils';
 
-async function resolveBotUserId(botToken: string): Promise<string | null> {
-  if (cachedBotUserId) {
-    return cachedBotUserId;
+let botUserIdCache: string | null = null;
+
+async function getBotUserId(botToken: string): Promise<string> {
+  if (botUserIdCache) return botUserIdCache;
+  const response = await fetch('https://discord.com/api/v10/users/@me', {
+    headers: { Authorization: `Bot ${botToken}` },
+  });
+  const data = await response.json();
+  botUserIdCache = data.id;
+  return data.id;
+}
+
+export async function postAllShoutoutsToDiscord(serverId: string): Promise<void> {
+  const usersSnapshot = await db
+    .collection('servers')
+    .doc(serverId)
+    .collection('users')
+    .where('isOnline', '==', true)
+    .get();
+
+  if (usersSnapshot.empty) {
+    console.log('[DiscordBot] No online users to post shoutouts for.');
+    return;
   }
-  try {
-    const response = await fetch('https://discord.com/api/v10/users/@me', {
-      headers: {
-        Authorization: `Bot ${botToken}`,
-      },
-    });
-    if (!response.ok) {
-      console.error('Failed to resolve bot identity for cleanup');
-      return null;
+
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) {
+    console.error('[DiscordBot] DISCORD_BOT_TOKEN is not configured.');
+    return;
+  }
+  const botId = await getBotUserId(botToken);
+
+  const serverConfig = (await db.collection('servers').doc(serverId).get()).data() || {};
+  const channelConfig = serverConfig.shoutoutChannels || {};
+
+  const vipChannelId = channelConfig.vip || process.env.DISCORD_VIP_CHANNEL_ID;
+  const communityChannelId = channelConfig.community || process.env.DISCORD_SHOUTOUT_CHANNEL_ID;
+
+  for (const doc of usersSnapshot.docs) {
+    const user = doc.data();
+    if (!user.dailyShoutout) continue;
+
+    const targetChannelId = isVipGroup(user.group) ? vipChannelId : communityChannelId;
+
+    if (!targetChannelId) {
+      console.warn(`[DiscordBot] No channel configured for user ${user.username} in group ${user.group}.`);
+      continue;
     }
-    const data = await response.json();
-    cachedBotUserId = data.id;
-    return cachedBotUserId;
-  } catch (error) {
-    console.error('Error resolving bot identity:', error);
-    return null;
+
+    try {
+      const existingMessageId = user.discordMessageId;
+      let success = false;
+      
+      if (existingMessageId) {
+        // Try to update existing message
+        const updateResponse = await fetch(`https://discord.com/api/v10/channels/${targetChannelId}/messages/${existingMessageId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bot ${botToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(user.dailyShoutout),
+        });
+
+        if (updateResponse.ok) {
+          success = true;
+          console.log(`[DiscordBot] Successfully updated shoutout for ${user.username}`);
+        } else {
+          console.warn(`[DiscordBot] Failed to update message ${existingMessageId} for ${user.username}. It might have been deleted. Posting new message.`);
+        }
+      }
+      
+      if (!success) {
+        // Post a new message
+        const postResponse = await fetch(`https://discord.com/api/v10/channels/${targetChannelId}/messages`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bot ${botToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(user.dailyShoutout),
+        });
+
+        if (postResponse.ok) {
+          const messageData = await postResponse.json();
+          // Update Firestore with the new message ID
+          await doc.ref.update({ discordMessageId: messageData.id });
+          console.log(`[DiscordBot] Successfully posted new shoutout for ${user.username}`);
+        } else {
+          const error = await postResponse.text();
+          console.error(`[DiscordBot] Failed to post shoutout for ${user.username}:`, error);
+        }
+      }
+
+    } catch (error) {
+      console.error(`[DiscordBot] Error processing shoutout for ${user.username}:`, error);
+    }
   }
 }
 
-export async function sendDiscordMessage(channelId: string, messageData: any, serverId?: string): Promise<string | null> {
+export async function sendDiscordMessage(channelId: string, messageData: any): Promise<string | null> {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) {
+    console.error('Discord bot token not configured');
+    return null;
+  }
   try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
-
-    if (!botToken) {
-      console.error('Discord bot token not found');
-      return null;
-    }
-    
     const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: 'POST',
       headers: {
@@ -43,33 +118,23 @@ export async function sendDiscordMessage(channelId: string, messageData: any, se
       },
       body: JSON.stringify(messageData),
     });
-    
     if (!response.ok) {
       const error = await response.text();
-      console.error(`Discord API error: ${response.status} - ${error}`);
+      console.error(`Discord API error sending message: ${response.status} - ${error}`);
       return null;
     }
-    
     const result = await response.json();
-    console.log(`Successfully sent message to Discord channel ${channelId}`);
     return result.id;
-    
   } catch (error) {
     console.error('Error sending Discord message:', error);
     return null;
   }
 }
 
-export async function updateDiscordMessage(channelId: string, messageId: string, messageData: any, serverId?: string): Promise<boolean> {
+export async function updateDiscordMessage(channelId: string, messageId: string, messageData: any): Promise<boolean> {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) return false;
   try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
-
-    if (!botToken) {
-      console.error('Discord bot token not found');
-      return false;
-    }
-    
     const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages/${messageId}`, {
       method: 'PATCH',
       headers: {
@@ -78,99 +143,55 @@ export async function updateDiscordMessage(channelId: string, messageId: string,
       },
       body: JSON.stringify(messageData),
     });
-    
-    if (!response.ok) {
-      const error = await response.text();
-      console.error(`Discord API error updating message: ${response.status} - ${error}`);
-      return false;
-    }
-    
-    console.log(`Successfully updated Discord message ${messageId}`);
-    return true;
-    
+    return response.ok;
   } catch (error) {
     console.error('Error updating Discord message:', error);
     return false;
   }
 }
 
-export async function deleteDiscordMessage(channelId: string, messageId: string, serverId?: string): Promise<boolean> {
+export async function deleteDiscordMessage(channelId: string, messageId: string): Promise<boolean> {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) return false;
   try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
-
-    if (!botToken) {
-      console.error('Discord bot token not found');
-      return false;
-    }
-    
     const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages/${messageId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bot ${botToken}`,
       },
     });
-    
-    if (!response.ok) {
-      const error = await response.text();
-      console.error(`Discord API error deleting message: ${response.status} - ${error}`);
-      return false;
-    }
-    
-    console.log(`Successfully deleted Discord message ${messageId}`);
-    return true;
-    
+    return response.ok;
   } catch (error) {
     console.error('Error deleting Discord message:', error);
     return false;
   }
 }
 
-export async function cleanupDuplicateBotMessages(channelId: string, keepMessageIds: string[], serverId?: string): Promise<void> {
-  try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = serverId ? await getServerConfig(serverId, 'DISCORD_BOT_TOKEN') : process.env.DISCORD_BOT_TOKEN;
+export async function cleanupDuplicateBotMessages(channelId: string, keepIds: string[]): Promise<void> {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) return;
+  const botId = await getBotUserId(botToken);
+  if (!botId) return;
 
-    if (!botToken) {
-      console.error('Discord bot token not found');
-      return;
-    }
-    const botId = await resolveBotUserId(botToken);
-    if (!botId) {
-      console.warn('Unable to determine bot user id; skipping duplicate cleanup');
-      return;
-    }
-    
-    // Get recent messages from the channel
+  try {
     const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages?limit=50`, {
-      headers: {
-        'Authorization': `Bot ${botToken}`,
-      },
+      headers: { Authorization: `Bot ${botToken}` },
     });
-    
-    if (!response.ok) {
-      console.error('Failed to fetch channel messages for cleanup');
-      return;
-    }
-    
+    if (!response.ok) return;
+
     const messages = await response.json();
-    
-    // Find bot messages that aren't in the keep list
-    const messagesToDelete = messages
-      .filter((msg: any) => msg.author.id === botId && !keepMessageIds.includes(msg.id))
+    const toDelete = messages
+      .filter((msg: any) => msg.author.id === botId && !keepIds.includes(msg.id))
       .map((msg: any) => msg.id);
-    
-    // Delete old bot messages
-    for (const messageId of messagesToDelete) {
+
+    for (const messageId of toDelete) {
       await deleteDiscordMessage(channelId, messageId);
-      await new Promise(resolve => setTimeout(resolve, 100)); // Rate limit protection
+      await new Promise(r => setTimeout(r, 300));
     }
-    
-    if (messagesToDelete.length > 0) {
-      console.log(`[Cleanup] Deleted ${messagesToDelete.length} duplicate bot messages`);
+    if (toDelete.length > 0) {
+      console.log(`[DiscordBot] Cleaned up ${toDelete.length} old messages in channel ${channelId}.`);
     }
-    
   } catch (error) {
-    console.error('Error cleaning up duplicate messages:', error);
+    console.error('Error cleaning up messages:', error);
   }
 }
