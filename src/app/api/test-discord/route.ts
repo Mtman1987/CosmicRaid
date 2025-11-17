@@ -23,7 +23,7 @@ export async function GET() {
         tokenLength: token.length 
       }, { status: 401 });
     }
-  } catch (error) {
+  } catch (error: any) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 }
