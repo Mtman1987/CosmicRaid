@@ -34,9 +34,14 @@ class FreeConvertService {
 
   constructor() {
     this.apiKey = process.env.FREE_CONVERT_API_KEY || '';
+  }
+
+  private isConfigured(): boolean {
     if (!this.apiKey) {
-      console.warn('[FreeConvert] API key not configured');
+      console.warn('[FreeConvert] API key not configured. Service is disabled.');
+      return false;
     }
+    return true;
   }
 
   /**
@@ -181,7 +186,10 @@ class FreeConvertService {
     width?: number;
     fps?: number;
     duration?: number;
-  }): Promise<Buffer> {
+  }): Promise<Buffer | null> {
+    if (!this.isConfigured()) {
+        return null;
+    }
     console.log('[FreeConvert] Starting conversion:', videoUrl);
 
     // Step 1: Import video from URL
@@ -253,6 +261,10 @@ async function convertClipToGif(clip: TwitchClip, serverId: string): Promise<Con
       fps: 15,
       duration: Math.min(clip.duration, 30) // Max 30 seconds
     });
+
+    if (!gifBuffer) {
+        throw new Error('GIF conversion returned an empty buffer. API key might be missing or invalid.');
+    }
 
     // Upload to Firebase Storage
     const filename = `serverside-fallback/${serverId}/${clipId}_${Date.now()}.gif`;
