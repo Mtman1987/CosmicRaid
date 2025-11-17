@@ -4,6 +4,7 @@ import { db } from '@/firebase/server-init';
 import { getUserByLogin, getClipsForUser } from './twitch-api-service';
 import { uploadToStorage } from './firebase-storage-service';
 import fetch from 'node-fetch';
+import { getSecret } from './firestore-secrets';
 
 interface TwitchClip {
   id: string;
@@ -29,11 +30,11 @@ interface ConvertedGif {
  * Converts video URLs to GIF format using their cloud API
  */
 class FreeConvertService {
-  private apiKey: string;
+  private apiKey: string = '';
   private baseUrl = 'https://api.freeconvert.com/v1';
 
-  constructor() {
-    this.apiKey = process.env.FREE_CONVERT_API_KEY || '';
+  async initialize() {
+    this.apiKey = await getSecret('FREE_CONVERT_API_KEY') || '';
     if (!this.apiKey) {
       console.warn('[FreeConvert] API key not configured');
     }
@@ -43,6 +44,7 @@ class FreeConvertService {
    * Import video from URL
    */
   private async importFromUrl(videoUrl: string): Promise<string> {
+    if (!this.apiKey) await this.initialize();
     try {
       const response = await fetch(
         `${this.baseUrl}/process/import/url`,

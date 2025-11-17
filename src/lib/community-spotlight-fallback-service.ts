@@ -2,6 +2,7 @@
 
 import { sendDiscordMessage } from './discord-bot-service';
 import { getCommunityStats, generateSpotlightHeaderImage, generateSpotlightFooterImage } from './community-spotlight-enhanced-service';
+import { getSecret } from './firestore-secrets';
 
 async function getDiscordInvite(): Promise<string | null> {
   try {
@@ -17,7 +18,8 @@ async function getDiscordInvite(): Promise<string | null> {
   } catch (error) {
     console.error('Failed to create Discord invite:', error);
   }
-  return process.env.NEXT_PUBLIC_DISCORD_INVITE_URL || process.env.DISCORD_INVITE_URL || null;
+  const discordInvite = await getSecret('DISCORD_INVITE_URL');
+  return process.env.NEXT_PUBLIC_DISCORD_INVITE_URL || discordInvite || null;
 }
 
 export async function postCommunitySpotlightFallback(serverId: string, channelId: string, keepIds?: string[]): Promise<void> {

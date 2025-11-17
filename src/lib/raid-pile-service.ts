@@ -1,5 +1,6 @@
 import { db } from '@/firebase/server-init';
 import { PointsService } from './points-service';
+import { getSecret } from './firestore-secrets';
 
 export interface RaidPileMember {
   userId: string;
@@ -146,14 +147,14 @@ export class RaidPileService {
   }
 
   async awardRaidPoints(userId: string, username: string, displayName: string): Promise<void> {
-    const points = parseInt(process.env.RAID_PILE_POINTS_REWARD || '25');
+    const points = parseInt(await getSecret('RAID_PILE_POINTS_REWARD') || '25');
     const pointsService = PointsService.getInstance();
     await pointsService.addPoints(userId, username, displayName, points);
   }
 
   private async findAvailablePile(): Promise<RaidPile> {
     const piles = await this.getAllPiles();
-    const maxSize = parseInt(process.env.RAID_PILE_MAX_SIZE || '40');
+    const maxSize = parseInt(await getSecret('RAID_PILE_MAX_SIZE') || '40');
     
     // Find pile with space
     for (const pile of piles) {
@@ -184,7 +185,7 @@ export class RaidPileService {
 
   private async checkForSplit(): Promise<void> {
     const piles = await this.getAllPiles();
-    const maxSize = parseInt(process.env.RAID_PILE_MAX_SIZE || '40');
+    const maxSize = parseInt(await getSecret('RAID_PILE_MAX_SIZE') || '40');
     
     for (const pile of piles) {
       if (pile.members.length > maxSize) {
@@ -220,7 +221,7 @@ export class RaidPileService {
 
   private async checkForMerge(): Promise<void> {
     const piles = await this.getAllPiles();
-    const minSize = parseInt(process.env.RAID_PILE_MIN_SIZE || '10');
+    const minSize = parseInt(await getSecret('RAID_PILE_MIN_SIZE') || '10');
     
     const smallPiles = piles.filter(pile => pile.members.length < minSize);
     

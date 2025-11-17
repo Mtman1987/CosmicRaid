@@ -7,6 +7,7 @@ import { updateCommunitySpotlight } from "./community-spotlight-service";
 import { cleanupAllOldClips } from "./clip-management-service";
 import { sendDiscordMessage, updateDiscordMessage, deleteDiscordMessage, cleanupDuplicateBotMessages } from "./discord-bot-service";
 import { updateVipSpotlights } from "./vip-spotlight-service";
+import { getSecret } from './firestore-secrets';
 
 type PostOptions = {
   includeCommunity?: boolean;
@@ -29,7 +30,8 @@ async function getDiscordInvite(): Promise<string | null> {
   } catch (error) {
     console.error('Failed to create Discord invite:', error);
   }
-  return process.env.NEXT_PUBLIC_DISCORD_INVITE_URL || process.env.DISCORD_INVITE_URL || null;
+  const discordInvite = await getSecret('DISCORD_INVITE_URL');
+  return process.env.NEXT_PUBLIC_DISCORD_INVITE_URL || discordInvite || null;
 }
 
 
@@ -126,11 +128,11 @@ export async function postAllShoutoutsToDiscord(serverId: string, options: PostO
     const communityChannelId =
       customChannels.community ||
       serverData.config?.channels?.community ||
-      process.env.DISCORD_SHOUTOUT_CHANNEL_ID;
+      await getSecret('DISCORD_SHOUTOUT_CHANNEL_ID');
     const vipChannelId =
       customChannels.vip ||
       serverData.config?.channels?.vip ||
-      process.env.DISCORD_VIP_CHANNEL_ID;
+      await getSecret('DISCORD_VIP_CHANNEL_ID');
     
     // Get all users with generated shoutouts (split query to avoid composite index)
     const usersRef = db.collection('servers').doc(serverId).collection('users');
@@ -437,7 +439,7 @@ export async function postCommunitySpotlightMessage(serverId: string, explicitCh
       channelId =
         customChannels.community ||
         serverData.config?.channels?.community ||
-        process.env.DISCORD_SHOUTOUT_CHANNEL_ID;
+        await getSecret('DISCORD_SHOUTOUT_CHANNEL_ID');
     }
 
     if (!channelId) {

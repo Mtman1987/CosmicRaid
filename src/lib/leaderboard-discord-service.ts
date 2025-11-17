@@ -3,6 +3,7 @@
 import puppeteer from 'puppeteer';
 import { uploadGifFromUrl } from './firebase-storage-service';
 import { sendDiscordMessage } from './discord-bot-service';
+import { getSecret } from './firestore-secrets';
 
 export async function generateAndPostLeaderboard(serverId: string): Promise<void> {
   try {
@@ -49,7 +50,7 @@ export async function generateAndPostLeaderboard(serverId: string): Promise<void
         
         const channelId = serverData?.leaderboardChannelId || 
                          serverData?.config?.channels?.leaderboard || 
-                         process.env.DISCORD_LEADERBOARD_CHANNEL_ID;
+                         await getSecret('DISCORD_LEADERBOARD_CHANNEL_ID');
         
         console.log('[Leaderboard] Using channel ID:', channelId);
         if (channelId) {

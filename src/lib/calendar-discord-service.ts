@@ -2,6 +2,7 @@ import { addMonths, format } from 'date-fns';
 import { getStorage } from 'firebase-admin/storage';
 import { app, db } from '@/firebase/server-init';
 import { generateCalendarImage } from '@/ai/flows/generate-calendar-image';
+import { getSecret } from './firestore-secrets';
 
 const STORAGE_BUCKET = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
 
@@ -14,8 +15,8 @@ type CalendarMessageMeta = {
   monthOffset?: number;
 };
 
-function ensureBotToken() {
-  const token = process.env.DISCORD_BOT_TOKEN;
+async function ensureBotToken() {
+  const token = await getSecret('DISCORD_BOT_TOKEN');
   if (!token) {
     throw new Error('DISCORD_BOT_TOKEN is not configured');
   }

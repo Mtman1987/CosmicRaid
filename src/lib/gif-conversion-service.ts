@@ -1,6 +1,6 @@
 'use server';
 
-
+import { getSecret } from './firestore-secrets';
 
 interface ConversionJob {
   id: string;
@@ -19,10 +19,9 @@ class GifConversionService {
   private baseUrl = 'https://api.freeconvert.com/v1';
 
   private async getApiKey(serverId?: string): Promise<string> {
-    // Use environment variable directly - apphosting.yaml should provide it
-    const key = process.env.FREE_CONVERT_API_KEY;
+    const key = await getSecret('FREE_CONVERT_API_KEY');
     if (!key) {
-      throw new Error(`FREE_CONVERT_API_KEY environment variable not found`);
+      throw new Error(`FREE_CONVERT_API_KEY not found in Firestore secrets`);
     }
     return key;
   }

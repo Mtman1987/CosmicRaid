@@ -1,6 +1,7 @@
 import { db } from '@/firebase/client';
 import { collection, doc, getDoc, setDoc, updateDoc, increment, query, where, getDocs } from 'firebase/firestore';
 import { PointsService } from './points-service';
+import { getSecret } from './firestore-secrets';
 
 export interface CommunityActivity {
   userId: string;
@@ -37,12 +38,12 @@ export class CommunityTrackingService {
 
   async trackTwitchActivity(userId: string, username: string, displayName: string, activityType: string, metadata?: any): Promise<void> {
     const pointsConfig = {
-      'follow': parseInt(process.env.POINTS_TWITCH_FOLLOW || '25'),
-      'subscription': parseInt(process.env.POINTS_TWITCH_SUB || '100'),
-      'bits': parseInt(process.env.POINTS_TWITCH_BITS || '1'),
-      'raid': parseInt(process.env.POINTS_TWITCH_RAID || '50'),
-      'host': parseInt(process.env.POINTS_TWITCH_HOST || '30'),
-      'stream_attendance': parseInt(process.env.POINTS_STREAM_ATTENDANCE || '10')
+      'follow': parseInt(await getSecret('POINTS_TWITCH_FOLLOW') || '25'),
+      'subscription': parseInt(await getSecret('POINTS_TWITCH_SUB') || '100'),
+      'bits': parseInt(await getSecret('POINTS_TWITCH_BITS') || '1'),
+      'raid': parseInt(await getSecret('POINTS_TWITCH_RAID') || '50'),
+      'host': parseInt(await getSecret('POINTS_TWITCH_HOST') || '30'),
+      'stream_attendance': parseInt(await getSecret('POINTS_STREAM_ATTENDANCE') || '10')
     };
 
     const points = pointsConfig[activityType as keyof typeof pointsConfig] || 0;
@@ -58,11 +59,11 @@ export class CommunityTrackingService {
 
   async trackDiscordActivity(userId: string, username: string, displayName: string, activityType: string, metadata?: any): Promise<void> {
     const pointsConfig = {
-      'message': parseInt(process.env.POINTS_DISCORD_MESSAGE || '1'),
-      'reaction': parseInt(process.env.POINTS_DISCORD_REACTION || '2'),
-      'voice_minute': parseInt(process.env.POINTS_DISCORD_VOICE_MINUTE || '5'),
-      'help_reaction': parseInt(process.env.POINTS_DISCORD_HELP_REACTION || '10'),
-      'community_help': parseInt(process.env.POINTS_COMMUNITY_HELP || '50')
+      'message': parseInt(await getSecret('POINTS_DISCORD_MESSAGE') || '1'),
+      'reaction': parseInt(await getSecret('POINTS_DISCORD_REACTION') || '2'),
+      'voice_minute': parseInt(await getSecret('POINTS_DISCORD_VOICE_MINUTE') || '5'),
+      'help_reaction': parseInt(await getSecret('POINTS_DISCORD_HELP_REACTION') || '10'),
+      'community_help': parseInt(await getSecret('POINTS_COMMUNITY_HELP') || '50')
     };
 
     const points = pointsConfig[activityType as keyof typeof pointsConfig] || 0;
@@ -152,7 +153,7 @@ export class CommunityTrackingService {
   }
 
   async processDailyBonus(): Promise<void> {
-    const dailyBonus = parseInt(process.env.POINTS_DAILY_BONUS || '20');
+    const dailyBonus = parseInt(await getSecret('POINTS_DAILY_BONUS') || '20');
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     
