@@ -11,7 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import { getChannels } from '@/lib/discord-sync-service';
 
 export function ChannelSelectionSettings() {
-  const [serverId, setServerId] = React.useState<string | null>(null);
   const [channels, setChannels] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [channelSettings, setChannelSettings] = React.useState({
@@ -26,11 +25,9 @@ export function ChannelSelectionSettings() {
   const serverId = useServerId();
   
   React.useEffect(() => {
-    const id = serverId;
-    setServerId(id);
-    if (id) {
-      loadChannels(id);
-      loadChannelSettings(id);
+    if (serverId) {
+      loadChannels(serverId);
+      loadChannelSettings(serverId);
     }
   }, []);
 

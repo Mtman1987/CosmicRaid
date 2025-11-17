@@ -15,16 +15,10 @@ import { doc } from 'firebase/firestore';
 export function TwitchPollingSettings() {
   const [isPolling, setIsPolling] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [serverId, setServerId] = React.useState<string | null>(null);
   const { toast } = useToast();
 
   const serverId = useServerId();
   
-  React.useEffect(() => {
-    const id = serverId;
-    setServerId(id);
-  }, []);
-
   const firestore = useFirestore();
   const serverRef = React.useMemo(() => {
     if (!firestore || !serverId) return null;

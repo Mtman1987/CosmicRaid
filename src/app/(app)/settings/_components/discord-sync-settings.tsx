@@ -14,7 +14,6 @@ import { getChannels, getRoles, getRoleMappings, updateRoleMappings } from '@/li
 
 export function DiscordSyncSettings() {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [serverId, setServerId] = React.useState<string | null>(null);
   const [channels, setChannels] = React.useState<any[]>([]);
   const [roles, setRoles] = React.useState<string[]>([]);
   const [channelMappings, setChannelMappings] = React.useState({
@@ -29,10 +28,8 @@ export function DiscordSyncSettings() {
   const serverId = useServerId();
   
   React.useEffect(() => {
-    const id = serverId;
-    setServerId(id);
-    if (id) {
-      loadServerData(id);
+    if (serverId) {
+      loadServerData(serverId);
     }
   }, []);
 
