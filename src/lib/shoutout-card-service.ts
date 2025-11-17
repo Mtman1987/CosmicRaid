@@ -3,7 +3,6 @@
 import puppeteer from 'puppeteer';
 import { uploadGifFromUrl } from './firebase-storage-service';
 import { convertClipToGif } from './gif-conversion-service';
-import { getSecret } from './firestore-secrets';
 // Note: You'll need to install: npm install puppeteer-screen-recorder
 // import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
 
@@ -59,7 +58,7 @@ export async function generateShoutoutCardGif(
     }
   }
   
-  const appUrl = await getSecret('BASE_URL') || 'http://localhost:3001';
+  const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
   const cardUrl = `${appUrl}/headless/shoutout-card/${serverId}?${new URLSearchParams({
     streamer: cardData.streamerName,
     title: cardData.streamTitle,

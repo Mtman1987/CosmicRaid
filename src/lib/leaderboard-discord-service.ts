@@ -9,7 +9,7 @@ export async function generateAndPostLeaderboard(serverId: string): Promise<void
   try {
     console.log('[Leaderboard] Generating leaderboard screenshot...');
     
-    const appUrl = await getSecret('BASE_URL') || 'http://localhost:3001';
+    const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
     const leaderboardUrl = `${appUrl}/headless/leaderboard/${serverId}`;
     
     let browser;

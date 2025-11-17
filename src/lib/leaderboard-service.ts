@@ -5,7 +5,6 @@ import { uploadGifFromUrl } from './firebase-storage-service';
 import { convertClipToGif } from './gif-conversion-service';
 import { PointsService } from './points-service';
 import { db } from '@/firebase/server-init';
-import { getSecret } from './firestore-secrets';
 
 export async function getUserRank(serverId: string, username: string): Promise<{ points: number; rank: number } | null> {
   try {
@@ -28,7 +27,7 @@ export async function getUserRank(serverId: string, username: string): Promise<{
 }
 
 export async function generateLeaderboardGifFromPage(serverId: string): Promise<string | null> {
-  const appUrl = await getSecret('BASE_URL') || 'http://localhost:3001';
+  const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
   const leaderboardUrl = `${appUrl}/headless/leaderboard/${serverId}`;
 
   let browser;
@@ -86,7 +85,7 @@ export async function generateLeaderboardGifFromPage(serverId: string): Promise<
 }
 
 export async function generateLeaderboardGif(serverId: string): Promise<string | null> {
-  const appUrl = await getSecret('BASE_URL') || 'http://localhost:3001';
+  const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
   const leaderboardUrl = `${appUrl}/headless/leaderboard/${serverId}`;
 
   let browser;
