@@ -4,15 +4,20 @@
  */
 
 import { getSecrets, getConfig } from '@/lib/firestore-secrets';
+import { getGuildIdFromRequest } from '@/lib/guild-session';
 
 export async function GET(request: Request) {
-  // Load secrets from Firestore
-  const firestoreSecrets = await getSecrets();
-  const config = await getConfig();
+  // Get the guild ID from the request
+  const guildId = await getGuildIdFromRequest(request);
+  
+  // Load secrets from Firestore for this guild
+  const firestoreSecrets = await getSecrets(guildId);
+  const config = await getConfig(guildId);
   
   const results = {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'unknown',
+    guildId: guildId,
     secretsSource: Object.keys(firestoreSecrets).length > 0 ? 'firestore' : 'environment',
     firestoreSecretsCount: Object.keys(firestoreSecrets).length,
     

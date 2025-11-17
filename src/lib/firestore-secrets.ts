@@ -9,15 +9,17 @@ let cachedSecrets: Record<string, string> | null = null;
 let lastFetch: number = 0;
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-export async function getSecrets(): Promise<Record<string, string>> {
+export async function getSecrets(guildId?: string): Promise<Record<string, string>> {
   // Return cached secrets if still valid
   if (cachedSecrets && Date.now() - lastFetch < CACHE_TTL) {
     return cachedSecrets;
   }
 
   try {
-    // Get the server ID from environment or use default
-    const serverId = process.env.GUILD_ID || process.env.HARDCODED_GUILD_ID || 'default';
+    // HARDCODED GUILD ID - NO DEPENDENCIES
+    const serverId = '1240832965865635881';
+    
+    console.log(`[Firestore Secrets] Loading from: servers/${serverId}/config/secrets`);
     
     const secretsDoc = await db
       .collection('servers')
@@ -27,7 +29,7 @@ export async function getSecrets(): Promise<Record<string, string>> {
       .get();
 
     if (!secretsDoc.exists) {
-      console.error('Secrets document not found in Firestore');
+      console.error(`[Firestore Secrets] Document not found at servers/${serverId}/config/secrets`);
       return {};
     }
 
@@ -37,10 +39,12 @@ export async function getSecrets(): Promise<Record<string, string>> {
     cachedSecrets = secrets;
     lastFetch = Date.now();
 
-    console.log(`Loaded ${Object.keys(secrets).length} secrets from Firestore`);
+    console.log(`[Firestore Secrets] Loaded ${Object.keys(secrets).length} secrets from Firestore`);
+    console.log(`[Firestore Secrets] Available keys:`, Object.keys(secrets).slice(0, 10).join(', '));
     return secrets;
   } catch (error) {
-    console.error('Error loading secrets from Firestore:', error);
+    console.error('[Firestore Secrets] Error loading secrets from Firestore:', error);
+    console.error('[Firestore Secrets] Returning cached secrets or empty object');
     return cachedSecrets || {};
   }
 }
@@ -57,8 +61,8 @@ export async function getSecret(key: string): Promise<string | undefined> {
  * Merge Firestore secrets with environment variables
  * Firestore takes precedence
  */
-export async function getConfig(): Promise<Record<string, string>> {
-  const firestoreSecrets = await getSecrets();
+export async function getConfig(guildId?: string): Promise<Record<string, string>> {
+  const firestoreSecrets = await getSecrets(guildId);
   
   // Merge with env vars, Firestore takes precedence
   return {
