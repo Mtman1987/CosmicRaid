@@ -44,36 +44,35 @@ class FreeConvertService {
     return true;
   }
 
+  private async makeApiRequest(url: string, options: any): Promise<any> {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      const errorBody = await response.text();
+      // This is crucial: we are now showing the actual error page content.
+      throw new Error(`FreeConvert API Error (${response.status}): ${errorBody}`);
+    }
+    return response.json();
+  }
+
   /**
    * Import video from URL
    */
   private async importFromUrl(videoUrl: string): Promise<string> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/process/import/url`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            url: videoUrl,
-            filename: `clip_${Date.now()}.mp4`
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    const data = await this.makeApiRequest(
+      `${this.baseUrl}/process/import/url`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          url: videoUrl,
+          filename: `clip_${Date.now()}.mp4`
+        })
       }
-
-      const data = await response.json() as any;
-      return data.id;
-    } catch (error) {
-      console.error('[FreeConvert] Import failed:', error);
-      throw new Error('Failed to import video');
-    }
+    );
+    return data.id;
   }
 
   /**
@@ -84,38 +83,27 @@ class FreeConvertService {
     fps?: number;
     duration?: number;
   }): Promise<string> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/process/convert`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            input: taskId,
-            output_format: 'gif',
-            options: {
-              video_codec: 'gif',
-              width: options?.width || 640,
-              fps: options?.fps || 15,
-              ...(options?.duration && { duration: options.duration })
-            }
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    const data = await this.makeApiRequest(
+      `${this.baseUrl}/process/convert`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          input: taskId,
+          output_format: 'gif',
+          options: {
+            video_codec: 'gif',
+            width: options?.width || 640,
+            fps: options?.fps || 15,
+            ...(options?.duration && { duration: options.duration })
+          }
+        })
       }
-
-      const data = await response.json() as any;
-      return data.id;
-    } catch (error) {
-      console.error('[FreeConvert] Conversion failed:', error);
-      throw new Error('Failed to convert to GIF');
-    }
+    );
+    return data.id;
   }
 
   /**
@@ -126,35 +114,24 @@ class FreeConvertService {
     const pollInterval = 2000;
 
     while (Date.now() - startTime < maxWaitMs) {
-      try {
-        const response = await fetch(
-          `${this.baseUrl}/process/tasks/${taskId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${this.apiKey}`
-            }
+      const data = await this.makeApiRequest(
+        `${this.baseUrl}/process/tasks/${taskId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`
           }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+      );
+      
+      const status = data.status;
 
-        const data = await response.json() as any;
-        const status = data.status;
-
-        if (status === 'completed') {
-          return data.result.url;
-        } else if (status === 'failed' || status === 'error') {
-          throw new Error(`Task failed: ${data.message || 'Unknown error'}`);
-        }
-
-        // Wait before polling again
-        await new Promise(resolve => setTimeout(resolve, pollInterval));
-      } catch (error) {
-        console.error('[FreeConvert] Task polling error:', error);
-        throw error;
+      if (status === 'completed') {
+        return data.result.url;
+      } else if (status === 'failed' || status === 'error') {
+        throw new Error(`Task failed: ${data.message || 'Unknown error'}`);
       }
+
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
     }
 
     throw new Error('Task timeout - conversion took too long');
@@ -164,19 +141,12 @@ class FreeConvertService {
    * Download file from URL
    */
   private async downloadFile(url: string): Promise<Buffer> {
-    try {
       const response = await fetch(url);
-      
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(`HTTP Error downloading file: ${response.status} ${response.statusText}`);
       }
-      
       const arrayBuffer = await response.arrayBuffer();
       return Buffer.from(arrayBuffer);
-    } catch (error) {
-      console.error('[FreeConvert] Download failed:', error);
-      throw new Error('Failed to download converted file');
-    }
   }
 
   /**
@@ -188,7 +158,7 @@ class FreeConvertService {
     duration?: number;
   }): Promise<Buffer | null> {
     if (!this.isConfigured()) {
-        return null;
+        throw new Error('FreeConvert API Key is not configured. Please set FREE_CONVERT_API_KEY in your .env file.');
     }
     console.log('[FreeConvert] Starting conversion:', videoUrl);
 
