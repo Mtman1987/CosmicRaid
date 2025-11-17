@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss"
-const { fontFamily } = require("tailwindcss/defaultTheme")
 
 const config = {
   darkMode: ["class"],
@@ -20,8 +19,8 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-pt-sans)", ...fontFamily.sans],
-        headline: ["var(--font-playfair-display)", ...fontFamily.sans],
+        sans: ["var(--font-pt-sans)"],
+        headline: ["var(--font-playfair-display)"],
       },
       keyframes: {
         "accordion-down": {
