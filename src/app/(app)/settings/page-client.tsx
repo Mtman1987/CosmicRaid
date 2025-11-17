@@ -15,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Save, Trash2, Zap, Loader2, TestTube, RefreshCcw } from 'lucide-react';
+import { Save, Trash2, Zap, Loader2, TestTube, RefreshCcw, Film } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { syncDiscordData, testCalendarPostAction, resetCalendarAction } from '@/lib/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -24,8 +24,7 @@ import { CopyButton } from '@/components/copy-button';
 import { AdminRoleSettings } from './_components/admin-role-settings';
 import { UISettingsCard } from './_components/ui-settings';
 import { TwitchPollingSettings } from './_components/twitch-polling-settings';
-import { DiscordSyncSettings } from './_components/discord-sync-settings';
-import { ChannelSelectionSettings } from './_components/channel-selection-settings';
+import { useToast } from '@/hooks/use-toast';
 
 function SyncButton() {
     const { pending } = useFormStatus();
@@ -69,13 +68,15 @@ function ResetCalendarButton() {
     )
 }
 
-export default function SettingsPage() {
+export default function SettingsClientPage() {
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
   const [guildId, setGuildId] = React.useState('');
   const [testChannelId, setTestChannelId] = React.useState('');
   const [botToken, setBotToken] = React.useState('');
   const [isSavingToken, setIsSavingToken] = React.useState(false);
+  const [isTestingFreeConvert, setIsTestingFreeConvert] = React.useState(false);
 
   const [syncState, syncAction] = useActionState(syncDiscordData, { status: 'idle', message: '' });
   const [testState, testAction] = useActionState(testCalendarPostAction, { status: 'idle', message: '', logs: [] });
@@ -97,6 +98,41 @@ export default function SettingsPage() {
   const handleReset = () => {
     localStorage.clear();
     router.push('/login');
+  };
+
+  const handleTestFreeConvert = async () => {
+    setIsTestingFreeConvert(true);
+    toast({
+      title: 'Starting FreeConvert Test...',
+      description: 'This may take a minute. Please wait.',
+    });
+    try {
+      const response = await fetch('/api/test-freeconvert', { method: 'POST' });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'An unknown error occurred.');
+      }
+
+      toast({
+        title: 'FreeConvert Test Successful!',
+        description: (
+          <div className="flex flex-col gap-2">
+            <p>A new GIF was created and uploaded.</p>
+            <a href={result.gifUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline break-all">{result.gifUrl}</a>
+          </div>
+        ),
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        variant: 'destructive',
+        title: 'FreeConvert Test Failed',
+        description: message,
+      });
+    } finally {
+      setIsTestingFreeConvert(false);
+    }
   };
 
   return (
@@ -181,16 +217,10 @@ export default function SettingsPage() {
                 </form>
             </Card>
             <UISettingsCard />
-            <TwitchPollingSettings />
         </div>
-        
-        <div className="lg:col-span-3 space-y-6">
-            <DiscordSyncSettings />
-            <ChannelSelectionSettings />
-        </div>
-
 
         <div className="space-y-8 lg:col-span-1">
+             <TwitchPollingSettings />
             <Card className="border-destructive">
                 <CardHeader>
                     <CardTitle className="font-headline text-destructive">Developer Tools</CardTitle>
@@ -201,31 +231,19 @@ export default function SettingsPage() {
                         <Trash2 className="mr-2 h-4 w-4" />
                         Clear Local Storage & Reset Session
                     </Button>
-                    
-                    <Button 
-                        variant="outline" 
-                        className="w-full" 
-                        onClick={async () => {
-                            try {
-                                const response = await fetch('/api/points/add', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ 
-                                        userId: process.env.NEXT_PUBLIC_HARDCODED_ADMIN_DISCORD_ID || 'mtman1987',
-                                        username: 'mtman1987', 
-                                        displayName: 'mtman1987',
-                                        points: 200 
-                                    })
-                                });
-                                const result = await response.json();
-                                alert('Added 200 points to mtman1987!');
-                            } catch (error) {
-                                alert('Error adding points');
-                            }
-                        }}
+
+                     <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleTestFreeConvert}
+                      disabled={isTestingFreeConvert}
                     >
-                        <Zap className="mr-2 h-4 w-4" />
-                        Add 200 Points to mtman1987
+                      {isTestingFreeConvert ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Film className="mr-2 h-4 w-4" />
+                      )}
+                      Test FreeConvert MP4
                     </Button>
                     
                     <form action={testAction} className="space-y-4">
@@ -291,3 +309,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+    
