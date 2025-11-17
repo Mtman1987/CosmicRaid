@@ -153,8 +153,7 @@ function ShoutoutCard() {
             </div>
           </div>
         </div>
-
-      </main>
+    </main>
   );
 }
 

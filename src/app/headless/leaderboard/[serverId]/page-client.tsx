@@ -3,9 +3,12 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { FirebaseComponentsProvider } from '@/firebase';
+import { FirebaseComponentsProvider, useCollection, useFirestore } from '@/firebase';
+import { collection, query, orderBy, limit } from 'firebase/firestore';
+import type { LeaderboardEntry, UserProfile } from '@/lib/types';
+import * as React from 'react';
 
-interface LeaderboardEntry {
+interface FormattedLeaderboardEntry {
   username: string;
   points: number;
   rank: number;
@@ -15,60 +18,32 @@ interface LeaderboardEntry {
 function LeaderboardComponent() {
   const params = useParams();
   const serverId = params.serverId as string;
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const firestore = useFirestore();
+  const [leaderboard, setLeaderboard] = useState<FormattedLeaderboardEntry[]>([]);
+
+  const leaderboardQuery = React.useMemo(() => {
+    if (!firestore || !serverId) return null;
+    return query(collection(firestore, 'servers', serverId, 'leaderboard'), orderBy('points', 'desc'), limit(10));
+  }, [firestore, serverId]);
+
+  const { data: rawLeaderboard } = useCollection<LeaderboardEntry>(leaderboardQuery);
+  const { data: allUsers } = useCollection<UserProfile>(collection(firestore, 'servers', serverId, 'users'));
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        console.log('Fetching leaderboard for serverId:', serverId);
-        const response = await fetch(`/api/points/leaderboard?serverId=${serverId}`, {
-          headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_BOT_SECRET_KEY || '1234'}` }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log('Raw leaderboard data:', data);
-        
-        if (!Array.isArray(data) || data.length === 0) {
-          console.log('No leaderboard data found, creating sample data');
-          // Create sample data if no real data exists
-          setLeaderboard([{
-            username: 'mtman1987',
-            points: 400,
-            rank: 1,
-            avatarUrl: undefined
-          }]);
-          return;
-        }
-        
-        const formattedData = data.map((entry: any, index: number) => ({
-          username: entry.lastEventMetadata?.username || entry.userProfileId || `User${index + 1}`,
+    if (rawLeaderboard && allUsers) {
+      const userMap = new Map(allUsers.map(user => [user.id, user]));
+      const formattedData = rawLeaderboard.map((entry, index) => {
+        const user = userMap.get(entry.userProfileId);
+        return {
+          username: user?.username || entry.userProfileId,
           points: entry.points || 0,
           rank: index + 1,
-          avatarUrl: entry.lastEventMetadata?.avatarUrl
-        })).slice(0, 10);
-        
-        console.log('Formatted leaderboard data:', formattedData);
-        setLeaderboard(formattedData);
-      } catch (error) {
-        console.error('Error fetching leaderboard:', error);
-        // Fallback to sample data on error
-        setLeaderboard([{
-          username: 'mtman1987',
-          points: 400,
-          rank: 1,
-          avatarUrl: undefined
-        }]);
-      }
-    };
-
-    if (serverId) {
-      fetchLeaderboard();
+          avatarUrl: user?.avatarUrl,
+        };
+      });
+      setLeaderboard(formattedData);
     }
-  }, [serverId]);
+  }, [rawLeaderboard, allUsers]);
 
   return (
     <div className="leaderboard min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
@@ -210,7 +185,7 @@ function LeaderboardComponent() {
 }
 
 
-export default function LeaderboardClientPage() {
+export default function HeadlessLeaderboardClientPage() {
     return (
         <FirebaseComponentsProvider>
             <LeaderboardComponent />
