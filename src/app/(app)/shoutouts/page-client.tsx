@@ -68,10 +68,6 @@ export default function ShoutoutsPage() {
     const firestore = useFirestore();
     const serverId = useServerId();
 
-    React.useEffect(() => {
-        setServerId(localStorage.getItem('discordServerId'));
-    }, []);
-
     const usersCollectionRef = React.useMemo(() => {
         if (!firestore || !serverId) return null;
         return collection(firestore, 'servers', serverId, 'users');
