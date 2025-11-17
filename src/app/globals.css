@@ -4,124 +4,177 @@
 
 @layer base {
   :root {
-    /* Define base HSL values that can be overridden by JS */
-    --primary-hue: 270;
-    --background-hue: 259;
-    --background-saturation: 100%;
-    --accent-hue: 181;
-    --card-hue: 259;
-    --card-saturation: 100%;
-    --card-lightness: 98%;
-    --card-alpha: 1;
+    --background-h: 259;
+    --background-s: 100%;
+    --background-l: 95%;
 
-    --sidebar-bg-opacity: 0.9;
-    --radius: 0.5rem;
+    --foreground-h: 270;
+    --foreground-s: 40%;
+    --foreground-l: 4%;
 
-    --background: var(--background-hue) var(--background-saturation) 95%;
-    --foreground: 270 40% 4%;
+    --card-h: 259;
+    --card-s: 100%;
+    --card-l: 98%;
+
+    --popover-h: 259;
+    --popover-s: 100%;
+    --popover-l: 98%;
+
+    --primary-h: 270;
+    --primary-s: 100%;
+    --primary-l: 50%;
+
+    --primary-foreground-h: 270;
+    --primary-foreground-s: 100%;
+    --primary-foreground-l: 95%;
+
+    --secondary-h: 260;
+    --secondary-s: 40%;
+    --secondary-l: 90%;
+
+    --secondary-foreground-h: 270;
+    --secondary-foreground-s: 10%;
+    --secondary-foreground-l: 20%;
     
-    --card: var(--card-hue) var(--card-saturation) var(--card-lightness);
-    --card-foreground: 270 40% 4%;
+    --muted-h: 260;
+    --muted-s: 40%;
+    --muted-l: 92%;
 
-    --popover: var(--background-hue) var(--background-saturation) 98%;
-    --popover-foreground: 270 40% 4%;
-    --primary: var(--primary-hue) 100% 50%;
-    --primary-foreground: var(--primary-hue) 100% 95%;
-    --secondary: 260 40% 90%;
-    --secondary-foreground: 270 10% 20%;
-    --muted: 260 40% 92%;
-    --muted-foreground: 270 5% 45%;
-    --accent: var(--accent-hue) 100% 74%;
-    --accent-foreground: 270 10% 20%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 260 20% 85%;
-    --input: 260 20% 85%;
-    --ring: var(--primary-hue) 100% 50%;
-    --chart-1: var(--primary-hue) 100% 50%;
-    --chart-2: 260 80% 60%;
-    --chart-3: var(--accent-hue) 100% 74%;
-    --chart-4: 280 90% 65%;
-    --chart-5: 250 70% 55%;
+    --muted-foreground-h: 270;
+    --muted-foreground-s: 5%;
+    --muted-foreground-l: 45%;
+
+    --accent-h: 181;
+    --accent-s: 100%;
+    --accent-l: 74%;
+
+    --accent-foreground-h: 270;
+    --accent-foreground-s: 10%;
+    --accent-foreground-l: 20%;
+
+    --destructive-h: 0;
+    --destructive-s: 84.2%;
+    --destructive-l: 60.2%;
+
+    --destructive-foreground-h: 0;
+    --destructive-foreground-s: 0%;
+    --destructive-foreground-l: 98%;
+
+    --border-h: 260;
+    --border-s: 20%;
+    --border-l: 85%;
+
+    --input-h: 260;
+    --input-s: 20%;
+    --input-l: 85%;
+    
+    --ring-h: 270;
+    --ring-s: 100%;
+    --ring-l: 50%;
+
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 270 10% 10%;
-    --foreground: 259 10% 95%;
-    
-    --card-hue: 270;
-    --card-saturation: 10%;
-    --card-lightness: 12%;
+    --background-h: 270;
+    --background-s: 10%;
+    --background-l: 10%;
 
-    --card: var(--card-hue) var(--card-saturation) var(--card-lightness);
-    --card-foreground: 259 10% 95%;
+    --foreground-h: 259;
+    --foreground-s: 10%;
+    --foreground-l: 95%;
+
+    --card-h: 270;
+    --card-s: 10%;
+    --card-l: 12%;
+
+    --popover-h: 270;
+    --popover-s: 10%;
+    --popover-l: 10%;
+
+    --primary-h: 270;
+    --primary-s: 100%;
+    --primary-l: 65%;
+
+    --primary-foreground-h: 270;
+    --primary-foreground-s: 10%;
+    --primary-foreground-l: 10%;
+
+    --secondary-h: 270;
+    --secondary-s: 10%;
+    --secondary-l: 20%;
+
+    --secondary-foreground-h: 259;
+    --secondary-foreground-s: 10%;
+    --secondary-foreground-l: 95%;
+
+    --muted-h: 270;
+    --muted-s: 10%;
+    --muted-l: 20%;
     
-    --popover: 270 10% 10%;
-    --popover-foreground: 259 10% 95%;
-    --primary: var(--primary-hue) 100% 65%;
-    --primary-foreground: var(--primary-hue) 10% 10%;
-    --secondary: 270 10% 20%;
-    --secondary-foreground: 259 10% 95%;
-    --muted: 270 10% 20%;
-    --muted-foreground: 259 5% 65%;
-    --accent: var(--accent-hue) 100% 74%;
-    --accent-foreground: 270 10% 10%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 270 10% 25%;
-    --input: 270 10% 25%;
-    --ring: var(--primary-hue) 100% 65%;
-    --chart-1: var(--primary-hue) 100% 65%;
-    --chart-2: 260 80% 60%;
-    --chart-3: var(--accent-hue) 100% 74%;
-    --chart-4: 280 90% 65%;
-    --chart-5: 250 70% 55%;
+    --muted-foreground-h: 259;
+    --muted-foreground-s: 5%;
+    --muted-foreground-l: 65%;
+
+    --accent-h: 181;
+    --accent-s: 100%;
+    --accent-l: 74%;
+
+    --accent-foreground-h: 270;
+    --accent-foreground-s: 10%;
+    --accent-foreground-l: 10%;
+
+    --destructive-h: 0;
+    --destructive-s: 62.8%;
+    --destructive-l: 30.6%;
+
+    --destructive-foreground-h: 0;
+    --destructive-foreground-s: 0%;
+    --destructive-foreground-l: 98%;
+    
+    --border-h: 270;
+    --border-s: 10%;
+    --border-l: 25%;
+
+    --input-h: 270;
+    --input-s: 10%;
+    --input-l: 25%;
+    
+    --ring-h: 270;
+    --ring-s: 100%;
+    --ring-l: 65%;
   }
 }
 
+@layer base {
+  :root {
+    --background: hsl(var(--background-h), var(--background-s), var(--background-l));
+    --foreground: hsl(var(--foreground-h), var(--foreground-s), var(--foreground-l));
+    --card: hsl(var(--card-h), var(--card-s), var(--card-l));
+    --card-foreground: hsl(var(--card-foreground-h), var(--card-foreground-s), var(--card-foreground-l));
+    --popover: hsl(var(--popover-h), var(--popover-s), var(--popover-l));
+    --popover-foreground: hsl(var(--popover-foreground-h), var(--popover-foreground-s), var(--popover-foreground-l));
+    --primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
+    --primary-foreground: hsl(var(--primary-foreground-h), var(--primary-foreground-s), var(--primary-foreground-l));
+    --secondary: hsl(var(--secondary-h), var(--secondary-s), var(--secondary-l));
+    --secondary-foreground: hsl(var(--secondary-foreground-h), var(--secondary-foreground-s), var(--secondary-foreground-l));
+    --muted: hsl(var(--muted-h), var(--muted-s), var(--muted-l));
+    --muted-foreground: hsl(var(--muted-foreground-h), var(--muted-foreground-s), var(--muted-foreground-l));
+    --accent: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+    --accent-foreground: hsl(var(--accent-foreground-h), var(--accent-foreground-s), var(--accent-foreground-l));
+    --destructive: hsl(var(--destructive-h), var(--destructive-s), var(--destructive-l));
+    --destructive-foreground: hsl(var(--destructive-foreground-h), var(--destructive-foreground-s), var(--destructive-foreground-l));
+    --border: hsl(var(--border-h), var(--border-s), var(--border-l));
+    --input: hsl(var(--input-h), var(--input-s), var(--input-l));
+    --ring: hsl(var(--ring-h), var(--ring-s), var(--ring-l));
+  }
+}
+ 
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-}
-
-/* Custom styles for the sidebar to ensure text is readable */
-@layer components {
-  .bg-sidebar {
-    background-color: hsl(var(--background-hue) var(--background-saturation) 10% / var(--sidebar-bg-opacity)); /* Translucent dark background */
-  }
-  .text-sidebar-foreground {
-    color: hsl(259 10% 95%); /* White text for high contrast */
-  }
-  .hover\:bg-sidebar-accent:hover {
-     background-color: hsl(270 10% 20% / var(--sidebar-bg-opacity)); /* Slightly lighter dark for hover */
-  }
-  .hover\:text-sidebar-accent-foreground:hover {
-    color: hsl(259 10% 95%);
-  }
-  .data-\[active\=true\]\:bg-sidebar-accent {
-    background-color: hsl(var(--primary-hue) 100% 65% / 0.2); /* Use a transparent version of primary for active items */
-  }
-   .data-\[active\=true\]\:text-sidebar-accent-foreground {
-    color: hsl(259 10% 95%);
-  }
-}
-
-@layer utilities {
-  @keyframes vertical-marquee {
-    0% {
-      transform: translateY(0);
-    }
-    100% {
-      transform: translateY(-50%);
-    }
-  }
-
-  .animate-vertical-marquee {
-    animation: vertical-marquee 40s linear infinite;
   }
 }

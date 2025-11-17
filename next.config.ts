@@ -11,16 +11,6 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
-  experimental: {
-    turbopack: {
-      rules: {
-        '*.css': {
-          loaders: ['css-loader'],
-          as: '*.css',
-        },
-      },
-    },
-  },
   logging: {
     fetches: {
       fullUrl: false,
