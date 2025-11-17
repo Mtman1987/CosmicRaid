@@ -3,6 +3,7 @@
 import { applicationDefault, getApp, getApps, initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { firebaseConfig } from './config';
+import { loadServerConfig } from '@/lib/config-service';
 import fs from 'fs';
 import path from 'path';
 
@@ -45,6 +46,7 @@ function resolveServiceAccount(): ServiceAccount | null {
 
 
 let adminApp;
+let db;
 
 if (getApps().length === 0) {
   const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID ?? firebaseConfig.projectId;
@@ -62,14 +64,25 @@ if (getApps().length === 0) {
     console.log('[FirebaseAdmin] Initialized successfully.');
   } catch (error) {
     console.error('[FirebaseAdmin] Initialization failed:', error);
-    // Fallback for environments where default creds are already set up
-    // but the options object causes issues.
     adminApp = initializeApp();
   }
+  
+  db = getFirestore(adminApp);
+
+  // Pre-load server config on startup
+  const serverId = process.env.HARDCODED_GUILD_ID;
+  if (serverId) {
+    loadServerConfig(serverId).catch(err => {
+      console.error(`[FirebaseAdmin] Failed to pre-load config for server ${serverId}:`, err);
+    });
+  } else {
+    console.warn('[FirebaseAdmin] HARDCODED_GUILD_ID not set, cannot pre-load config.');
+  }
+
 } else {
   adminApp = getApp();
+  db = getFirestore(adminApp);
 }
 
-const db = getFirestore(adminApp);
 
 export { adminApp as app, db };
