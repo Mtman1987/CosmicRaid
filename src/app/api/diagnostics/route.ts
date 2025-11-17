@@ -3,51 +3,61 @@
  * Shows what environment variables are available and tests Twitch API
  */
 
+import { getSecrets, getConfig } from '@/lib/firestore-secrets';
+
 export async function GET(request: Request) {
+  // Load secrets from Firestore
+  const firestoreSecrets = await getSecrets();
+  const config = await getConfig();
+  
   const results = {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'unknown',
+    secretsSource: Object.keys(firestoreSecrets).length > 0 ? 'firestore' : 'environment',
+    firestoreSecretsCount: Object.keys(firestoreSecrets).length,
     
     // Check all critical environment variables
     secrets: {
       // Firebase
-      firebase_project_id: !!process.env.FIREBASE_ADMIN_PROJECT_ID,
-      firebase_api_key: !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-      firebase_storage_bucket: !!process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      google_credentials: !!process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      firebase_project_id: !!config.FIREBASE_ADMIN_PROJECT_ID,
+      firebase_api_key: !!config.NEXT_PUBLIC_FIREBASE_API_KEY,
+      firebase_storage_bucket: !!config.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      google_credentials: !!config.GOOGLE_APPLICATION_CREDENTIALS,
       
       // Twitch
-      twitch_client_id: !!process.env.TWITCH_CLIENT_ID,
-      twitch_client_secret: !!process.env.TWITCH_CLIENT_SECRET,
-      twitch_broadcaster_id: !!process.env.TWITCH_BROADCASTER_ID,
-      twitch_broadcaster_username: !!process.env.TWITCH_BROADCASTER_USERNAME,
+      twitch_client_id: !!config.TWITCH_CLIENT_ID,
+      twitch_client_secret: !!config.TWITCH_CLIENT_SECRET,
+      twitch_broadcaster_id: !!config.TWITCH_BROADCASTER_ID,
+      twitch_broadcaster_username: !!config.TWITCH_BROADCASTER_USERNAME,
       
       // Discord
-      discord_bot_token: !!process.env.DISCORD_BOT_TOKEN,
-      discord_client_id: !!process.env.DISCORD_CLIENT_ID,
-      discord_client_secret: !!process.env.DISCORD_CLIENT_SECRET,
+      discord_bot_token: !!config.DISCORD_BOT_TOKEN,
+      discord_client_id: !!config.DISCORD_CLIENT_ID,
+      discord_client_secret: !!config.DISCORD_CLIENT_SECRET,
       
       // Other
-      free_convert_api_key: !!process.env.FREE_CONVERT_API_KEY,
-      local_service_url: !!process.env.LOCAL_CONVERSION_SERVICE_URL,
-      local_service_enabled: process.env.LOCAL_SERVICE_ENABLED === 'true',
+      free_convert_api_key: !!config.FREE_CONVERT_API_KEY,
+      local_service_url: !!config.LOCAL_CONVERSION_SERVICE_URL,
+      local_service_enabled: config.LOCAL_SERVICE_ENABLED === 'true',
     },
     
     // Show first few characters of critical keys (for verification)
     keyPreviews: {
-      twitch_client_id: process.env.TWITCH_CLIENT_ID?.substring(0, 10) + '...' || 'NOT SET',
-      twitch_broadcaster_id: process.env.TWITCH_BROADCASTER_ID || 'NOT SET',
-      firebase_project_id: process.env.FIREBASE_ADMIN_PROJECT_ID || 'NOT SET',
+      twitch_client_id: config.TWITCH_CLIENT_ID?.substring(0, 10) + '...' || 'NOT SET',
+      twitch_broadcaster_id: config.TWITCH_BROADCASTER_ID || 'NOT SET',
+      firebase_project_id: config.FIREBASE_ADMIN_PROJECT_ID || 'NOT SET',
     },
     
     // Test results will be added below
-    tests: {} as any
+    tests: {} as any,
+    summary: {} as any,
+    recommendations: [] as string[],
   };
 
   // Test 1: Twitch API Connection
   try {
-    const twitchClientId = process.env.TWITCH_CLIENT_ID;
-    const twitchClientSecret = process.env.TWITCH_CLIENT_SECRET;
+    const twitchClientId = config.TWITCH_CLIENT_ID;
+    const twitchClientSecret = config.TWITCH_CLIENT_SECRET;
     
     if (!twitchClientId || !twitchClientSecret) {
       results.tests.twitch_connection = {
