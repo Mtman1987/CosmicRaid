@@ -12,7 +12,7 @@ export async function generateCalendarImage(
   guildId: string,
   monthOffset = 0
 ): Promise<string | null> {
-  const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+  const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   const screenshotUrl = `${appUrl}/headless/calendar/${guildId}?offset=${monthOffset}`;
 
   let browser;
@@ -42,16 +42,16 @@ export async function generateCalendarImage(
     });
 
     console.log(`[Puppeteer] Navigating to ${screenshotUrl}`);
-    page.setDefaultTimeout(30000);
+    page.setDefaultTimeout(60000); // Increase default timeout to 60s
     await page.goto(screenshotUrl, { 
       waitUntil: 'networkidle0',
-      timeout: 30000
+      timeout: 60000 // Increase navigation timeout
     });
     
-    // Wait for page to be fully loaded
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    // Add a small extra delay just in case of slow-loading assets like avatars.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Wait for the main card element to be definitely loaded.
+    await page.waitForSelector('div.w-\\[620px\\]');
+    // Add a longer extra delay for slow-loading assets like avatars.
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     const imageBuffer = await page.screenshot({ type: 'png' });
     

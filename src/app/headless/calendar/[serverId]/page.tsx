@@ -1,4 +1,5 @@
 
+import { unstable_noStore as noStore } from 'next/cache';
 import { db } from '@/firebase/server-init';
 import { Timestamp } from 'firebase-admin/firestore';
 import {
@@ -35,12 +36,12 @@ export default async function HeadlessCalendarPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ serverId: string }>;
-  searchParams?: Promise<{ offset?: string }>;
+  params: { serverId: string };
+  searchParams?: { offset?: string };
 }) {
-  const { serverId } = await params;
-  const resolvedSearch = searchParams ? await searchParams : undefined;
-  const monthOffset = resolvedSearch?.offset ? parseInt(resolvedSearch.offset, 10) : 0;
+  noStore();
+  const { serverId } = params;
+  const monthOffset = searchParams?.offset ? parseInt(searchParams.offset, 10) : 0;
   const today = new Date();
   const viewDate = addMonths(today, Number.isNaN(monthOffset) ? 0 : monthOffset);
   const month = startOfMonth(viewDate);
