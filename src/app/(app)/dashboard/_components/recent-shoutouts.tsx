@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useServerId } from '@/lib/get-server-id';
 import {
   Card,
   CardContent,
@@ -42,11 +43,7 @@ function extractDescription(payload: any): string {
 
 export function RecentShoutouts() {
   const firestore = useFirestore();
-  const [serverId, setServerId] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    setServerId(localStorage.getItem('discordServerId'));
-  }, []);
+  const serverId = useServerId();
 
   const shoutoutsQuery = React.useMemo(() => {
     if (!firestore || !serverId) return null;

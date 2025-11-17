@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useServerId } from '@/lib/get-server-id';
 import {
   Card,
   CardContent,
@@ -21,11 +22,7 @@ type RankedEntry = LeaderboardEntry & { rank: number; profile?: UserProfile | nu
 
 export function LeaderboardSnapshot() {
   const firestore = useFirestore();
-  const [serverId, setServerId] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    setServerId(localStorage.getItem('discordServerId'));
-  }, []);
+  const serverId = useServerId();
 
   const leaderboardQuery = React.useMemo(() => {
     if (!firestore || !serverId) return null;

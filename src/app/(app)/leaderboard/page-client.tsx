@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useServerId } from '@/lib/get-server-id';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, RefreshCw, Trophy, Medal, Award, Download } from 'lucide-react';
@@ -15,23 +16,9 @@ type LeaderboardDisplayEntry = LeaderboardEntry & { user?: UserProfile, rank: nu
 export default function LeaderboardPage() {
   const { toast } = useToast();
   const firestore = useFirestore();
-  const [serverId, setServerId] = React.useState<string | null>(null);
+  const serverId = useServerId();
   const [leaderboardData, setLeaderboardData] = React.useState<LeaderboardDisplayEntry[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const storedServerId = localStorage.getItem('discordServerId');
-    if (storedServerId) {
-      setServerId(storedServerId);
-    } else {
-        setIsLoading(false);
-        toast({
-            variant: 'destructive',
-            title: 'Configuration Error',
-            description: 'Could not find a Discord Server ID in local storage. Please log in again.',
-        });
-    }
-  }, [toast]);
   
   const leaderboardQuery = React.useMemo(() => {
     if (!firestore || !serverId) return null;

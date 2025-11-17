@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useServerId } from '@/lib/get-server-id';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlayCircle, RefreshCw, Video, Download, Trash2 } from 'lucide-react';
 import Image from 'next/image';
@@ -26,11 +27,7 @@ export function CommunitySpotlight() {
   const [isConverting, setIsConverting] = React.useState(false);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
-  const [serverId, setServerId] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    setServerId(localStorage.getItem('discordServerId'));
-  }, []);
+  const serverId = useServerId();
 
   const loadSpotlight = React.useCallback(async () => {
     if (!serverId) return;

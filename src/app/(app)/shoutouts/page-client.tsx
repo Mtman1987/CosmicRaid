@@ -66,7 +66,7 @@ function GroupCard({ groupName, description, href, users, isLoading }: GroupCard
 
 export default function ShoutoutsPage() {
     const firestore = useFirestore();
-    const [serverId, setServerId] = React.useState<string | null>(null);
+    const serverId = useServerId();
 
     React.useEffect(() => {
         setServerId(localStorage.getItem('discordServerId'));

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useServerId } from '@/lib/get-server-id';
 import { useActionState } from 'react';
 import { collection } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
@@ -209,8 +210,8 @@ function OfflineStreamerTile({ streamer }: { streamer: UserProfile }) {
 }
 
 export function ShoutoutList() {
-  const firestore = useFirestore();
-  const [serverId, setServerId] = React.useState<string | null>(null);
+    const firestore = useFirestore();
+    const serverId = useServerId();
   const { toast } = useToast();
   const [shoutoutChannelId, setShoutoutChannelId] = React.useState<string>('');
   const [channelInput, setChannelInput] = React.useState<string>('');

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useParams, usePathname } from 'next/navigation';
+import { useServerId } from '@/lib/get-server-id';
 import { collection, doc, updateDoc, query, where, getDoc } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
 import { PageHeader } from '@/components/page-header';
@@ -624,7 +625,7 @@ export default function GroupDetailPage() {
   const pathname = usePathname();
   const { toast } = useToast();
   const firestore = useFirestore();
-  const [serverId, setServerId] = React.useState<string | null>(null);
+  const serverId = useServerId();
 
   const group = Array.isArray(params.group) ? params.group[0] : params.group;
   const groupName = React.useMemo(() => {
@@ -698,13 +699,6 @@ export default function GroupDetailPage() {
     vipDispatch,
     initialVipActionState,
   );
-
-  React.useEffect(() => {
-    const storedServerId = localStorage.getItem('discordServerId');
-    if (storedServerId) {
-      setServerId(storedServerId);
-    }
-  }, []);
 
   React.useEffect(() => {
     const storedChannel = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;

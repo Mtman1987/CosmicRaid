@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useServerId } from '@/lib/get-server-id';
 import {
   Card,
   CardContent,
@@ -26,11 +27,7 @@ const iconMap: Record<CalendarEvent['type'], React.ReactNode> = {
 
 export function UpcomingEvents() {
   const firestore = useFirestore();
-  const [serverId, setServerId] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    setServerId(localStorage.getItem('discordServerId'));
-  }, []);
+  const serverId = useServerId();
 
   const eventsQuery = React.useMemo(() => {
     if (!firestore || !serverId) return null;

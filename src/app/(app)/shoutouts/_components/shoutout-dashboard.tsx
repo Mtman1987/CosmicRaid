@@ -5,6 +5,7 @@ import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { collection, query, where } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
+import { useServerId } from '@/lib/get-server-id';
 import {
   Card,
   CardContent,
@@ -32,14 +33,10 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export function ShoutoutDashboard() {
   const firestore = useFirestore();
-  const [serverId, setServerId] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    setServerId(localStorage.getItem('discordServerId'));
-  }, []);
+  const serverId = useServerId();
 
   const usersCollectionRef = React.useMemo(() => {
-    if (!firestore || !serverId) return null;
+    if (!firestore) return null;
     return collection(firestore, 'servers', serverId, 'users');
   }, [firestore, serverId]);
 
