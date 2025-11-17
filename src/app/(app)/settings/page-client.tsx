@@ -100,41 +100,6 @@ export default function SettingsClientPage() {
     router.push('/login');
   };
 
-  const handleTestFreeConvert = async () => {
-    setIsTestingFreeConvert(true);
-    toast({
-      title: 'Starting FreeConvert Test...',
-      description: 'This may take a minute. Please wait.',
-    });
-    try {
-      const response = await fetch('/api/test-freeconvert', { method: 'POST' });
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'An unknown error occurred.');
-      }
-
-      toast({
-        title: 'FreeConvert Test Successful!',
-        description: (
-          <div className="flex flex-col gap-2">
-            <p>A new GIF was created and uploaded.</p>
-            <a href={result.gifUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline break-all">{result.gifUrl}</a>
-          </div>
-        ),
-      });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      toast({
-        variant: 'destructive',
-        title: 'FreeConvert Test Failed',
-        description: message,
-      });
-    } finally {
-      setIsTestingFreeConvert(false);
-    }
-  };
-
   return (
     <div className="space-y-8">
       <PageHeader
@@ -230,20 +195,6 @@ export default function SettingsClientPage() {
                     <Button variant="destructive" className="w-full" onClick={handleReset}>
                         <Trash2 className="mr-2 h-4 w-4" />
                         Clear Local Storage & Reset Session
-                    </Button>
-
-                     <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={handleTestFreeConvert}
-                      disabled={isTestingFreeConvert}
-                    >
-                      {isTestingFreeConvert ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Film className="mr-2 h-4 w-4" />
-                      )}
-                      Test FreeConvert MP4
                     </Button>
                     
                     <form action={testAction} className="space-y-4">

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send, Film } from 'lucide-react';
 import * as React from 'react';
 
 type ActionState = 'idle' | 'loading' | 'success' | 'error';
@@ -15,6 +15,7 @@ export default function MissionControlPage() {
   const { toast } = useToast();
   const [serverId, setServerId] = React.useState('');
   const [channelId, setChannelId] = React.useState('');
+  const [isTestingFreeConvert, setIsTestingFreeConvert] = React.useState(false);
   const [actionStates, setActionStates] = React.useState<Record<ActionType, ActionState>>({
     calendar: 'idle',
     leaderboard: 'idle',
@@ -68,6 +69,41 @@ export default function MissionControlPage() {
       setActionStates(prev => ({ ...prev, [type]: 'error' }));
     } finally {
       setTimeout(() => setActionStates(prev => ({ ...prev, [type]: 'idle' })), 3000);
+    }
+  };
+  
+  const handleTestFreeConvert = async () => {
+    setIsTestingFreeConvert(true);
+    toast({
+      title: 'Starting FreeConvert Test...',
+      description: 'This may take a minute. Please wait.',
+    });
+    try {
+      const response = await fetch('/api/test-freeconvert', { method: 'POST' });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'An unknown error occurred.');
+      }
+
+      toast({
+        title: 'FreeConvert Test Successful!',
+        description: (
+          <div className="flex flex-col gap-2">
+            <p>A new GIF was created and uploaded.</p>
+            <a href={result.gifUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline break-all">{result.gifUrl}</a>
+          </div>
+        ),
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        variant: 'destructive',
+        title: 'FreeConvert Test Failed',
+        description: message,
+      });
+    } finally {
+      setIsTestingFreeConvert(false);
     }
   };
 
@@ -153,6 +189,31 @@ export default function MissionControlPage() {
               Dispatch All Shoutouts
             </Button>
           </CardFooter>
+        </Card>
+        
+        <Card className="md:col-span-2 border-destructive">
+            <CardHeader>
+                <CardTitle className="font-headline text-destructive">Developer Tools</CardTitle>
+                <CardDescription>For testing and development purposes only.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleTestFreeConvert}
+                  disabled={isTestingFreeConvert}
+                >
+                  {isTestingFreeConvert ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Film className="mr-2 h-4 w-4" />
+                  )}
+                  Test FreeConvert MP4
+                </Button>
+            </CardContent>
+             <CardFooter>
+                <p className="text-xs text-muted-foreground">Use this to test the FreeConvert API with a pre-existing MP4 from your storage bucket.</p>
+            </CardFooter>
         </Card>
       </div>
     </div>
