@@ -6,8 +6,8 @@ import { runAutomatedShoutoutCycle } from '@/lib/automated-shoutout-system';
  * Can also be called manually or by external services
  * 
  * Cloud Scheduler setup:
- * - Frequency: */10 * * * * (every 10 minutes)
- * - URL: https://your-app.us-central1.hosted.app/api/cron/shoutouts
+ * - Frequency: every 10 minutes
+ * - URL: your app URL with /api/cron/shoutouts
  * - Method: GET or POST
  */
 export async function GET(request: NextRequest) {
