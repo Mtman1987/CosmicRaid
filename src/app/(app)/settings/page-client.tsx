@@ -28,6 +28,7 @@ import { TwitchPollingSettings } from './_components/twitch-polling-settings';
 import { DiscordSyncSettings } from './_components/discord-sync-settings';
 import { ChannelSelectionSettings } from './_components/channel-selection-settings';
 import { ShoutoutAutomationSettings } from './_components/shoutout-automation-settings';
+import { UptimeMonitorCard } from './_components/uptime-monitor-card';
 import { useToast } from '@/hooks/use-toast';
 
 function SyncButton() {
@@ -192,6 +193,7 @@ export default function SettingsPage() {
         <div className="lg:col-span-3 space-y-6">
             <DiscordSyncSettings />
             <ChannelSelectionSettings />
+            <UptimeMonitorCard />
         </div>
 
 
