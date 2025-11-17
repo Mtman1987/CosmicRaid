@@ -54,36 +54,15 @@ class GifConversionService {
     options: GifConversionOptions = {}
   ): Promise<string | null> {
     const { serverId, fallbackGifUrl } = options;
-    
-    // 1. Try local Puppeteer/FFmpeg service first (free)
-    try {
-      const localResult = await this.tryLocalConversion(clipUrl, clipId, streamerName, duration, contentType);
-      if (localResult) return localResult;
-    } catch (error) {
-      console.log('Local conversion unavailable, trying alternatives');
-    }
-    
-    // 2. Try cached/fallback media
     const { getMediaForUser } = await import('./media-fallback-service');
-    const cachedResult = await getMediaForUser({
+    
+    // Use the new centralized fallback service
+    return getMediaForUser({
       username: streamerName,
       mediaType: 'gif',
-      contentType: contentType === 'stream' ? 'spotlight' : 'shoutout',
+      contentType: contentType === 'stream' ? 'spotlight' : contentType,
       serverId
     });
-    if (cachedResult) return cachedResult;
-    
-    // 3. Only use FreeConvert as last resort (costs money)
-    if (serverId) {
-      try {
-        return await this.convertUsingFreeConvert(clipUrl, clipId, streamerName, duration, contentType, serverId);
-      } catch (error) {
-        console.error('FreeConvert failed:', error);
-      }
-    }
-    
-    // 4. Final fallback
-    return fallbackGifUrl || null;
   }
   
   private async tryLocalConversion(clipUrl: string, clipId: string, streamerName: string, duration: number, contentType: string): Promise<string | null> {
@@ -314,7 +293,7 @@ class GifConversionService {
       
       // Poll for completion
       const renderId = result.response.id;
-      return await this.pollShotstackRender(renderId, shotstackApiKey);
+      return await this.pollShotstackRender(renderId, shotstackApiKey, clipId, streamerName);
 
     } catch (error) {
       console.error('Error with Shotstack conversion:', error);
@@ -322,7 +301,7 @@ class GifConversionService {
     }
   }
 
-  private async pollShotstackRender(renderId: string, apiKey: string): Promise<string | null> {
+  private async pollShotstackRender(renderId: string, apiKey: string, clipId: string, streamerName: string): Promise<string | null> {
     for (let attempt = 0; attempt < 30; attempt++) {
       const response = await fetch(`https://api.shotstack.io/edit/stage/render/${renderId}`, {
         headers: {
@@ -340,9 +319,9 @@ class GifConversionService {
         const tempGifUrl = result.response.url;
         
         // Upload to Firebase Storage
-        const { firebaseStorage } = await import('./firebase-storage-service');
-        const fileName = firebaseStorage.generateFileName(clipId, streamerName);
-        const firebaseUrl = await firebaseStorage.uploadGifFromUrl(tempGifUrl, fileName);
+        const { uploadGifFromUrl, generateFileName } = await import('./firebase-storage-service');
+        const fileName = await generateFileName(clipId, streamerName);
+        const firebaseUrl = await uploadGifFromUrl(tempGifUrl, fileName);
         return firebaseUrl;
       }
       
@@ -430,7 +409,7 @@ export async function convertClipToGif(
   streamerName: string,
   duration: number = 10,
   contentType: 'stream' | 'header' | 'footer' = 'stream',
-  options: ConversionOptions = {}
+  options: GifConversionOptions = {}
 ): Promise<string | null> {
   return gifConverterService.convertClipToGif(clipUrl, clipId, streamerName, duration, contentType, options);
 }

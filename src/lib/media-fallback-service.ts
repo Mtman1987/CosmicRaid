@@ -1,12 +1,12 @@
 'use server';
 
-
+import { db } from '@/firebase/server-init';
 
 interface MediaOptions {
   serverId?: string;
   username: string;
   mediaType: 'gif' | 'image';
-  contentType: 'spotlight' | 'vip' | 'shoutout' | 'calendar' | 'leaderboard' | 'static';
+  contentType: 'spotlight' | 'vip' | 'shoutout' | 'calendar' | 'leaderboard' | 'static' | 'header' | 'footer';
 }
 
 class MediaFallbackService {
@@ -61,7 +61,6 @@ class MediaFallbackService {
 
   private async getClipFallback(username: string, serverId: string): Promise<string | null> {
     try {
-      const { db } = await import('@/firebase/server-init');
       const doc = await db.collection('servers')
         .doc(serverId)
         .collection('clipFallbacks')
@@ -90,7 +89,6 @@ class MediaFallbackService {
 
   private async saveClipFallback(username: string, gifUrl: string, serverId: string): Promise<void> {
     try {
-      const { db } = await import('@/firebase/server-init');
       const docRef = db.collection('servers')
         .doc(serverId)
         .collection('clipFallbacks')
@@ -168,7 +166,7 @@ class MediaFallbackService {
   private async tryFreeConvert(options: MediaOptions): Promise<string | null> {
     try {
       if (options.mediaType === 'gif') {
-        return await this.convertTwitchClipToGif(options.username);
+        return await this.convertTwitchClipToGif(options.username, options.serverId);
       } else {
         return await this.takeScreenshot(options);
       }
@@ -178,13 +176,17 @@ class MediaFallbackService {
     }
   }
 
-  private async convertTwitchClipToGif(username: string): Promise<string | null> {
+  private async convertTwitchClipToGif(username: string, serverId?: string): Promise<string | null> {
     // Get latest Twitch clip
     const clipUrl = await this.getTwitchClipUrl(username);
     if (!clipUrl) return null;
 
+    if (!serverId) {
+        throw new Error("ServerID is required for FreeConvert API call.");
+    }
+
     // Import task
-    const importTask = await this.makeApiCall('/process/import/url', {
+    const importTask = await this.makeApiCall('/process/import/url', serverId, {
       method: 'POST',
       body: JSON.stringify({
         url: clipUrl,
@@ -192,14 +194,14 @@ class MediaFallbackService {
       }),
     });
 
-    await this.waitForJobCompletion(importTask.id);
+    await this.waitForJobCompletion(importTask.id, serverId);
 
     // Convert to GIF
-    const conversionTask = await this.makeApiCall('/process/convert', {
+    const conversionTask = await this.makeApiCall('/process/convert', serverId, {
       method: 'POST',
       body: JSON.stringify({
         input: importTask.id,
-        outputformat: 'gif',
+        output_format: 'gif',
         options: {
           video_codec: 'gif',
           video_resolution: '480x270',
@@ -209,42 +211,47 @@ class MediaFallbackService {
       }),
     });
 
-    await this.waitForJobCompletion(conversionTask.id);
+    await this.waitForJobCompletion(conversionTask.id, serverId);
 
     // Export
-    const exportTask = await this.makeApiCall('/process/export/url', {
+    const exportTask = await this.makeApiCall('/process/export/url', serverId, {
       method: 'POST',
       body: JSON.stringify({ input: conversionTask.id }),
     });
 
-    const completedExport = await this.waitForJobCompletion(exportTask.id);
+    const completedExport = await this.waitForJobCompletion(exportTask.id, serverId);
     const tempGifUrl = completedExport.result?.url;
 
     if (tempGifUrl) {
-      return await this.uploadToStorage(tempGifUrl, `gifs/${username}_${Date.now()}.gif`);
+      const { uploadGifFromUrl } = await import('./firebase-storage-service');
+      return await uploadGifFromUrl(tempGifUrl, `gifs/${username}_${Date.now()}.gif`);
     }
 
     return null;
   }
 
   private async takeScreenshot(options: MediaOptions): Promise<string | null> {
-    const { username, contentType } = options;
+    const { username, contentType, serverId } = options;
     let screenshotUrl: string;
+
+    if (!serverId) {
+        throw new Error("ServerID is required for FreeConvert API call.");
+    }
 
     // Determine what to screenshot based on content type
     switch (contentType) {
       case 'calendar':
-        screenshotUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/headless/calendar`;
+        screenshotUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/headless/calendar/${serverId}`;
         break;
       case 'leaderboard':
-        screenshotUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/headless/leaderboard`;
+        screenshotUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/headless/leaderboard/${serverId}`;
         break;
       default:
         screenshotUrl = `https://twitch.tv/${username}`;
     }
 
     // Take screenshot using FreeConvert
-    const screenshotTask = await this.makeApiCall('/process/screenshot', {
+    const screenshotTask = await this.makeApiCall('/process/screenshot', serverId, {
       method: 'POST',
       body: JSON.stringify({
         url: screenshotUrl,
@@ -255,18 +262,19 @@ class MediaFallbackService {
       }),
     });
 
-    await this.waitForJobCompletion(screenshotTask.id);
+    await this.waitForJobCompletion(screenshotTask.id, serverId);
 
-    const exportTask = await this.makeApiCall('/process/export/url', {
+    const exportTask = await this.makeApiCall('/process/export/url', serverId, {
       method: 'POST',
       body: JSON.stringify({ input: screenshotTask.id }),
     });
 
-    const completedExport = await this.waitForJobCompletion(exportTask.id);
+    const completedExport = await this.waitForJobCompletion(exportTask.id, serverId);
     const tempImageUrl = completedExport.result?.url;
 
     if (tempImageUrl) {
-      return await this.uploadToStorage(tempImageUrl, `images/${username}_${contentType}_${Date.now()}.png`);
+        const { uploadGifFromUrl } = await import('./firebase-storage-service');
+      return await uploadGifFromUrl(tempImageUrl, `images/${username}_${contentType}_${Date.now()}.png`);
     }
 
     return null;
@@ -308,25 +316,27 @@ class MediaFallbackService {
 
   private async getTwitchClipUrl(username: string): Promise<string | null> {
     try {
-      const { getTwitchUserClips } = await import('./twitch-api-service');
-      const clips = await getTwitchUserClips(username, 1);
-      return clips[0]?.url || null;
+      const { getClipsForUser } = await import('./twitch-api-service');
+      const clips = await getClipsForUser(username, 1);
+      if (clips.length > 0 && clips[0].thumbnail_url) {
+        const thumbnailUrl = clips[0].thumbnail_url;
+        // e.g. https://clips-media-assets2.twitch.tv/41018392139-offset-22-preview-480x272.jpg
+        const mp4Url = thumbnailUrl.replace(/-preview-\d+x\d+\.jpg$/, '.mp4');
+        return mp4Url;
+      }
+      return null;
     } catch (error) {
       console.error('Error fetching Twitch clip:', error);
       return null;
     }
   }
 
-  private async uploadToStorage(sourceUrl: string, storagePath: string): Promise<string> {
-    const { uploadFromUrl } = await import('./firebase-storage-service');
-    return await uploadFromUrl(sourceUrl, storagePath);
-  }
-
-  private async makeApiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
+  private async makeApiCall(endpoint: string, serverId: string, options: RequestInit = {}): Promise<any> {
+    const apiKey = await this.getApiKey(serverId);
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${this.freeConvertApiKey}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         ...options.headers,
       },
@@ -339,9 +349,9 @@ class MediaFallbackService {
     return response.json();
   }
 
-  private async waitForJobCompletion(jobId: string, maxAttempts: number = 30): Promise<any> {
+  private async waitForJobCompletion(jobId: string, serverId: string, maxAttempts: number = 30): Promise<any> {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const job = await this.makeApiCall(`/process/${jobId}`);
+      const job = await this.makeApiCall(`/process/jobs/${jobId}`, serverId);
       
       if (job.status === 'completed') return job;
       if (job.status === 'failed') throw new Error(`Job ${jobId} failed`);
