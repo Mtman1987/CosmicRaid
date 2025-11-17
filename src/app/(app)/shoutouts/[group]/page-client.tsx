@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useParams, usePathname } from 'next/navigation';
 import { useServerId } from '@/lib/get-server-id';
+import { useShoutoutChannel } from '@/lib/use-server-config';
 import { collection, doc, updateDoc, query, where, getDoc } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
 import { PageHeader } from '@/components/page-header';
@@ -638,10 +639,16 @@ export default function GroupDetailPage() {
   }, [group]);
   const isCommunityPage = matchesGroup(group, 'Community');
   const isVipPage = matchesGroup(group, 'VIP');
-  const storageKey = React.useMemo(() => `shoutoutChannelId:${group ?? 'default'}`, [group]);
   const channelGroupKey = React.useMemo(() => (group ?? 'default').toString(), [group]);
-  const [shoutoutChannelId, setShoutoutChannelId] = React.useState('');
+  const { channelId: shoutoutChannelId, saveChannel } = useShoutoutChannel(channelGroupKey);
   const [channelInput, setChannelInput] = React.useState('');
+  
+  React.useEffect(() => {
+    if (shoutoutChannelId) {
+      setChannelInput(shoutoutChannelId);
+    }
+  }, [shoutoutChannelId]);
+  
   const channelReducer = React.useCallback(
     async (_state: ChannelActionState, formData: FormData) => {
       return await updateShoutoutChannelAction(_state, formData);
@@ -700,39 +707,7 @@ export default function GroupDetailPage() {
     initialVipActionState,
   );
 
-  React.useEffect(() => {
-    const storedChannel = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
-    if (storedChannel) {
-      setShoutoutChannelId(storedChannel);
-      setChannelInput(storedChannel);
-    } else {
-      setShoutoutChannelId('');
-      setChannelInput('');
-    }
-  }, [storageKey]);
-
-  React.useEffect(() => {
-    if (!firestore || !serverId) return;
-    const fetchChannel = async () => {
-      try {
-        const serverRef = doc(firestore, 'servers', serverId);
-        const snapshot = await getDoc(serverRef);
-        if (!snapshot.exists()) return;
-        const storedChannels = snapshot.data()?.shoutoutChannels || {};
-        const remoteChannel = storedChannels[channelGroupKey];
-        if (typeof remoteChannel === 'string' && remoteChannel.trim().length > 0) {
-          setShoutoutChannelId(remoteChannel);
-          setChannelInput(remoteChannel);
-          localStorage.setItem(storageKey, remoteChannel);
-        }
-      } catch (error) {
-        console.error('Failed to load shoutout channel from Firestore', error);
-      }
-    };
-    fetchChannel();
-  }, [firestore, serverId, channelGroupKey, storageKey]);
-
-  const handleChannelSave = React.useCallback(() => {
+  const handleChannelSave = React.useCallback(async () => {
     const trimmed = channelInput.trim();
     if (!trimmed) {
       toast({
@@ -742,45 +717,49 @@ export default function GroupDetailPage() {
       });
       return;
     }
-    if (!serverId) {
+    try {
+      await saveChannel(trimmed);
+      toast({
+        title: 'Shoutout channel saved',
+        description: `Shoutouts will be posted to channel ${trimmed}.`,
+      });
+      const formData = new FormData();
+      formData.append('serverId', serverId);
+      formData.append('groupKey', channelGroupKey);
+      formData.append('channelId', trimmed);
+      formData.append('currentPath', pathname);
+      channelFormAction(formData);
+    } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Server not selected',
-        description: 'Set your Discord server ID in Settings first.',
+        title: 'Failed to save',
+        description: 'Could not save channel to database.',
       });
-      return;
     }
-    localStorage.setItem(storageKey, trimmed);
-    setShoutoutChannelId(trimmed);
-    toast({
-      title: 'Shoutout channel saved',
-      description: `Shoutouts will be posted to channel ${trimmed}.`,
-    });
-    const formData = new FormData();
-    formData.append('serverId', serverId);
-    formData.append('groupKey', channelGroupKey);
-    formData.append('channelId', trimmed);
-    formData.append('currentPath', pathname);
-    channelFormAction(formData);
-  }, [channelInput, storageKey, toast, serverId, channelGroupKey, pathname, channelFormAction]);
+  }, [channelInput, toast, serverId, channelGroupKey, pathname, channelFormAction, saveChannel]);
 
-  const handleChannelClear = React.useCallback(() => {
-    localStorage.removeItem(storageKey);
-    setShoutoutChannelId('');
-    setChannelInput('');
-    toast({
-      title: 'Shoutout channel cleared',
-      description: 'Configure a new channel before posting shoutouts.',
-    });
-    if (serverId) {
+  const handleChannelClear = React.useCallback(async () => {
+    try {
+      await saveChannel('');
+      setChannelInput('');
+      toast({
+        title: 'Shoutout channel cleared',
+        description: 'Configure a new channel before posting shoutouts.',
+      });
       const formData = new FormData();
       formData.append('serverId', serverId);
       formData.append('groupKey', channelGroupKey);
       formData.append('channelId', '');
       formData.append('currentPath', pathname);
       channelFormAction(formData);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to clear',
+        description: 'Could not clear channel from database.',
+      });
     }
-  }, [storageKey, toast, serverId, channelGroupKey, pathname, channelFormAction]);
+  }, [toast, serverId, channelGroupKey, pathname, channelFormAction, saveChannel]);
 
   const activeChannelId = React.useMemo(
     () => (shoutoutChannelId.trim().length > 0 ? shoutoutChannelId.trim() : null),

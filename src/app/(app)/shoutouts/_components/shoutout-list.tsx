@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useServerId } from '@/lib/get-server-id';
+import { useShoutoutChannel } from '@/lib/use-server-config';
 import { useActionState } from 'react';
 import { collection } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
@@ -213,19 +214,16 @@ export function ShoutoutList() {
     const firestore = useFirestore();
     const serverId = useServerId();
   const { toast } = useToast();
-  const [shoutoutChannelId, setShoutoutChannelId] = React.useState<string>('');
+  const { channelId: shoutoutChannelId, saveChannel } = useShoutoutChannel('default');
   const [channelInput, setChannelInput] = React.useState<string>('');
 
   React.useEffect(() => {
-    setServerId(localStorage.getItem('discordServerId'));
-    const storedChannel = localStorage.getItem('shoutoutChannelId');
-    if (storedChannel) {
-      setShoutoutChannelId(storedChannel);
-      setChannelInput(storedChannel);
+    if (shoutoutChannelId) {
+      setChannelInput(shoutoutChannelId);
     }
-  }, []);
+  }, [shoutoutChannelId]);
 
-  const handleChannelSave = React.useCallback(() => {
+  const handleChannelSave = React.useCallback(async () => {
     const trimmed = channelInput.trim();
     if (!trimmed) {
       toast({
@@ -235,19 +233,26 @@ export function ShoutoutList() {
       });
       return;
     }
-    localStorage.setItem('shoutoutChannelId', trimmed);
-    setShoutoutChannelId(trimmed);
-    toast({
-      title: 'Shoutout channel saved',
-      description: `Shoutouts will be posted to channel ${trimmed}.`,
-    });
-  }, [channelInput, toast]);
+    try {
+      await saveChannel(trimmed);
+      toast({
+        title: 'Shoutout channel saved',
+        description: `Shoutouts will be posted to channel ${trimmed}.`,
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to save',
+        description: 'Could not save channel to database.',
+      });
+    }
+  }, [channelInput, toast, saveChannel]);
 
-  const handleChannelClear = React.useCallback(() => {
-    localStorage.removeItem('shoutoutChannelId');
-    setShoutoutChannelId('');
-    setChannelInput('');
-    toast({
+  const handleChannelClear = React.useCallback(async () => {
+    try {
+      await saveChannel('');
+      setChannelInput('');
+      toast({
       title: 'Shoutout channel cleared',
       description: 'Configure a new channel before posting shoutouts.',
     });
