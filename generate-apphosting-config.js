@@ -45,5 +45,5 @@ ${envSection}`;
 
 // Write the updated apphosting.yaml
 fs.writeFileSync('apphosting.yaml', apphostingConfig);
-console.log('✅ Updated apphosting.yaml with all 96 secrets');
+console.log('✅ Updated apphosting.yaml with all ' + Object.keys(envVars).length + ' secrets');
 console.log('🚀 Ready to deploy with: firebase deploy --only apphosting');
