@@ -1,3 +1,4 @@
+
 const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
@@ -29,7 +30,7 @@ async function uploadSecrets() {
     });
 
     // Upload to Firestore: servers/1240832965865635881/config/secrets
-    const serverId = '1240832965865635881'; // Your guild ID from .env
+    const serverId = process.env.HARDCODED_GUILD_ID || '1240832965865635881'; // Your guild ID from .env
     await db.collection('servers').doc(serverId).collection('config').doc('secrets').set(secrets);
     
     console.log(`✅ Uploaded ${Object.keys(secrets).length} secrets to servers/${serverId}/config/secrets`);
