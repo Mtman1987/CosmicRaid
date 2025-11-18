@@ -126,13 +126,12 @@ export function useShoutoutChannel(groupKey: string) {
 
     const loadChannel = async () => {
       try {
-        const serverRef = doc(firestore, 'servers', serverId);
-        const snapshot = await getDoc(serverRef);
+        const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
+        const snapshot = await getDoc(channelsRef);
         
         if (snapshot.exists()) {
-          const data = snapshot.data();
-          const channels = data?.shoutoutChannels || {};
-          setChannelId(channels[groupKey] || '');
+          const channels = snapshot.data();
+          setChannelId(channels?.[groupKey] || '');
         }
       } catch (error) {
         console.error('[useShoutoutChannel] Failed to load:', error);
@@ -149,23 +148,11 @@ export function useShoutoutChannel(groupKey: string) {
       if (!firestore || !serverId) return;
 
       try {
-        const serverRef = doc(firestore, 'servers', serverId);
-        const snapshot = await getDoc(serverRef);
-        const currentData = snapshot.exists() ? snapshot.data() : {};
-        const currentChannels = currentData?.shoutoutChannels || {};
+        const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
         
-        const updates = {
-          shoutoutChannels: {
-            ...currentChannels,
-            [groupKey]: newChannelId,
-          },
-        };
-
-        if (snapshot.exists()) {
-          await updateDoc(serverRef, updates);
-        } else {
-          await setDoc(serverRef, updates);
-        }
+        await updateDoc(channelsRef, {
+          [groupKey]: newChannelId,
+        });
         
         setChannelId(newChannelId);
       } catch (error) {
