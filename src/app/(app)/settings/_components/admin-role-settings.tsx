@@ -51,9 +51,9 @@ export function AdminRoleSettings({ serverId }: { serverId: string }) {
   // Fetch the current server config to know which roles are already admins
   const serverConfigRef = React.useMemo(() => {
     if (!firestore || !serverId) return null;
-    return doc(firestore, 'servers', serverId);
+    return doc(firestore, 'servers', serverId, 'config', 'settings');
   }, [firestore, serverId]);
-  const { data: serverConfig, isLoading: isLoadingServerConfig } = useDoc<DiscordServer>(serverConfigRef);
+  const { data: serverConfig, isLoading: isLoadingServerConfig } = useDoc<{ adminRoles?: string[] }>(serverConfigRef);
   const adminRoles = serverConfig?.adminRoles || [];
 
   const isLoading = isLoadingRoles || isLoadingServerConfig;

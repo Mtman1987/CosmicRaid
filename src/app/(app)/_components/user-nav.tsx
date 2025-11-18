@@ -46,20 +46,23 @@ export function UserNav() {
     );
   }
 
-  const displayName = userProfile?.username || userId || 'Not logged in';
+  const displayName = userProfile?.username || user?.displayName || userId || 'Not logged in';
+  const avatarUrl = userProfile?.avatarUrl || user?.photoURL || '';
   const displayServer = serverId ? `Server: ${serverId}` : 'No server selected';
 
   return (
     <div className="flex items-center gap-3">
       <Avatar className="h-9 w-9">
-        {userProfile?.avatarUrl && (
-          <AvatarImage src={userProfile.avatarUrl} alt={displayName} />
+        {avatarUrl && (
+          <AvatarImage src={avatarUrl} alt={displayName} />
         )}
         <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
       </Avatar>
       <div className="grid gap-0.5 text-sm">
         <div className="font-medium">{displayName}</div>
-        <div className="text-muted-foreground">{displayServer}</div>
+        <div className="text-muted-foreground text-xs truncate max-w-[180px]" title={displayServer}>
+          {displayServer}
+        </div>
       </div>
     </div>
   );
