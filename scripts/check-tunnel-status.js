@@ -1,63 +1,62 @@
 #!/usr/bin/env node
-/**
- * Check tunnel status and test connectivity
- */
-
-const fs = require('fs');
-const path = require('path');
-
-const projectRoot = path.join(__dirname, '..');
-const statusFile = path.join(projectRoot, '.tunnel-status.json');
+const admin = require('firebase-admin');
 
 async function checkTunnelStatus() {
-  console.log('🔍 Checking tunnel status...\n');
-  
-  // Check status file
-  if (!fs.existsSync(statusFile)) {
-    console.log('❌ No tunnel status file found');
-    console.log('   Run: npm run electron:tunnel');
-    return;
-  }
-  
   try {
-    const status = JSON.parse(fs.readFileSync(statusFile, 'utf8'));
+    // Initialize Firebase Admin
+    const serviceAccount = require('../studio-9468926194-e03ac-firebase-adminsdk-fbsvc-75298e056b.json');
+    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    const db = admin.firestore();
+
+    console.log('🔍 Checking tunnel status...\n');
+
+    // Check Firestore for tunnel URL
+    const doc = await db.collection('servers').doc('1240832965865635881').collection('config').doc('secrets').get();
     
-    console.log('📊 Tunnel Status:');
-    console.log(`   Tunnel: ${status.tunnel?.status || 'unknown'}`);
-    console.log(`   URL: ${status.tunnel?.url || 'none'}`);
-    console.log(`   Server: ${status.server?.status || 'unknown'} (port ${status.server?.port || 'unknown'})`);
-    console.log(`   Puppeteer: ${status.puppeteer?.status || 'unknown'}`);
-    console.log(`   FFmpeg: ${status.ffmpeg?.status || 'unknown'}`);
-    console.log(`   Last Updated: ${status.lastUpdated || 'unknown'}\n`);
-    
-    // Test connectivity if tunnel is running
-    if (status.tunnel?.url && status.tunnel?.status === 'connected') {
-      console.log('🧪 Testing tunnel connectivity...');
+    if (doc.exists) {
+      const data = doc.data();
+      const tunnelUrl = data.PUPPETEER_SERVICE_URL;
+      console.log('📡 Firestore PUPPETEER_SERVICE_URL:', tunnelUrl);
       
-      try {
-        const response = await fetch(`${status.tunnel.url}/health`, {
-          method: 'GET',
-          signal: AbortSignal.timeout(5000)
-        });
-        
-        if (response.ok) {
-          const health = await response.json();
-          console.log('✅ Tunnel is accessible');
-          console.log(`   Health: ${health.status || 'unknown'}`);
-          console.log(`   Services: ${JSON.stringify(health.services || {})}`);
-        } else {
-          console.log(`❌ Tunnel responded with ${response.status}`);
+      if (tunnelUrl) {
+        // Test tunnel health
+        console.log('\n🏥 Testing tunnel health...');
+        try {
+          const response = await fetch(`${tunnelUrl}/health`);
+          if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Tunnel is healthy:', result);
+          } else {
+            console.log('❌ Tunnel unhealthy:', response.status, response.statusText);
+          }
+        } catch (error) {
+          console.log('❌ Tunnel connection failed:', error.message);
         }
-      } catch (error) {
-        console.log(`❌ Tunnel connectivity test failed: ${error.message}`);
       }
     } else {
-      console.log('⚠️  Tunnel not running or not connected');
+      console.log('❌ No secrets document found in Firestore');
     }
-    
+
+    // Check ngrok status
+    console.log('\n🌐 Checking ngrok status...');
+    try {
+      const ngrokResponse = await fetch('http://localhost:4040/api/tunnels');
+      if (ngrokResponse.ok) {
+        const tunnels = await ngrokResponse.json();
+        console.log('🚇 Active tunnels:', tunnels.tunnels.length);
+        tunnels.tunnels.forEach(tunnel => {
+          console.log(`  - ${tunnel.public_url} → ${tunnel.config.addr}`);
+        });
+      }
+    } catch (error) {
+      console.log('❌ ngrok API not accessible:', error.message);
+    }
+
   } catch (error) {
-    console.error('❌ Error reading status file:', error.message);
+    console.error('❌ Error:', error.message);
   }
+  
+  process.exit(0);
 }
 
-checkTunnelStatus().catch(console.error);
+checkTunnelStatus();

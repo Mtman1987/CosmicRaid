@@ -37,6 +37,10 @@ async function startWithTunnel() {
   });
   
   try {
+    // Kill any existing ngrok tunnels first
+    console.log('🔄 Cleaning up existing tunnels...');
+    await ngrok.kill();
+    
     // Start ngrok tunnel
     console.log(`📡 Creating ngrok tunnel for port ${port}...`);
     tunnelUrl = await ngrok.connect(port);

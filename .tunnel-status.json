@@ -1,0 +1,19 @@
+{
+  "tunnel": {
+    "status": "error",
+    "url": null,
+    "error": "Cannot read properties of undefined (reading 'body')"
+  },
+  "server": {
+    "status": "error",
+    "port": null
+  },
+  "puppeteer": {
+    "status": "unavailable"
+  },
+  "ffmpeg": {
+    "status": "unavailable"
+  },
+  "lastUpdated": "2025-11-18T15:38:58.607Z",
+  "port": "3300"
+}

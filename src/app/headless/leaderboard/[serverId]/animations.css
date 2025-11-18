@@ -1,0 +1,29 @@
+@keyframes twinkle {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+@keyframes rocket-fly {
+  0% { transform: translateX(-100px) rotate(45deg); }
+  100% { transform: translateX(calc(100vw + 100px)) rotate(45deg); }
+}
+
+@keyframes ufo-fly {
+  0% { transform: translateX(100px) rotate(-10deg); }
+  100% { transform: translateX(calc(-100vw - 100px)) rotate(10deg); }
+}
+
+@keyframes slideIn {
+  0% { 
+    opacity: 0; 
+    transform: translateX(-100px) scale(0.8); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateX(0) scale(1); 
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.8s ease-out forwards;
+}

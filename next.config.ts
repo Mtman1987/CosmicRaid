@@ -102,8 +102,6 @@ const nextConfig: NextConfig = {
   },
   // Required for discord-verify to work
   serverExternalPackages: ['discord-verify'],
-  // Skip prerendering for API routes
-  generateStaticParams: false,
   webpack: (config) => {
     config.ignoreWarnings = config.ignoreWarnings || [];
     config.ignoreWarnings.push((warning: any) => {

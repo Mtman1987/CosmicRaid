@@ -1,5 +1,3 @@
-'use server';
-
 import { db } from '@/firebase/server-init';
 import { getUserByLogin, getClipsForUser, getStreamByUserId } from './twitch-api-service';
 import { convertClipToGif } from './gif-conversion-service';
@@ -327,16 +325,14 @@ export class TwitchClipService {
   }
 }
 
-// Export singleton instance
-export const twitchClipService = new TwitchClipService();
-
-// Export convenience functions
+// Export convenience functions that create service instances
 export async function getBestClipForStreamer(
   serverId: string, 
   streamerName: string, 
   options?: Parameters<TwitchClipService['getBestClipForStreamer']>[2]
 ) {
-  return twitchClipService.getBestClipForStreamer(serverId, streamerName, options);
+  const service = new TwitchClipService();
+  return service.getBestClipForStreamer(serverId, streamerName, options);
 }
 
 export async function getClipsForCommunitySpotlight(
@@ -344,9 +340,11 @@ export async function getClipsForCommunitySpotlight(
   onlineStreamers: string[], 
   count?: number
 ) {
-  return twitchClipService.getClipsForCommunitySpotlight(serverId, onlineStreamers, count);
+  const service = new TwitchClipService();
+  return service.getClipsForCommunitySpotlight(serverId, onlineStreamers, count);
 }
 
 export async function cleanupOldClips(serverId: string) {
-  return twitchClipService.cleanupOldClips(serverId);
+  const service = new TwitchClipService();
+  return service.cleanupOldClips(serverId);
 }

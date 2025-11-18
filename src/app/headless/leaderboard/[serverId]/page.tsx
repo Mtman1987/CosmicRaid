@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { db } from '@/firebase/server-init';
+import './animations.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,8 +65,22 @@ export default async function LeaderboardPage({
     <div className="leaderboard min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0">
-        <div className="stars absolute inset-0 opacity-60"></div>
-        <div className="rockets absolute inset-0"></div>
+        <div className="absolute inset-0 opacity-60" style={{
+          background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="white" opacity="0.8"/><circle cx="80" cy="30" r="0.5" fill="white" opacity="0.6"/><circle cx="60" cy="70" r="1" fill="white" opacity="0.7"/><circle cx="30" cy="80" r="0.5" fill="white" opacity="0.5"/><circle cx="10" cy="50" r="0.8" fill="white" opacity="0.9"/><circle cx="90" cy="60" r="0.6" fill="white" opacity="0.7"/></svg>') repeat`,
+          animation: 'twinkle 3s ease-in-out infinite alternate'
+        }}></div>
+        <div className="absolute inset-0">
+          <div className="absolute text-4xl" style={{
+            animation: 'rocket-fly 15s linear infinite',
+            top: '20%',
+            left: '-5%'
+          }}>🚀</div>
+          <div className="absolute text-2xl" style={{
+            animation: 'ufo-fly 20s linear infinite reverse',
+            top: '60%',
+            right: '-5%'
+          }}>🛸</div>
+        </div>
       </div>
 
       {/* Main content */}
@@ -83,7 +98,7 @@ export default async function LeaderboardPage({
           {leaderboard.map((entry, index) => (
             <div
               key={entry.username}
-              className={`leaderboard-entry mb-4 p-6 rounded-xl backdrop-blur-sm border-2 transform transition-all duration-1000 animate-slideIn ${
+              className={`mb-4 p-6 rounded-xl backdrop-blur-sm border-2 transform transition-all duration-1000 animate-slideIn ${
                 index === 0 ? 'bg-gradient-to-r from-yellow-500/30 to-orange-500/30 border-yellow-400 scale-110' :
                 index === 1 ? 'bg-gradient-to-r from-gray-400/30 to-gray-600/30 border-gray-400 scale-105' :
                 index === 2 ? 'bg-gradient-to-r from-orange-600/30 to-yellow-600/30 border-orange-400 scale-102' :
@@ -141,60 +156,7 @@ export default async function LeaderboardPage({
         </div>
       </div>
 
-      <style jsx>{`
-        .stars {
-          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="white" opacity="0.8"/><circle cx="80" cy="30" r="0.5" fill="white" opacity="0.6"/><circle cx="60" cy="70" r="1" fill="white" opacity="0.7"/><circle cx="30" cy="80" r="0.5" fill="white" opacity="0.5"/><circle cx="10" cy="50" r="0.8" fill="white" opacity="0.9"/><circle cx="90" cy="60" r="0.6" fill="white" opacity="0.7"/></svg>') repeat;
-          animation: twinkle 3s ease-in-out infinite alternate;
-        }
-        
-        .rockets::before {
-          content: '🚀';
-          position: absolute;
-          font-size: 2rem;
-          animation: rocket-fly 15s linear infinite;
-          top: 20%;
-          left: -5%;
-        }
-        
-        .rockets::after {
-          content: '🛸';
-          position: absolute;
-          font-size: 1.5rem;
-          animation: ufo-fly 20s linear infinite reverse;
-          top: 60%;
-          right: -5%;
-        }
-        
-        @keyframes twinkle {
-          0% { opacity: 0.3; }
-          100% { opacity: 1; }
-        }
-        
-        @keyframes rocket-fly {
-          0% { transform: translateX(-100px) rotate(45deg); }
-          100% { transform: translateX(calc(100vw + 100px)) rotate(45deg); }
-        }
-        
-        @keyframes ufo-fly {
-          0% { transform: translateX(100px) rotate(-10deg); }
-          100% { transform: translateX(calc(-100vw - 100px)) rotate(10deg); }
-        }
-        
-        @keyframes slideIn {
-          0% { 
-            opacity: 0; 
-            transform: translateX(-100px) scale(0.8); 
-          }
-          100% { 
-            opacity: 1; 
-            transform: translateX(0) scale(1); 
-          }
-        }
-        
-        .animate-slideIn {
-          animation: slideIn 0.8s ease-out forwards;
-        }
-      `}</style>
+
     </div>
   );
 }
