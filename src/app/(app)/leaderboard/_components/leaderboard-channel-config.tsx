@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Trash2, Send } from 'lucide-react';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 
 interface LeaderboardChannelConfigProps {
@@ -70,9 +70,9 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
       // Save to servers/{serverId}/config/channels subcollection
       const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
       
-      await updateDoc(channelsRef, {
+      await setDoc(channelsRef, {
         leaderboard: trimmed
-      });
+      }, { merge: true });
       
       setChannelId(trimmed);
       toast({
@@ -94,9 +94,9 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
     try {
       const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
       
-      await updateDoc(channelsRef, {
+      await setDoc(channelsRef, {
         leaderboard: ''
-      });
+      }, { merge: true });
       
       setChannelId('');
       setChannelInput('');

@@ -55,12 +55,8 @@ export function CommunitySpotlight() {
       .finally(() => setIsLoading(false));
   }, [serverId, loadSpotlight]);
 
-  React.useEffect(() => {
-    if (!serverId) return;
-    fetch('/api/auto-poll', { method: 'POST' }).catch((err) =>
-      console.error('Failed to start auto-polling:', err),
-    );
-  }, [serverId]);
+  // Auto-polling is now handled by Cloud Scheduler / Uptime Robot
+  // No need to call /api/auto-poll on page load
 
   const handleRefresh = async () => {
     if (!serverId) return;

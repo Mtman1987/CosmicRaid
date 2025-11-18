@@ -134,7 +134,8 @@ export function useShoutoutChannel(groupKey: string) {
           setChannelId(channels?.[groupKey] || '');
         }
       } catch (error) {
-        console.error('[useShoutoutChannel] Failed to load:', error);
+        // Silent - just means document doesn't exist yet
+        console.log('[useShoutoutChannel] No config found yet (normal on first use)');
       } finally {
         setIsLoading(false);
       }
@@ -150,9 +151,9 @@ export function useShoutoutChannel(groupKey: string) {
       try {
         const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
         
-        await updateDoc(channelsRef, {
+        await setDoc(channelsRef, {
           [groupKey]: newChannelId,
-        });
+        }, { merge: true });
         
         setChannelId(newChannelId);
       } catch (error) {
@@ -192,7 +193,8 @@ export function useCalendarChannel() {
           setChannelId(data?.calendarChannelId || '');
         }
       } catch (error) {
-        console.error('[useCalendarChannel] Failed to load:', error);
+        // Silent - just means document doesn't exist yet
+        console.log('[useCalendarChannel] No config found yet (normal on first use)');
       }
     };
 
@@ -205,7 +207,7 @@ export function useCalendarChannel() {
 
       try {
         const configRef = doc(firestore, 'servers', serverId, 'config', 'settings');
-        await updateDoc(configRef, { calendarChannelId: newChannelId });
+        await setDoc(configRef, { calendarChannelId: newChannelId }, { merge: true });
         setChannelId(newChannelId);
       } catch (error) {
         console.error('[useCalendarChannel] Failed to save:', error);
