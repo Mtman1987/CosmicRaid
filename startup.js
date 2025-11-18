@@ -3,7 +3,7 @@
  * Startup script for Electron app that:
  * 1. Starts ngrok tunnel on port 3300
  * 2. Gets the public URL from ngrok
- * 3. Uploads it to Firestore as PUPPETEER_SERVICE_URL
+ * 3. Uploads it to Firestore as LOCAL_CONVERSION_SERVICE_URL
  * 4. Starts the dev:hosted server
  * 
  * This makes your local Puppeteer/FFmpeg service accessible from App Hosting
@@ -100,7 +100,7 @@ async function getNgrokUrl() {
  */
 async function uploadToFirestore(url) {
   try {
-    console.log('[Startup] Uploading PUPPETEER_SERVICE_URL to Firestore...');
+    console.log('[Startup] Uploading LOCAL_CONVERSION_SERVICE_URL to Firestore...');
     
     // Store in the same location as other secrets: servers/{serverId}/config/secrets
     const serverId = '1240832965865635881';
@@ -109,8 +109,8 @@ async function uploadToFirestore(url) {
       .collection('config')
       .doc('secrets')
       .set({
-        PUPPETEER_SERVICE_URL: url,
-        PUPPETEER_SERVICE_UPDATED_AT: admin.firestore.FieldValue.serverTimestamp()
+        LOCAL_CONVERSION_SERVICE_URL: url,
+        LOCAL_CONVERSION_SERVICE_UPDATED_AT: admin.firestore.FieldValue.serverTimestamp()
       }, { merge: true }); // Use merge to not overwrite other secrets
     
     console.log('[Startup] ✅ Successfully uploaded to Firestore at servers/1240832965865635881/config/secrets');
@@ -131,7 +131,7 @@ function startDevServer() {
     stdio: 'inherit',
     env: {
       ...process.env,
-      PUPPETEER_SERVICE_URL: ngrokUrl
+      LOCAL_CONVERSION_SERVICE_URL: ngrokUrl
     }
   });
   
@@ -161,7 +161,9 @@ function cleanup() {
   }
   
   // Remove the URL from Firestore on shutdown
-  db.collection('secrets').doc('PUPPETEER_SERVICE_URL').delete()
+  db.collection('servers').doc('1240832965865635881').collection('config').doc('secrets').update({
+    LOCAL_CONVERSION_SERVICE_URL: admin.firestore.FieldValue.delete()
+  })
     .then(() => {
       console.log('[Startup] ✅ Cleaned up Firestore');
       process.exit(0);

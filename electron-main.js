@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, nativeImage } = require('electron');
+const { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const os = require('os');
@@ -308,7 +308,6 @@ app.on('window-all-closed', () => {
 });
 
 // Handle IPC for logs
-const { ipcMain } = require('electron');
 ipcMain.on('get-logs', (event) => {
   event.reply('logs-update', serverLogs);
 });
