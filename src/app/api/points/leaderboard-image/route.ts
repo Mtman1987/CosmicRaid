@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { LeaderboardScreenshotService } from '@/lib/leaderboard-screenshot-service';
+import { takeLeaderboardScreenshot } from '@/lib/leaderboard-screenshot-service';
 import { getUserRank, generateLeaderboardGifFromPage } from '@/lib/leaderboard-service';
 import { sendDiscordMessage } from '@/lib/discord-bot-service';
 
@@ -10,8 +10,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const screenshotService = LeaderboardScreenshotService.getInstance();
-    const imageBuffer = await screenshotService.generateLeaderboardImage();
+    const serverId = process.env.HARDCODED_GUILD_ID || 'default';
+    const dataUrl = await takeLeaderboardScreenshot(serverId);
+    
+    if (!dataUrl) {
+      return NextResponse.json({ error: 'Failed to generate screenshot' }, { status: 500 });
+    }
+
+    // Convert data URL to buffer
+    const base64Data = dataUrl.split(',')[1];
+    const imageBuffer = Buffer.from(base64Data, 'base64');
     
     return new NextResponse(imageBuffer, {
       headers: {

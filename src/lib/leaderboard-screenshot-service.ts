@@ -28,9 +28,3 @@ export async function takeLeaderboardScreenshot(serverId: string): Promise<strin
     return null;
   }
 }
-
-export class LeaderboardScreenshotService {
-  static async takeScreenshot(serverId: string): Promise<string | null> {
-    return takeLeaderboardScreenshot(serverId);
-  }
-}
