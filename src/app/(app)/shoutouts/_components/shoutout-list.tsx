@@ -265,8 +265,19 @@ export function ShoutoutList() {
     return collection(firestore, 'servers', serverId, 'users');
   }, [firestore, serverId]);
 
-  const { data: allUsers, isLoading: isLoadingUsers } =
+  const { data: allUsers, isLoading: isLoadingUsers, error: usersError } =
     useCollection<UserProfile>(usersCollectionRef);
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log('[ShoutoutList] Users data:', {
+      count: allUsers?.length ?? 0,
+      isLoading: isLoadingUsers,
+      hasError: !!usersError,
+      error: usersError?.message,
+      serverId,
+    });
+  }, [allUsers, isLoadingUsers, usersError, serverId]);
 
   const { onlineUsers, offlineUsers } = React.useMemo(() => {
     return {
