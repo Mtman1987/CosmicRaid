@@ -249,7 +249,7 @@ export default function ForwardingPage() {
     const storedUserId = userId;
     if (storedServerId) setSourceServerId(storedServerId);
     if (storedUserId) setCurrentUserId(storedUserId);
-  }, []);
+  }, [serverId, userId]);
   
   const currentUserProfileRef = React.useMemo(() => {
     if (!firestore || !sourceServerId || !currentUserId) return null;
@@ -361,7 +361,7 @@ export default function ForwardingPage() {
         });
       })
       .catch((error) => {
-        console.error('Failed to save rules', error);
+        console.error('Failed to save rules:', error?.message?.replace(/[\r\n]/g, '') || 'Unknown error');
         toast({
           variant: 'destructive',
           title: 'Error',

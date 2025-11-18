@@ -57,7 +57,7 @@ function resolveExistingMediaUrl(shoutout: any): string | null {
   }
   return shoutout.embeds?.[0]?.image?.url || null;
 }
-import { isCommunityGroup, isVipGroup } from "./group-utils"
+import { isCommunityGroupSync, isVipGroupSync, getUserGroupFromRoles } from "./group-utils"
 
 
 export interface ShoutoutResult {
@@ -98,13 +98,21 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
     const userLookup = { userId, username: streamerName }
 
     try {
-      console.log(`[Shoutout] Processing user ${streamerName} - Group: ${user.group}, Online: ${user.isOnline}`)
-      const isVip = isVipGroup(user.group)
-      const isCommunity = isCommunityGroup(user.group)
+      console.log('[Shoutout] Processing user:', streamerName?.replace(/[\r\n]/g, ''), '- Group:', user.group?.replace(/[\r\n]/g, ''), 'Online:', user.isOnline)
+      // Check if user should be in different group based on roles
+      const suggestedGroup = await getUserGroupFromRoles(user.roles || [], serverId);
+      if (suggestedGroup !== user.group) {
+        console.log('[Shoutout] User:', streamerName?.replace(/[\r\n]/g, ''), 'has roles suggesting:', suggestedGroup?.replace(/[\r\n]/g, ''), 'but is in:', user.group?.replace(/[\r\n]/g, ''));
+      }
+      
+      const isVip = isVipGroupSync(user.group)
+      const isCommunity = isCommunityGroupSync(user.group)
       
       // Get real Twitch data and clips
       const twitchUser = await getUserByLogin(streamerName.toLowerCase())
       const stream = twitchUser ? await getStreamByUserId(twitchUser.id) : null
+      
+      console.log('[Shoutout] User:', streamerName?.replace(/[\r\n]/g, ''), 'group:', user.group?.replace(/[\r\n]/g, ''), 'isVip:', isVip, 'isCommunity:', isCommunity);
       
       const now = new Date();
       const streamTitle = stream?.title || user.topic || 'Live Stream';
@@ -130,28 +138,15 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
       const freshShoutout = isShoutoutFresh(user.shoutoutGeneratedAt);
 
       if (isVip) {
-        console.log(`[Shoutout] Processing VIP user ${streamerName}, live: ${!!stream}`);
+        console.log('[Shoutout] Processing VIP user:', streamerName?.replace(/[\r\n]/g, ''), 'live:', !!stream);
         
         if (freshShoutout && previousMediaUrl) {
           cardUrl = previousMediaUrl;
-          console.log(`[Shoutout] Reusing fresh VIP clip for ${streamerName}`);
+          console.log('[Shoutout] Reusing fresh VIP clip for:', streamerName?.replace(/[\r\n]/g, ''));
         }
         
         if (!cardUrl) {
-          const vipSpotlightData = await getVipSpotlight(serverId, streamerName);
-          if (vipSpotlightData?.cardGifUrl) {
-            cardUrl = vipSpotlightData.cardGifUrl;
-            console.log(`[Shoutout] Using VIP spotlight clip for ${streamerName}: ${cardUrl}`);
-          } else {
-            const pooledClip = await getRandomClipFromPool(serverId, userLookup);
-            if (pooledClip?.gifUrl) {
-              cardUrl = pooledClip.gifUrl;
-              console.log(`[Shoutout] Using pooled VIP clip for ${streamerName}: ${cardUrl}`);
-            }
-          }
-        }
-
-        if (!cardUrl) {
+          // VIPs always get individual GIF clips
           const clipResult = await generateShoutoutCardGif({
             streamerName,
             streamTitle,
@@ -165,7 +160,7 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
           
           if (clipResult) {
             cardUrl = clipResult.gifUrl
-            console.log(`[Shoutout] VIP GIF freshly generated for ${streamerName}: ${cardUrl}`);
+            console.log('[Shoutout] VIP individual GIF generated for:', streamerName?.replace(/[\r\n]/g, ''));
             await addClipToPool(serverId, userLookup, {
               gifUrl: clipResult.gifUrl,
               mp4Url: clipResult.mp4Url,
@@ -173,7 +168,7 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
               gameName: streamGame
             });
           } else {
-            console.log(`[Shoutout] VIP GIF generation failed for ${streamerName}`);
+            console.log('[Shoutout] VIP GIF generation failed for:', streamerName?.replace(/[\r\n]/g, ''));
           }
         }
       } else if (isCommunity) {
@@ -182,34 +177,22 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
 
         if (freshShoutout && previousMediaUrl) {
           cardUrl = previousMediaUrl;
-          console.log(`[Shoutout] Reusing fresh community card for ${streamerName}`);
+          console.log('[Shoutout] Reusing fresh community card for:', streamerName?.replace(/[\r\n]/g, ''));
         } else {
-          const pooledCard = await getReusableCommunityCard(serverId, userLookup, desiredTitle, desiredGame);
-          if (pooledCard?.imageUrl) {
-            cardUrl = pooledCard.imageUrl;
-            console.log(`[Shoutout] Using pooled community card for ${streamerName}`);
-          } else {
-            try {
-              cardUrl = await generateCommunityCard(serverId, streamerName, {
-                title: desiredTitle,
-                game: desiredGame,
-                viewers: viewerCount,
-                avatarUrl: twitchAvatar,
-                thumbnailUrl: streamThumbnail,
-                isLive
-              })
-              console.log(`[Shoutout] Community card generated for ${streamerName}: ${cardUrl}`);
-              if (cardUrl) {
-                await addCommunityCardToPool(serverId, userLookup, {
-                  imageUrl: cardUrl,
-                  title: desiredTitle,
-                  game: desiredGame
-                });
-              }
-            } catch (cardError) {
-              console.error(`[Shoutout] Community card failed for ${streamerName}:`, cardError);
-              cardUrl = null;
-            }
+          // Community members get static images only
+          try {
+            cardUrl = await generateCommunityCard(serverId, streamerName, {
+              title: desiredTitle,
+              game: desiredGame,
+              viewers: viewerCount,
+              avatarUrl: twitchAvatar,
+              thumbnailUrl: streamThumbnail,
+              isLive
+            })
+            console.log('[Shoutout] Static community card generated for:', streamerName?.replace(/[\r\n]/g, ''));
+          } catch (cardError) {
+            console.error('[Shoutout] Community card failed for:', streamerName?.replace(/[\r\n]/g, ''), cardError instanceof Error ? cardError.message?.replace(/[\r\n]/g, '') : 'Unknown error');
+            cardUrl = null;
           }
         }
       }
@@ -436,7 +419,7 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
         message: 'Shoutout generated and saved successfully.',
       })
     } catch (error) {
-      console.error(`Failed to generate shoutout for ${streamerName}:`, error)
+      console.error('Failed to generate shoutout for:', streamerName?.replace(/[\r\n]/g, ''), error instanceof Error ? error.message?.replace(/[\r\n]/g, '') : 'Unknown error')
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       results.push({
         streamerName,

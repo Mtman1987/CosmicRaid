@@ -253,10 +253,17 @@ export function ShoutoutList() {
       await saveChannel('');
       setChannelInput('');
       toast({
-      title: 'Shoutout channel cleared',
-      description: 'Configure a new channel before posting shoutouts.',
-    });
-  }, [toast]);
+        title: 'Shoutout channel cleared',
+        description: 'Configure a new channel before posting shoutouts.',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to clear',
+        description: 'Could not clear channel from database.',
+      });
+    }
+  }, [toast, saveChannel]);
 
   const activeChannelId = shoutoutChannelId.trim() || null;
 

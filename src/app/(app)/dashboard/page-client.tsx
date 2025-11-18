@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/page-header";
 import { UpcomingEvents } from "./_components/upcoming-events";
 import { LeaderboardSnapshot } from "./_components/leaderboard-snapshot";
 import { RecentShoutouts } from "./_components/recent-shoutouts";
+import { DatabaseTest } from "./_components/database-test";
 
 export default function DashboardPage() {
   return (
@@ -26,6 +27,9 @@ export default function DashboardPage() {
         gap: '32px',
         gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
       }}>
+        <div style={{ gridColumn: 'span 2' }}>
+          <DatabaseTest />
+        </div>
         <div style={{ gridColumn: 'span 2' }}>
            <RecentShoutouts />
         </div>

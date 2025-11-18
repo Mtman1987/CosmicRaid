@@ -1,8 +1,7 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { db } from '@/firebase/server-init';
+
+export const dynamic = 'force-dynamic';
 
 interface LeaderboardEntry {
   username: string;
@@ -11,63 +10,55 @@ interface LeaderboardEntry {
   avatarUrl?: string;
 }
 
-export default function LeaderboardPage() {
-  const params = useParams();
-  const serverId = params.serverId as string;
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+export default async function LeaderboardPage({
+  params,
+}: {
+  params: Promise<{ serverId: string }>;
+}) {
+  const { serverId } = await params;
+  let leaderboard: LeaderboardEntry[] = [];
 
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        console.log('Fetching leaderboard for serverId:', serverId);
-        const response = await fetch(`/api/points/leaderboard?serverId=${serverId}`, {
-          headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_BOT_SECRET_KEY || '1234'}` }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log('Raw leaderboard data:', data);
-        
-        if (!Array.isArray(data) || data.length === 0) {
-          console.log('No leaderboard data found, creating sample data');
-          // Create sample data if no real data exists
-          setLeaderboard([{
-            username: 'mtman1987',
-            points: 400,
-            rank: 1,
-            avatarUrl: undefined
-          }]);
-          return;
-        }
-        
-        const formattedData = data.map((entry: any, index: number) => ({
-          username: entry.lastEventMetadata?.username || entry.userProfileId || `User${index + 1}`,
-          points: entry.points || 0,
+  try {
+    console.log('[HeadlessLeaderboard] Fetching leaderboard for serverId:', serverId);
+    
+    // Fetch leaderboard data from Firestore
+    const leaderboardRef = db.collection('servers').doc(serverId).collection('leaderboard');
+    const snapshot = await leaderboardRef.orderBy('points', 'desc').limit(10).get();
+    
+    if (!snapshot.empty) {
+      leaderboard = snapshot.docs.map((doc, index) => {
+        const data = doc.data();
+        return {
+          username: data.lastEventMetadata?.username || data.userProfileId || `User${index + 1}`,
+          points: data.points || 0,
           rank: index + 1,
-          avatarUrl: entry.lastEventMetadata?.avatarUrl
-        })).slice(0, 10);
-        
-        console.log('Formatted leaderboard data:', formattedData);
-        setLeaderboard(formattedData);
-      } catch (error) {
-        console.error('Error fetching leaderboard:', error);
-        // Fallback to sample data on error
-        setLeaderboard([{
-          username: 'mtman1987',
-          points: 400,
-          rank: 1,
-          avatarUrl: undefined
-        }]);
-      }
-    };
-
-    if (serverId) {
-      fetchLeaderboard();
+          avatarUrl: data.lastEventMetadata?.avatarUrl
+        };
+      });
     }
-  }, [serverId]);
+    
+    // Fallback to sample data if no leaderboard exists
+    if (leaderboard.length === 0) {
+      console.log('[HeadlessLeaderboard] No leaderboard data found, using sample data');
+      leaderboard = [{
+        username: 'mtman1987',
+        points: 400,
+        rank: 1,
+        avatarUrl: undefined
+      }];
+    }
+    
+    console.log('[HeadlessLeaderboard] Formatted leaderboard data:', leaderboard);
+  } catch (error) {
+    console.error('[HeadlessLeaderboard] Error fetching leaderboard:', error);
+    // Fallback to sample data on error
+    leaderboard = [{
+      username: 'mtman1987',
+      points: 400,
+      rank: 1,
+      avatarUrl: undefined
+    }];
+  }
 
   return (
     <div className="leaderboard min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">

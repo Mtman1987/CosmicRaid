@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { runAutomatedShoutoutCycle } from '@/lib/automated-shoutout-system';
+import { runUnifiedCronCycle } from '@/lib/unified-cron-service';
 
 /**
  * Cron endpoint for Cloud Scheduler to trigger shoutout cycles
@@ -36,17 +36,16 @@ async function handleShoutoutCron(request: NextRequest) {
       source: request.headers.get('user-agent')
     });
     
-    // Hardcoded server ID (you could also read from Firestore config)
-    const serverId = '1240832965865635881';
-    
-    console.log(`[Cron] Running shoutout cycle for server ${serverId}`);
-    
-    // Run the cycle (respects 10-minute cooldown internally)
-    await runAutomatedShoutoutCycle(serverId, { force: false });
+    // Run unified cron cycle for all servers
+    const result = await runUnifiedCronCycle();
     
     return NextResponse.json({ 
-      success: true, 
-      message: 'Shoutout cycle completed',
+      success: result.success, 
+      message: `Processed ${result.serversProcessed} servers, ${result.totalUsers} users, ${result.apiCalls} API calls`,
+      serversProcessed: result.serversProcessed,
+      totalUsers: result.totalUsers,
+      apiCalls: result.apiCalls,
+      errors: result.errors,
       timestamp: new Date().toISOString()
     });
     

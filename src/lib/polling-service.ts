@@ -3,7 +3,7 @@
 import { db } from '@/firebase/server-init';
 import { checkMultipleStreamsStatus, getUserByLogin, getClipsForUser, getRandomClipFromOnlineUsers } from './twitch-api-service';
 import { convertClipToGif, getThumbnailAsGif } from './gif-conversion-service';
-import { isCommunityGroup, isVipGroup } from './group-utils';
+import { isCommunityGroupSync, isVipGroupSync } from './group-utils';
 import { runAutomatedShoutoutCycle } from './automated-shoutout-system';
 
 interface CachedClip {
@@ -183,7 +183,7 @@ class PollingService {
         .where('isOnline', '==', true)
         .get();
 
-      const vipDocs = vipUsersSnapshot.docs.filter(doc => isVipGroup(doc.data().group));
+      const vipDocs = vipUsersSnapshot.docs.filter(doc => isVipGroupSync(doc.data().group));
 
       for (const doc of vipDocs) {
         const userData = doc.data();
@@ -285,7 +285,7 @@ class PollingService {
         .get();
 
       const onlineCommunityUsers = communityUsersSnapshot.docs
-        .filter(doc => isCommunityGroup(doc.data().group))
+        .filter(doc => isCommunityGroupSync(doc.data().group))
         .map(doc => doc.data().username?.toLowerCase())
         .filter(username => username && onlineStreamers.includes(username));
 

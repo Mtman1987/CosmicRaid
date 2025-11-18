@@ -11,7 +11,7 @@ import puppeteer from 'puppeteer';
 export async function generateLeaderboardImage(
   guildId: string
 ): Promise<string | null> {
-  const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+  const appUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
   const screenshotUrl = `${appUrl}/headless/leaderboard/${guildId}`;
 
   let browser;
@@ -26,11 +26,28 @@ export async function generateLeaderboardImage(
     await page.setViewport({ width: 600, height: 800, deviceScaleFactor: 1.5 });
 
     console.log(`[Puppeteer] Navigating to ${screenshotUrl}`);
-    await page.goto(screenshotUrl, { waitUntil: 'networkidle0' });
+    await page.goto(screenshotUrl, { waitUntil: 'networkidle0', timeout: 30000 });
+    
+    // Wait for React to hydrate
+    await page.waitForSelector('.leaderboard', { timeout: 15000 });
 
-    // Wait for a specific element to ensure content is loaded
+    // Wait for content and avatars to load
     await page.waitForSelector('h1');
-    await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+      await page.waitForSelector('img', { timeout: 10000 });
+      // Additional wait for images to load
+      await page.evaluate(() => {
+        return Promise.all(Array.from(document.images).map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise(resolve => {
+            img.onload = img.onerror = resolve;
+          });
+        }));
+      });
+    } catch (e) {
+      console.log('[Puppeteer] No avatars found or timeout, proceeding...');
+    }
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Get the bounding box of the main container
     const element = await page.$('div.w-\\[600px\\]');

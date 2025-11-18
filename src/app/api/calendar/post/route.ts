@@ -20,7 +20,8 @@ export async function POST(request: NextRequest) {
     const components = buildCalendarButtons(serverId);
 
     // Post to Discord
-    const discordResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/discord/post`, {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://localhost:3000' : 'http://localhost:3000');
+    const discordResponse = await fetch(`${baseUrl}/api/discord/post`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, messageId: result.id });
 
   } catch (error) {
-    console.error('Calendar post error:', error);
+    console.error('Calendar post error:', error?.message?.replace(/[\r\n]/g, '') || 'Unknown error');
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }

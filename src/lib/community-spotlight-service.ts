@@ -4,7 +4,7 @@ import { db } from '@/firebase/server-init';
 import { getUserByLogin, getStreamByUserId } from './twitch-api-service';
 import { generateShoutoutCardGif } from './shoutout-card-service';
 import { manageUserClips, getRandomClipFromPool } from './clip-management-service';
-import { isCommunityGroup } from './group-utils';
+import { isCommunityGroupSync } from './group-utils';
 
 
 const MIN_SPOTLIGHT_DURATION_MS = 2 * 60 * 1000;
@@ -40,7 +40,7 @@ export async function updateCommunitySpotlight(serverId: string): Promise<void> 
       .where('isOnline', '==', true)
       .get();
 
-    const communityDocs = snapshot.docs.filter(doc => isCommunityGroup(doc.data().group));
+    const communityDocs = snapshot.docs.filter(doc => isCommunityGroupSync(doc.data().group));
     const onlineMembers = communityDocs
       .map(doc => ({
         userId: doc.id,
@@ -60,7 +60,7 @@ export async function updateCommunitySpotlight(serverId: string): Promise<void> 
       
       for (const doc of allUsersSnapshot.docs) {
         const userData = doc.data();
-        if (isCommunityGroup(userData.group) && userData.dailyClips && userData.dailyClips.length > 0) {
+        if (isCommunityGroupSync(userData.group) && userData.dailyClips && userData.dailyClips.length > 0) {
           communityMembersWithClips.push({
             userId: doc.id,
             username: userData.username,

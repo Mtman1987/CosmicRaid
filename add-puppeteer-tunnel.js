@@ -19,13 +19,14 @@ const db = admin.firestore();
 
 async function addPuppeteerTunnel() {
   const ngrokUrl = process.argv[2];
+  const serverId = process.argv[3] || '1240832965865635881'; // Default server ID
   
   if (!ngrokUrl) {
     console.error('❌ Please provide your ngrok URL as an argument');
     console.log('\nUsage:');
-    console.log('  node add-puppeteer-tunnel.js https://your-ngrok-url.ngrok.io');
+    console.log('  node add-puppeteer-tunnel.js https://your-ngrok-url.ngrok.io [serverId]');
     console.log('\nExample:');
-    console.log('  node add-puppeteer-tunnel.js https://abc123.ngrok.io');
+    console.log('  node add-puppeteer-tunnel.js https://abc123.ngrok.io 1240832965865635881');
     process.exit(1);
   }
 
@@ -33,14 +34,19 @@ async function addPuppeteerTunnel() {
   const cleanUrl = ngrokUrl.replace(/\/$/, '');
 
   try {
-    console.log(`📝 Adding PUPPETEER_SERVICE_URL to Firestore secrets...`);
+    console.log(`📝 Adding PUPPETEER_SERVICE_URL to server ${serverId} secrets...`);
     console.log(`   URL: ${cleanUrl}`);
 
+    // Add to both global secrets and server-specific secrets
     await db.collection('secrets').doc('PUPPETEER_SERVICE_URL').set({
       value: cleanUrl,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       description: 'ngrok tunnel URL to access local Puppeteer/FFmpeg service from App Hosting'
     });
+
+    await db.collection('servers').doc(serverId).collection('config').doc('secrets').set({
+      PUPPETEER_SERVICE_URL: cleanUrl
+    }, { merge: true });
 
     console.log('✅ Successfully added PUPPETEER_SERVICE_URL!');
     console.log('\nYour App Hosting deployment will now use this URL to access your local Puppeteer service.');
@@ -61,11 +67,15 @@ async function addPuppeteerTunnel() {
 // Handle REMOVE command
 if (process.argv[2] === 'REMOVE') {
   (async () => {
+    const serverId = process.argv[3] || '1240832965865635881';
     try {
-      console.log('🗑️  Removing PUPPETEER_SERVICE_URL from Firestore...');
+      console.log(`🗑️  Removing PUPPETEER_SERVICE_URL from server ${serverId}...`);
       await db.collection('secrets').doc('PUPPETEER_SERVICE_URL').delete();
+      await db.collection('servers').doc(serverId).collection('config').doc('secrets').update({
+        PUPPETEER_SERVICE_URL: admin.firestore.FieldValue.delete()
+      });
       console.log('✅ Successfully removed PUPPETEER_SERVICE_URL');
-      console.log('   App Hosting will now skip Puppeteer and fall back to Twitch clips');
+      console.log('   App Hosting will now skip Puppeteer and fall back to FreeConvert/storage GIFs');
       process.exit(0);
     } catch (error) {
       console.error('❌ Error removing PUPPETEER_SERVICE_URL:', error.message);

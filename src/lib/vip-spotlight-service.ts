@@ -6,7 +6,7 @@ import { getUserByLogin, getStreamByUserId } from './twitch-api-service';
 import { generateShoutoutCardGif } from './shoutout-card-service';
 import { getUserTodaysClips, manageUserClips } from './clip-management-service';
 import { DAILY_CLIP_LIMIT } from './clip-settings';
-import { isVipGroup } from './group-utils';
+import { isVipGroupSync } from './group-utils';
 
 export interface VipSpotlightData {
   streamerName: string;
@@ -179,5 +179,5 @@ async function upsertVipSpotlightForUser(serverId: string, userId: string, userD
 }
 
 function isVipUser(userData: DocumentData): boolean {
-  return isVipGroup(userData?.group);
+  return isVipGroupSync(userData?.group);
 }

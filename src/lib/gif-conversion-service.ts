@@ -19,6 +19,12 @@ class GifConversionService {
   private baseUrl = 'https://api.freeconvert.com/v1';
 
   private async getApiKey(serverId?: string): Promise<string> {
+    if (serverId) {
+      const { getServerConfig } = await import('./config-service');
+      const key = await getServerConfig(serverId, 'FREE_CONVERT_API_KEY');
+      if (key) return key;
+    }
+    
     const key = await getSecret('FREE_CONVERT_API_KEY');
     if (!key) {
       throw new Error(`FREE_CONVERT_API_KEY not found in Firestore secrets`);
@@ -52,63 +58,67 @@ class GifConversionService {
     contentType: 'stream' | 'header' | 'footer' = 'stream',
     options: GifConversionOptions = {}
   ): Promise<string | null> {
-    const { serverId, fallbackGifUrl } = options;
+    const { serverId } = options;
     
-    // 1. Try local Puppeteer/FFmpeg service first (free)
+    // 1. Try local Puppeteer/FFmpeg service first (free, live recordings)
     try {
-      const localResult = await this.tryLocalConversion(clipUrl, clipId, streamerName, duration, contentType);
+      const localResult = await this.tryLocalConversion(clipUrl, clipId, streamerName, duration, contentType, serverId);
       if (localResult) return localResult;
     } catch (error) {
-      console.log('Local conversion unavailable, trying alternatives');
+      console.log('Local Puppeteer service unavailable, trying FreeConvert');
     }
     
-    // 2. Try cached/fallback media
-    const { getMediaForUser } = await import('./media-fallback-service');
-    const cachedResult = await getMediaForUser({
-      username: streamerName,
-      mediaType: 'gif',
-      contentType: contentType === 'stream' ? 'spotlight' : 'shoutout',
-      serverId
-    });
-    if (cachedResult) return cachedResult;
-    
-    // 3. Only use FreeConvert as last resort (costs money)
+    // 2. Try FreeConvert API (costs money, uses Twitch clips)
     if (serverId) {
       try {
-        return await this.convertUsingFreeConvert(clipUrl, clipId, streamerName, duration, contentType, serverId);
+        const freeConvertResult = await this.convertUsingFreeConvert(clipUrl, clipId, streamerName, duration, contentType, serverId);
+        if (freeConvertResult) return freeConvertResult;
       } catch (error) {
         console.error('FreeConvert failed:', error);
       }
     }
     
-    // 4. Final fallback
-    return fallbackGifUrl || null;
+    // 3. Final fallback: get random GIF from storage bucket
+    return await this.getRandomStorageGif(serverId);
   }
   
-  private async tryLocalConversion(clipUrl: string, clipId: string, streamerName: string, duration: number, contentType: string): Promise<string | null> {
+  private async tryLocalConversion(clipUrl: string, clipId: string, streamerName: string, duration: number, contentType: string, serverId?: string): Promise<string | null> {
     try {
-      // Check if local service is running on port 3300
-      const healthCheck = await fetch('http://localhost:3300/health', { 
+      // First try ngrok tunnel URL if available
+      let serviceUrl = 'http://localhost:3300';
+      
+      if (serverId) {
+        const { getServerConfig } = await import('./config-service');
+        const tunnelUrl = await getServerConfig(serverId, 'PUPPETEER_SERVICE_URL');
+        if (tunnelUrl) {
+          serviceUrl = tunnelUrl;
+          console.log('[GIF] Using tunnel URL:', tunnelUrl?.replace(/[\r\n]/g, ''));
+        }
+      }
+      
+      // Check if service is available
+      const healthCheck = await fetch(`${serviceUrl}/health`, { 
         method: 'GET',
-        signal: AbortSignal.timeout(2000) // 2 second timeout
+        signal: AbortSignal.timeout(2000)
       });
       
       if (!healthCheck.ok) throw new Error('Local service not available');
       
-      // Call local conversion service
-      const response = await fetch('http://localhost:3300/convert-gif', {
+      // Call conversion service
+      const response = await fetch(`${serviceUrl}/convert-gif`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clipUrl, clipId, streamerName, duration, contentType }),
-        signal: AbortSignal.timeout(30000) // 30 second timeout
+        signal: AbortSignal.timeout(30000)
       });
       
       if (response.ok) {
         const result = await response.json();
+        console.log('[GIF] Local conversion successful via:', serviceUrl?.replace(/[\r\n]/g, ''));
         return result.gifUrl;
       }
     } catch (error) {
-      // Local service not available, that's fine
+      console.log('[GIF] Local conversion failed:', error instanceof Error ? error.message?.replace(/[\r\n]/g, '') : 'Unknown error');
     }
     return null;
   }
@@ -125,16 +135,17 @@ class GifConversionService {
     const fileName = await generateFileName(clipId, streamerName);
     const dimensions = this.getDimensions(contentType);
 
-    console.log(`💰 Using FreeConvert API for ${streamerName} (costs money)`);
+    console.log('💰 Using FreeConvert API for:', streamerName?.replace(/[\r\n]/g, ''), '(costs money)');
     
-    // Create job with new jobs API
+    // Create job with optimized FreeConvert API v1 settings
     const job = await this.makeApiCall('/process/jobs', serverId, {
       method: 'POST',
       body: JSON.stringify({
         tasks: {
           'import-1': {
             operation: 'import/url',
-            url: sourceUrl
+            url: sourceUrl,
+            filename: `${clipId?.replace(/[\r\n]/g, '')}.mp4`
           },
           'convert-1': {
             operation: 'convert',
@@ -142,25 +153,28 @@ class GifConversionService {
             input_format: 'mp4',
             output_format: 'gif',
             options: {
-              cut_start_video_to_gif: '00:00:00.00',
-              cut_end_gif: `00:00:${Math.min(duration, 10).toString().padStart(2, '0')}.00`,
-              video_custom_width_gif: dimensions.width,
-              video_to_gif_transparency: false,
-              gif_fps: '15',
-              video_to_gif_compression: '15',
-              video_to_gif_optimize_static_bg: false,
+              video_codec: 'gif',
+              video_resolution: `${dimensions.width}x${dimensions.height}`,
+              video_fps: 12,
+              video_bitrate: '500k',
+              video_cut_from: '00:00:00',
+              video_cut_to: `00:00:${Math.min(duration, 10).toString().padStart(2, '0')}`,
+              gif_optimize: true,
+              gif_dither: 'floyd_steinberg',
+              gif_colors: 256,
               video_watermark_text: 'CLIP',
               video_watermark_position: 'top-left',
-              video_watermark_font_size: 24,
-              video_watermark_font_color: 'white',
-              video_watermark_background_color: 'black',
+              video_watermark_font_size: 20,
+              video_watermark_font_color: '#FFFFFF',
+              video_watermark_background_color: '#000000',
               video_watermark_opacity: 0.8
             }
           },
           'export-1': {
             operation: 'export/url',
-            input: ['convert-1'],
-            filename: fileName
+            input: 'convert-1',
+            filename: fileName,
+            archive_multiple_files: false
           }
         }
       })
@@ -179,7 +193,7 @@ class GifConversionService {
     }
 
     const finalUrl = await uploadGifFromUrl(tempGifUrl, fileName);
-    console.log(`🏷️ Created watermarked CLIP GIF for ${streamerName}`);
+    console.log('🏷️ Created watermarked CLIP GIF for:', streamerName?.replace(/[\r\n]/g, ''));
     return finalUrl;
   }
 
@@ -241,23 +255,31 @@ class GifConversionService {
     return null;
   }
 
-  private async waitForJobCompletion(jobId: string, serverId: string, maxAttempts: number = 30): Promise<any> {
+  private async waitForJobCompletion(jobId: string, serverId: string, maxAttempts: number = 40): Promise<any> {
+    console.log('[FreeConvert] Waiting for job to complete:', jobId?.replace(/[\r\n]/g, ''));
+    
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const job = await this.makeApiCall(`/process/jobs/${jobId}`, serverId);
       
+      console.log('[FreeConvert] Job status:', jobId?.replace(/[\r\n]/g, ''), job.status, 'attempt:', attempt + 1 + '/' + maxAttempts);
+      
       if (job.status === 'completed') {
+        console.log('[FreeConvert] Job completed successfully:', jobId?.replace(/[\r\n]/g, ''));
         return job;
       }
       
       if (job.status === 'failed' || job.status === 'error') {
-        throw new Error(`Job ${jobId} failed: ${job.message || 'Unknown error'}`);
+        const errorMsg = job.message || job.error || 'Unknown error';
+        console.error('[FreeConvert] Job failed:', jobId?.replace(/[\r\n]/g, ''), errorMsg?.replace(/[\r\n]/g, ''));
+        throw new Error(`FreeConvert job failed: ${errorMsg}`);
       }
 
-      // Wait 3 seconds before checking again
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Progressive backoff: start with 2s, increase to 5s after 10 attempts
+      const delay = attempt < 10 ? 2000 : 5000;
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
 
-    throw new Error(`Job ${jobId} timed out after ${maxAttempts} attempts`);
+    throw new Error(`FreeConvert job ${jobId} timed out after ${maxAttempts * 3} seconds`);
   }
 
   // Alternative method using Shotstack API (if FreeConvert doesn't work well)
@@ -414,10 +436,35 @@ class GifConversionService {
     }
   }
 
-  // Simple fallback: just use the clip thumbnail as a "GIF"
-  getThumbnailAsGif(thumbnailUrl: string): string {
-    // Twitch thumbnails are static images, but we can use them as fallback
-    return thumbnailUrl.replace('%{width}', '480').replace('%{height}', '270');
+  // Final fallback: get random GIF from storage bucket
+  private async getRandomStorageGif(serverId?: string): Promise<string | null> {
+    try {
+      if (!serverId) return null;
+      
+      const { db } = await import('@/firebase/server-init');
+      
+      // Try to get a random GIF from the storage bucket collection
+      const gifsSnapshot = await db.collection('servers')
+        .doc(serverId)
+        .collection('storageGifs')
+        .limit(50)
+        .get();
+      
+      if (!gifsSnapshot.empty) {
+        const randomIndex = Math.floor(Math.random() * gifsSnapshot.docs.length);
+        const randomGif = gifsSnapshot.docs[randomIndex].data();
+        console.log(`[GIF] Using random storage GIF: ${randomGif.url}`);
+        return randomGif.url;
+      }
+      
+      // If no storage GIFs, return null (will trigger plain embed)
+      console.log('[GIF] No storage GIFs available, will use plain embed');
+      return null;
+      
+    } catch (error) {
+      console.error('Failed to get random storage GIF:', error);
+      return null;
+    }
   }
 }
 
@@ -438,6 +485,6 @@ export async function convertWithShotstack(clipUrl: string, clipId: string, stre
   return gifConverterService.convertWithShotstack(clipUrl, clipId, streamerName);
 }
 
-export async function getThumbnailAsGif(thumbnailUrl: string): Promise<string> {
-  return gifConverterService.getThumbnailAsGif(thumbnailUrl);
+export async function getRandomStorageGif(serverId: string): Promise<string | null> {
+  return gifConverterService['getRandomStorageGif'](serverId);
 }

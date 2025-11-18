@@ -1,40 +1,57 @@
 'use client';
 
 import * as React from 'react';
-import { useServerId, useUserId } from '@/lib/get-server-id';
-import { doc } from 'firebase/firestore';
-import { useDoc, useFirestore, useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { testDatabaseConnection } from '@/lib/actions';
 
-// Assuming a UserProfile type is defined somewhere, e.g., in @/lib/types
-// For now, we'll use a local interface.
 interface UserProfile {
   username: string;
   avatarUrl: string;
 }
 
 export function UserNav() {
-  const firestore = useFirestore();
-  const { user, isUserLoading } = useUser();
-  const [userId, setUserId] = React.useState<string | null>(null);
-  const [serverId, setServerId] = React.useState<string | null>(null);
+  const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [serverId, setServerId] = React.useState('');
+  const [userId, setUserId] = React.useState('');
 
   React.useEffect(() => {
-    // This code runs only on the client, after the component has mounted.
-    // This avoids hydration errors.
-    setUserId(localStorage.getItem('discordUserId'));
-    setServerId(localStorage.getItem('discordServerId'));
+    const loadUserProfile = async () => {
+      const sessionId = localStorage.getItem('sessionId');
+      const storedServerId = localStorage.getItem('discordServerId') || '';
+      const storedUserId = localStorage.getItem('discordUserId') || '';
+      
+      setServerId(storedServerId);
+      setUserId(storedUserId);
+      
+      if (!sessionId) {
+        setIsLoading(false);
+        return;
+      }
+      
+      try {
+        const formData = new FormData();
+        formData.append('sessionId', sessionId);
+        
+        const result = await testDatabaseConnection(null, formData);
+        if (result.status === 'success' && result.data) {
+          setUserProfile({
+            username: result.data.username || 'Unknown',
+            avatarUrl: result.data.avatarUrl || ''
+          });
+        }
+      } catch (error) {
+        console.error('[UserNav] Failed to load user profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadUserProfile();
   }, []);
 
-  const userProfileRef = React.useMemo(() => {
-    if (isUserLoading || !firestore || !serverId || !userId || !user) return null;
-    return doc(firestore, 'servers', serverId, 'users', userId);
-  }, [firestore, serverId, userId, user, isUserLoading]);
-
-  const { data: userProfile, isLoading } = useDoc<UserProfile>(userProfileRef);
-
-  if (isLoading || isUserLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center gap-3">
         <Skeleton className="h-9 w-9 rounded-full" />
@@ -46,8 +63,8 @@ export function UserNav() {
     );
   }
 
-  const displayName = userProfile?.username || user?.displayName || userId || 'Not logged in';
-  const avatarUrl = userProfile?.avatarUrl || user?.photoURL || '';
+  const displayName = userProfile?.username || userId || 'Not logged in';
+  const avatarUrl = userProfile?.avatarUrl || '';
   const displayServer = serverId ? `Server: ${serverId}` : 'No server selected';
 
   return (

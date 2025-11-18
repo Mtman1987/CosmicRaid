@@ -1,5 +1,9 @@
 'use server'
 
+// Hardcoded for testing - change these IDs to secure the app later
+const HARDCODED_SERVER_ID = '1240832965865635881';
+const HARDCODED_USER_ID = '1240832965865635881'; // Replace with your actual Discord user ID
+
 import { revalidatePath } from 'next/cache'
 import { db } from '@/firebase/server-init'
 import { generateCalendarImage } from '@/ai/flows/generate-calendar-image'
@@ -7,7 +11,7 @@ import { generateLeaderboardImage } from '@/ai/flows/generate-leaderboard-image'
 import { generateAllShoutouts } from '@/lib/community-shoutout-service'
 import { manualPoll, startPolling } from '@/lib/polling-service'
 import { updateVipSpotlights } from '@/lib/vip-spotlight-service'
-import { postCommunityShoutouts, postVipShoutouts } from '@/lib/automated-shoutout-system'
+import { postAllShoutoutsToDiscord } from '@/lib/automated-shoutout-system'
 import { forwardMessage } from '@/lib/forwarding-service'
 import { replyToMessage } from '@/lib/reply-service'
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
@@ -15,7 +19,8 @@ import { Buffer } from 'node:buffer'
 
 // Reusable error handler
 function handleError(error: any, defaultMessage: string) {
-  console.error('Action Error:', error)
+  const sanitizedError = error instanceof Error ? error.message.replace(/[\r\n]/g, ' ') : String(error).replace(/[\r\n]/g, ' ')
+  console.error('Action Error:', sanitizedError)
   const message = error instanceof Error ? error.message : defaultMessage
   return { status: 'error' as const, message }
 }
@@ -47,6 +52,33 @@ export async function updateAdminRoles(prevState: any, formData: FormData) {
     return handleSuccess('Admin roles have been updated successfully.', currentPath)
   } catch (error) {
     return handleError(error, 'Failed to update admin roles.')
+  }
+}
+
+/**
+ * Updates group role mappings for a server
+ */
+export async function updateGroupRoleMappings(prevState: any, formData: FormData) {
+  try {
+    const serverId = formData.get('serverId') as string
+    const currentPath = formData.get('currentPath') as string
+    if (!serverId) throw new Error('Server ID is required.')
+
+    const vipRoles = Array.from(formData.keys()).filter(key => key.startsWith('vip_')).map(key => key.replace('vip_', ''))
+    const raidTrainRoles = Array.from(formData.keys()).filter(key => key.startsWith('raidTrain_')).map(key => key.replace('raidTrain_', ''))
+    const raidPileRoles = Array.from(formData.keys()).filter(key => key.startsWith('raidPile_')).map(key => key.replace('raidPile_', ''))
+
+    const groupMappingsRef = db.collection('servers').doc(serverId).collection('config').doc('groupMappings')
+    await groupMappingsRef.set({
+      vipRoles,
+      raidTrainRoles,
+      raidPileRoles,
+      updatedAt: new Date()
+    })
+
+    return handleSuccess('Group role mappings updated successfully.', currentPath)
+  } catch (error) {
+    return handleError(error, 'Failed to update group role mappings.')
   }
 }
 
@@ -138,7 +170,6 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
     
     const membersData = allMembers;
 
-
     // 5. Save to Firestore
     const batch = db.batch()
 
@@ -196,13 +227,16 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
 /**
  * Generates and posts a new calendar image to a specified Discord channel.
  */
-export async function postNewCalendar(guildId: string, channelId: string) {
+export async function postNewCalendar(sessionId: string, channelId: string) {
   try {
+    const { serverId } = await getUserCredentialsBySession(sessionId);
     const { getServerConfig } = await import('./config-service');
-    const botToken = await getServerConfig(guildId, 'DISCORD_BOT_TOKEN');
+    const botToken = await getServerConfig(serverId, 'DISCORD_BOT_TOKEN');
     if (!botToken) {
       throw new Error('Discord bot token not found for this server.')
     }
+    
+    const guildId = serverId;
 
     const calendarImage = await generateCalendarImage(guildId)
     if (!calendarImage) throw new Error('Failed to generate calendar image.')
@@ -233,10 +267,10 @@ export async function postNewCalendar(guildId: string, channelId: string) {
       attachments.push(decodeImage(leaderboardImage, 'leaderboard.png'))
     }
 
-    const embeds = [
+    const embeds: any[] = [
       {
         title: 'Community Calendar',
-        description: 'Latest events and schedule from Streamer’s Hub.',
+        description: 'Latest events and schedule from Streamer\'s Hub.',
         color: 0x5865f2,
         image: { url: 'attachment://calendar.png' },
         timestamp: new Date().toISOString(),
@@ -330,11 +364,14 @@ export async function testCalendarPostAction(prevState: any, formData: FormData)
  * Resets all calendar data for a server.
  */
 export async function resetCalendarAction(prevState: any, formData: FormData) {
-    const guildId = formData.get('guildId') as string;
+    const sessionId = formData.get('sessionId') as string;
     const currentPath = formData.get('currentPath') as string;
-    if (!guildId) {
-        return { status: 'error' as const, message: 'Guild ID is required.' };
+    if (!sessionId) {
+        return { status: 'error' as const, message: 'Session ID is required.' };
     }
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
+    const guildId = serverId;
 
     try {
         const calendarEventsRef = db.collection('servers').doc(guildId).collection('calendarEvents');
@@ -359,14 +396,23 @@ export async function resetCalendarAction(prevState: any, formData: FormData) {
  * Generates shoutouts for all online members of the 'Community' group.
  */
 export async function generateAllShoutoutsAction(prevState: any, formData: FormData) {
-    const serverId = formData.get('serverId') as string;
+    const sessionId = formData.get('sessionId') as string;
+    if (!sessionId) {
+        return { status: 'error' as const, results: [], error: 'Session ID is required.' };
+    }
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
     if (!serverId) {
         return { status: 'error' as const, results: [], error: 'Server ID is required.' };
     }
 
     try {
         const results = await generateAllShoutouts(serverId);
-        await postCommunityShoutouts(serverId);
+        await postAllShoutoutsToDiscord(serverId, {
+            includeCommunity: true,
+            includeVip: false,
+            includeSpotlight: true
+        });
         return { status: 'success' as const, results, error: undefined };
     } catch (error) {
         const message = error instanceof Error ? error.message : 'An unknown error occurred.';
@@ -375,237 +421,244 @@ export async function generateAllShoutoutsAction(prevState: any, formData: FormD
 }
 
 export async function triggerVipShoutoutsAction(prevState: any, formData: FormData) {
-    const serverId = formData.get('serverId') as string;
+    const sessionId = formData.get('sessionId') as string;
     const currentPath = formData.get('currentPath') as string | null;
-
+    
+    if (!sessionId) {
+        return { status: 'error' as const, message: 'Session ID is required.' };
+    }
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
     if (!serverId) {
         return { status: 'error' as const, message: 'Server ID is required.' };
     }
 
     try {
-        await startPolling(serverId);
-        await manualPoll(serverId);
-    await updateVipSpotlights(serverId);
-    await generateAllShoutouts(serverId);
-    await postVipShoutouts(serverId);
-        return handleSuccess('VIP shoutouts dispatched to Discord.', currentPath ?? undefined);
-    } catch (error) {
-        return handleError(error, 'Failed to dispatch VIP shoutouts.');
-    }
-}
-
-export async function updateShoutoutChannelAction(prevState: any, formData: FormData) {
-    const serverId = formData.get('serverId') as string;
-    const groupKey = formData.get('groupKey') as string;
-    const channelId = (formData.get('channelId') as string | null)?.trim() || null;
-    const currentPath = formData.get('currentPath') as string | null;
-
-    if (!serverId || !groupKey) {
-        return handleError('Invalid payload', 'Server ID and group key are required.');
-    }
-
-    try {
-        const serverRef = db.collection('servers').doc(serverId);
-        await serverRef.set({
-            shoutoutChannels: {
-                [groupKey]: channelId
-            },
-            updatedAt: FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        const message = channelId
-            ? `Saved channel ${channelId} for ${groupKey} shoutouts.`
-            : `Cleared custom channel for ${groupKey} shoutouts.`;
-
-        return handleSuccess(message, currentPath ?? undefined);
-    } catch (error) {
-        return handleError(error, 'Failed to save shoutout channel.');
-    }
-}
-
-export async function postShoutoutAction(prevState: any, formData: FormData) {
-    try {
-        const serverId = formData.get('serverId') as string;
-        const channelId = formData.get('channelId') as string;
-        const payloadJson = formData.get('payload') as string;
-        const streamerName = formData.get('streamerName') as string;
-        const currentPath = formData.get('currentPath') as string | null;
-
-        if (!serverId || !channelId || !payloadJson) {
-            throw new Error('Missing server ID, channel ID, or shoutout payload.');
-        }
-
-        let parsedPayload: any;
-        try {
-            parsedPayload = JSON.parse(payloadJson);
-        } catch (error) {
-            throw new Error('Shoutout payload is not valid JSON.');
-        }
-
-        if (!parsedPayload || typeof parsedPayload !== 'object') {
-            throw new Error('Shoutout payload must be an object.');
-        }
-
-        const messagePayload: {
-            content?: string
-            embeds?: any[]
-            components?: any[]
-            allowedMentions?: { parse?: string[]; users?: string[]; roles?: string[] }
-        } = {};
-
-        if (
-            'embeds' in parsedPayload ||
-            'content' in parsedPayload ||
-            'components' in parsedPayload ||
-            'allowed_mentions' in parsedPayload ||
-            'allowedMentions' in parsedPayload
-        ) {
-            if (typeof parsedPayload.content === 'string' && parsedPayload.content.length > 0) {
-                messagePayload.content = parsedPayload.content;
-            }
-
-            if (Array.isArray(parsedPayload.embeds)) {
-                messagePayload.embeds = parsedPayload.embeds;
-            }
-
-            if (Array.isArray(parsedPayload.components)) {
-                messagePayload.components = parsedPayload.components;
-            }
-
-            const allowedMentions =
-                parsedPayload.allowedMentions ?? parsedPayload.allowed_mentions ?? { parse: [] };
-            messagePayload.allowedMentions = allowedMentions;
-
-            if (!messagePayload.content && !(messagePayload.embeds?.length)) {
-                throw new Error('Shoutout payload does not contain content or embeds to post.');
-            }
+        const { runUnifiedCronCycle } = await import('./unified-cron-service');
+        const result = await runUnifiedCronCycle();
+        
+        if (result.success) {
+            return handleSuccess(`VIP shoutouts triggered: ${result.serversProcessed} servers, ${result.totalUsers} users, ${result.apiCalls} API calls`, currentPath ?? undefined);
         } else {
-            messagePayload.embeds = [parsedPayload];
+            throw new Error(result.errors.join(', '));
         }
+    } catch (error) {
+        return handleError(error, 'Failed to trigger VIP shoutouts.');
+    }
+}
 
-        await forwardMessage({
-            targetChannelId: channelId,
-            content: messagePayload.content,
-            embeds: messagePayload.embeds,
-            components: messagePayload.components,
-            allowedMentions: messagePayload.allowedMentions ?? { parse: [] },
+/**
+ * Save login credentials with session ID for multi-tenant support
+ */
+export async function saveLoginCredentials(prevState: any, formData: FormData) {
+    const serverId = formData.get('serverId') as string;
+    const userId = formData.get('userId') as string;
+    const twitchUsername = formData.get('twitchUsername') as string;
+    const sessionId = formData.get('sessionId') as string;
+
+    if (!serverId || !userId || !sessionId) {
+        return { status: 'error' as const, message: 'Server ID, User ID, and Session ID are required.' };
+    }
+
+    try {
+        // Save to user sessions collection - each session gets its own document
+        await db.collection('userSessions').doc(sessionId).set({
+            serverId,
+            userId,
+            twitchUsername,
+            createdAt: new Date(),
+            lastActive: new Date()
         });
 
-        await db
-            .collection('servers')
-            .doc(serverId)
-            .collection('shoutoutLogs')
-            .add({
-                streamerName: streamerName ?? null,
-                channelId,
-                payload: parsedPayload,
-                createdAt: Timestamp.now(),
+        return { status: 'success' as const, message: 'Login credentials saved successfully.', sessionId };
+    } catch (error) {
+        return handleError(error, 'Failed to save login credentials.');
+    }
+}
+
+/**
+ * Get user credentials by session ID
+ */
+async function getUserCredentialsBySession(sessionId: string) {
+    try {
+        const doc = await db.collection('userSessions').doc(sessionId).get();
+        if (doc.exists) {
+            const data = doc.data();
+            // Update last active timestamp
+            await db.collection('userSessions').doc(sessionId).update({
+                lastActive: new Date()
             });
-
-        return handleSuccess(`Shoutout posted for ${streamerName || 'the selected user'}.`, currentPath ?? undefined);
+            return {
+                serverId: data?.serverId,
+                userId: data?.userId,
+                twitchUsername: data?.twitchUsername
+            };
+        }
     } catch (error) {
-        return handleError(error, 'Failed to post shoutout.');
+        console.error('Failed to get user credentials:', error);
+    }
+    // Fallback to hardcoded values if session not found
+    return {
+        serverId: HARDCODED_SERVER_ID,
+        userId: HARDCODED_USER_ID,
+        twitchUsername: 'mtman1987'
+    };
+}
+
+/**
+ * Test database connectivity by fetching user data
+ */
+export async function testDatabaseConnection(prevState: any, formData: FormData) {
+    const sessionId = formData.get('sessionId') as string;
+    if (!sessionId) {
+        return { status: 'error' as const, message: 'Session ID is required.' };
+    }
+    
+    const { serverId, userId } = await getUserCredentialsBySession(sessionId);
+
+    try {
+        const userDoc = await db.collection('servers').doc(serverId).collection('users').doc(userId).get();
+        
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            return { 
+                status: 'success' as const, 
+                message: `Found user: ${userData?.username || 'Unknown'} (Server: ${serverId})`,
+                data: userData
+            };
+        } else {
+            return { 
+                status: 'error' as const, 
+                message: `User not found at servers/${serverId}/users/${userId}` 
+            };
+        }
+    } catch (error) {
+        return handleError(error, 'Failed to test database connection.');
     }
 }
 
 /**
- * Updates a user's group.
+ * Analyze user role assignments and group classifications
  */
-export async function updateUserGroupAction(prevState: any, formData: FormData) {
-    try {
-        const serverId = formData.get('serverId') as string;
-        const userId = formData.get('userId') as string;
-        const newGroup = formData.get('newGroup') as string;
-        const currentPath = formData.get('currentPath') as string;
-
-        if (!serverId || !userId || !newGroup) {
-            throw new Error('Missing server ID, user ID, or new group.');
-        }
-
-        const userRef = db.collection('servers').doc(serverId).collection('users').doc(userId);
-        await userRef.update({ group: newGroup });
-
-        return handleSuccess(`User successfully moved to the ${newGroup} group.`, currentPath);
-    } catch (error) {
-        return handleError(error, 'Failed to update user group.');
+export async function analyzeUserRolesAction(prevState: any, formData: FormData) {
+    const sessionId = formData.get('sessionId') as string;
+    if (!sessionId) {
+        return { status: 'error' as const, message: 'Session ID is required.' };
     }
-}
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
 
-/**
- * Updates the group for all users with a specific role.
- */
-export async function updateUsersByRoleAction(prevState: any, formData: FormData) {
     try {
-        const serverId = formData.get('serverId') as string;
-        const roleName = formData.get('roleName') as string;
-        const newGroup = formData.get('newGroup') as string;
-        const currentPath = formData.get('currentPath') as string;
-
-        if (!serverId || !roleName || !newGroup) {
-            throw new Error('Missing server ID, role name, or new group.');
-        }
-
-        const usersRef = db.collection('servers').doc(serverId).collection('users');
-        const snapshot = await usersRef.where('roles', 'array-contains', roleName).get();
-
-        if (snapshot.empty) {
-            return handleSuccess(`No users found with the role "${roleName}". No changes made.`, currentPath);
-        }
-
-        const batch = db.batch();
-        snapshot.docs.forEach(doc => {
-            batch.update(doc.ref, { group: newGroup });
-        });
-        await batch.commit();
-
-        return handleSuccess(`Successfully moved ${snapshot.size} user(s) with the "${roleName}" role to the ${newGroup} group.`, currentPath);
-    } catch (error) {
-        return handleError(error, 'Failed to update users by role.');
-    }
-}
-
-/**
- * Posts a reply to a forwarded message.
- */
-export async function replyToMessageAction(prevState: any, formData: FormData) {
-    try {
-        const messageId = formData.get('messageId') as string;
-        const serverId = formData.get('serverId') as string;
-        const channelId = formData.get('channelId') as string;
-        const replyText = formData.get('replyText') as string;
-        const replierId = formData.get('replierId') as string;
-        const replierName = formData.get('replierName') as string;
-        const replierAvatar = formData.get('replierAvatar') as string;
-        const originalAuthorName = formData.get('originalAuthorName') as string;
-        const forwardedMessageId = formData.get('forwardedMessageId') as string | null;
-
-        if (!messageId || !serverId || !channelId || !replyText || !replierId || !replierName || !replierAvatar || !originalAuthorName) {
-            throw new Error('Missing required fields for reply.');
-        }
-
-        const replyData = {
-            text: replyText,
-            authorId: replierId,
-            authorName: replierName,
-            authorAvatar: replierAvatar,
-            timestamp: Timestamp.now(),
+        const { analyzeUserRoles, getGroupStatistics } = await import('./role-assignment-service');
+        const [analysis, stats] = await Promise.all([
+            analyzeUserRoles(serverId),
+            getGroupStatistics(serverId)
+        ]);
+        
+        return { 
+            status: 'success' as const, 
+            message: `Analyzed ${stats.total} users. ${stats.needsUpdate} need group updates.`,
+            analysis,
+            stats
         };
-
-        // This function would contain the logic to post the reply to Discord
-        await replyToMessage({
-            channelId,
-            replyText,
-            replierName,
-            originalAuthorName,
-            forwardedMessageId: forwardedMessageId || undefined,
-        });
-
-        // Update the message in Firestore with the reply
-        const messageRef = db.collection('servers').doc(serverId).collection('messages').doc(messageId);
-        await messageRef.update({ reply: replyData });
-
-        return handleSuccess('Reply has been posted successfully.');
     } catch (error) {
-        return handleError(error, 'Failed to post reply.');
+        return handleError(error, 'Failed to analyze user roles.');
     }
 }
+
+/**
+ * Test Twitch clip fetching for a specific user
+ */
+export async function testClipFetchingAction(prevState: any, formData: FormData) {
+    const sessionId = formData.get('sessionId') as string;
+    const streamerName = formData.get('streamerName') as string;
+    
+    if (!sessionId || !streamerName) {
+        return { status: 'error' as const, message: 'Session ID and streamer name are required.' };
+    }
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
+
+    try {
+        const { getBestClipForStreamer } = await import('./twitch-clip-service');
+        const clip = await getBestClipForStreamer(serverId, streamerName, {
+            preferRecent: true,
+            minViews: 1,
+            maxDuration: 60,
+            forceRefresh: true
+        });
+        
+        if (clip) {
+            return { 
+                status: 'success' as const, 
+                message: `Found clip: "${clip.title}" (${clip.viewCount} views, ${clip.duration}s)`,
+                clip
+            };
+        } else {
+            return { 
+                status: 'error' as const, 
+                message: `No suitable clips found for ${streamerName}` 
+            };
+        }
+    } catch (error) {
+        return handleError(error, 'Failed to fetch clips.');
+    }
+}
+
+/**
+ * Auto-assign users to groups based on their Discord roles and server mappings
+ */
+export async function autoAssignUserGroups(prevState: any, formData: FormData) {
+    const sessionId = formData.get('sessionId') as string;
+    const currentPath = formData.get('currentPath') as string;
+    const dryRun = formData.get('dryRun') === 'true';
+    
+    if (!sessionId) {
+        return { status: 'error' as const, message: 'Session ID is required.' };
+    }
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
+
+    try {
+        const { getUserGroupFromRoles } = await import('./group-utils');
+        const usersSnapshot = await db.collection('servers').doc(serverId).collection('users').get();
+        
+        const updates: Array<{username: string, oldGroup: string, newGroup: string}> = [];
+        const batch = db.batch();
+        
+        for (const doc of usersSnapshot.docs) {
+            const userData = doc.data();
+            const currentGroup = userData.group || 'Community';
+            const suggestedGroup = await getUserGroupFromRoles(userData.roles || [], serverId);
+            
+            if (currentGroup !== suggestedGroup) {
+                updates.push({
+                    username: userData.username || 'Unknown',
+                    oldGroup: currentGroup,
+                    newGroup: suggestedGroup
+                });
+                
+                if (!dryRun) {
+                    batch.update(doc.ref, { 
+                        group: suggestedGroup,
+                        groupUpdatedAt: new Date(),
+                        groupUpdatedBy: 'auto-assignment'
+                    });
+                }
+            }
+        }
+        
+        if (!dryRun && updates.length > 0) {
+            await batch.commit();
+        }
+        
+        const message = dryRun 
+            ? `DRY RUN: Would update ${updates.length} users` 
+            : `Updated ${updates.length} users based on their Discord roles`;
+            
+        return handleSuccess(message, currentPath);
+    } catch (error) {
+        return handleError(error, 'Failed to auto-assign user groups.');
+    }
+}
+

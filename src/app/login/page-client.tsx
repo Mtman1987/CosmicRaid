@@ -1,22 +1,57 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+
+// Hardcoded for testing - change these to secure the app later
+const HARDCODED_SERVER_ID = '1240832965865635881';
+const HARDCODED_USER_ID = '1240832965865635881'; // Replace with your actual Discord user ID
 
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    discordServerId: '',
-    discordUserId: '',
-    twitchUsername: ''
+    discordServerId: HARDCODED_SERVER_ID,
+    discordUserId: HARDCODED_USER_ID,
+    twitchUsername: 'mtman1987'
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Load saved values on mount (for display purposes)
+  useEffect(() => {
+    const saved = {
+      discordServerId: localStorage.getItem('discordServerId') || HARDCODED_SERVER_ID,
+      discordUserId: localStorage.getItem('discordUserId') || HARDCODED_USER_ID,
+      twitchUsername: localStorage.getItem('twitchUsername') || 'mtman1987'
+    };
+    setFormData(saved);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Generate unique session ID for this user
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Save to localStorage for client-side
     localStorage.setItem('discordServerId', formData.discordServerId);
     localStorage.setItem('discordUserId', formData.discordUserId);
     localStorage.setItem('twitchUsername', formData.twitchUsername);
+    localStorage.setItem('sessionId', sessionId);
     localStorage.setItem('isLoggedIn', 'true');
+    
+    // Save to Firestore for server-side functions with session ID
+    const serverFormData = new FormData();
+    serverFormData.append('serverId', formData.discordServerId);
+    serverFormData.append('userId', formData.discordUserId);
+    serverFormData.append('twitchUsername', formData.twitchUsername);
+    serverFormData.append('sessionId', sessionId);
+    
+    try {
+      const { saveLoginCredentials } = await import('@/lib/actions');
+      await saveLoginCredentials(null, serverFormData);
+    } catch (error) {
+      console.error('Failed to save credentials to server:', error);
+    }
+    
     router.push('/dashboard');
   };
 
