@@ -57,7 +57,8 @@ function resolveExistingMediaUrl(shoutout: any): string | null {
   }
   return shoutout.embeds?.[0]?.image?.url || null;
 }
-import { isCommunityGroupSync, isVipGroupSync, getUserGroupFromRoles } from "./group-utils"
+import { isCommunityGroupSync, isVipGroupSync } from "./group-utils";
+import { getUserGroupFromRoles } from "./group-utils-server";
 
 
 export interface ShoutoutResult {

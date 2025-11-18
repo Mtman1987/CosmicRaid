@@ -4,7 +4,7 @@ import { db } from '@/firebase/server-init';
 import { getUserByLogin, getClipsForUser } from './twitch-api-service';
 import { convertClipToGif } from './gif-conversion-service';
 import { generateFileName, deleteGif } from './firebase-storage-service';
-import { isCommunityGroup, isVipGroup } from './group-utils';
+import { isCommunityGroup, isVipGroup } from './group-utils-server';
 
 interface ClipPool {
   vipClips: CachedClip[];

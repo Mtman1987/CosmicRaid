@@ -14,7 +14,7 @@ type PostOptions = {
   includeVip?: boolean;
   includeSpotlight?: boolean;
 };
-import { isCommunityGroup, isVipGroup } from "./group-utils";
+import { isCommunityGroup, isVipGroup } from "./group-utils-server";
 
 async function getDiscordInvite(): Promise<string | null> {
   try {

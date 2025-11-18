@@ -1,7 +1,8 @@
 'use server';
 
 import { db } from '@/firebase/server-init';
-import { isVipGroup, isCommunityGroup, normalizeGroupValue, toCanonicalGroup } from './group-utils';
+import { normalizeGroupValue, toCanonicalGroup } from './group-utils';
+import { isVipGroup, isCommunityGroup } from './group-utils-server';
 
 interface UserRoleInfo {
   userId: string;
