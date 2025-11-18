@@ -127,7 +127,7 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
     let after = null;
     
     do {
-      const url = `https://discord.com/api/v10/guilds/${guildId}/members?limit=1000${after ? `&after=${after}` : ''}`;
+      const url: string = `https://discord.com/api/v10/guilds/${guildId}/members?limit=1000${after ? `&after=${after}` : ''}`;
       const membersResponse = await fetch(url, { headers });
       if (!membersResponse.ok) throw new Error(`Failed to fetch members: ${await membersResponse.text()}`);
       const membersData = await membersResponse.json();
@@ -268,7 +268,7 @@ export async function postNewCalendar(guildId: string, channelId: string) {
     attachments.forEach((attachment, index) => {
       formData.append(
         `files[${index}]`,
-        new Blob([attachment.buffer], { type: attachment.mime }),
+        new Blob([new Uint8Array(attachment.buffer)], { type: attachment.mime }),
         attachment.filename,
       )
     })

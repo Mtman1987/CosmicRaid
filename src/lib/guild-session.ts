@@ -32,8 +32,8 @@ export async function getGuildIdFromRequest(request?: Request): Promise<string> 
 /**
  * Set the guild ID in a cookie (call this after login)
  */
-export function setGuildIdCookie(guildId: string) {
-  const cookieStore = cookies();
+export async function setGuildIdCookie(guildId: string) {
+  const cookieStore = await cookies();
   cookieStore.set('guildId', guildId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
