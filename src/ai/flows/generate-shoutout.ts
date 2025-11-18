@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview An AI agent that generates a personalized shoutout for a Twitch user.
  *

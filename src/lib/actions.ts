@@ -792,12 +792,14 @@ export async function replyToMessageAction(prevState: any, formData: FormData) {
     const { serverId } = await getUserCredentialsBySession(sessionId);
 
     try {
-        const result = await replyToMessage(serverId, channelId, messageId, reply);
-        if (result.success) {
-            return handleSuccess('Reply sent successfully.');
-        } else {
-            throw new Error(result.error || 'Failed to send reply');
-        }
+        await replyToMessage({
+            channelId,
+            replyText: reply,
+            replierName: 'Admin',
+            originalAuthorName: 'User',
+            forwardedMessageId: messageId
+        });
+        return handleSuccess('Reply sent successfully.');
     } catch (error) {
         return handleError(error, 'Failed to send reply.');
     }

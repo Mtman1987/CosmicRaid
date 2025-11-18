@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview This file defines a Genkit flow to generate tailored shoutout messages
  * in the form of Discord Embed JSON.

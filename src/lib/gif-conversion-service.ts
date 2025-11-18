@@ -282,100 +282,7 @@ class GifConversionService {
     throw new Error(`FreeConvert job ${jobId} timed out after ${maxAttempts * 3} seconds`);
   }
 
-  // Alternative method using Shotstack API (if FreeConvert doesn't work well)
-  async convertWithShotstack(clipUrl: string, clipId: string, streamerName: string): Promise<string | null> {
-    try {
-      const shotstackApiKey = await getSecret('SHOTSTACK_API_KEY');
-      if (!shotstackApiKey) {
-        throw new Error('Shotstack API key not configured');
-      }
 
-      const response = await fetch('https://api.shotstack.io/edit/stage/render', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${shotstackApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          timeline: {
-            soundtrack: {
-              src: clipUrl,
-              effect: 'fadeInFadeOut'
-            },
-            tracks: [
-              {
-                clips: [
-                  {
-                    asset: {
-                      type: 'video',
-                      src: clipUrl
-                    },
-                    start: 0,
-                    length: 10,
-                    effect: 'zoomIn'
-                  }
-                ]
-              }
-            ]
-          },
-          output: {
-            format: 'gif',
-            resolution: 'sd',
-            fps: 15,
-            quality: 'medium'
-          }
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Shotstack API error: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      
-      // Poll for completion
-      const renderId = result.response.id;
-      return await this.pollShotstackRender(renderId, shotstackApiKey);
-
-    } catch (error) {
-      console.error('Error with Shotstack conversion:', error);
-      return null;
-    }
-  }
-
-  private async pollShotstackRender(renderId: string, apiKey: string): Promise<string | null> {
-    for (let attempt = 0; attempt < 30; attempt++) {
-      const response = await fetch(`https://api.shotstack.io/edit/stage/render/${renderId}`, {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to check render status: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      
-      if (result.response.status === 'done') {
-        const tempGifUrl = result.response.url;
-        
-        // Upload to Firebase Storage
-        const { firebaseStorage } = await import('./firebase-storage-service');
-        const fileName = firebaseStorage.generateFileName(clipId, streamerName);
-        const firebaseUrl = await firebaseStorage.uploadGifFromUrl(tempGifUrl, fileName);
-        return firebaseUrl;
-      }
-      
-      if (result.response.status === 'failed') {
-        throw new Error(`Render failed: ${result.response.error}`);
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 3000));
-    }
-
-    throw new Error('Render timed out');
-  }
 
   private getDimensions(contentType: 'stream' | 'header' | 'footer') {
     switch (contentType) {
@@ -463,9 +370,7 @@ export async function convertClipToGif(
   return gifConverterService.convertClipToGif(clipUrl, clipId, streamerName, duration, contentType, options);
 }
 
-export async function convertWithShotstack(clipUrl: string, clipId: string, streamerName: string): Promise<string | null> {
-  return gifConverterService.convertWithShotstack(clipUrl, clipId, streamerName);
-}
+
 
 export async function getRandomStorageGif(serverId: string): Promise<string | null> {
   return gifConverterService['getRandomStorageGif'](serverId);
