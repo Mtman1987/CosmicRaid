@@ -31,7 +31,7 @@ export function DiscordSyncSettings() {
     if (serverId) {
       loadServerData(serverId);
     }
-  }, []);
+  }, [serverId]);
 
   const loadServerData = async (id: string) => {
     try {

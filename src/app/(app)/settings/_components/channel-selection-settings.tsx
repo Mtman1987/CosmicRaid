@@ -29,7 +29,7 @@ export function ChannelSelectionSettings() {
       loadChannels(serverId);
       loadChannelSettings(serverId);
     }
-  }, []);
+  }, [serverId]);
 
   const loadChannels = async (id: string) => {
     try {

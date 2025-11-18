@@ -35,10 +35,9 @@ async function startNgrok() {
   return new Promise((resolve, reject) => {
     console.log('[Startup] Starting ngrok tunnel on port 3300...');
     
-    const ngrokCmd = process.platform === 'win32' ? 'ngrok.cmd' : 'ngrok';
-    ngrokProcess = spawn(ngrokCmd, ['http', '3300'], {
+    // Just use 'ngrok' - it's in PATH on Windows via WindowsApps
+    ngrokProcess = spawn('ngrok', ['http', '3300'], {
       stdio: 'pipe',
-      shell: true,
       windowsHide: true
     });
 
@@ -103,13 +102,18 @@ async function uploadToFirestore(url) {
   try {
     console.log('[Startup] Uploading PUPPETEER_SERVICE_URL to Firestore...');
     
-    await db.collection('secrets').doc('PUPPETEER_SERVICE_URL').set({
-      value: url,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      description: 'ngrok tunnel URL to access local Puppeteer/FFmpeg service from App Hosting'
-    });
+    // Store in the same location as other secrets: servers/{serverId}/config/secrets
+    const serverId = '1240832965865635881';
+    await db.collection('servers')
+      .doc(serverId)
+      .collection('config')
+      .doc('secrets')
+      .set({
+        PUPPETEER_SERVICE_URL: url,
+        PUPPETEER_SERVICE_UPDATED_AT: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }); // Use merge to not overwrite other secrets
     
-    console.log('[Startup] ✅ Successfully uploaded to Firestore');
+    console.log('[Startup] ✅ Successfully uploaded to Firestore at servers/1240832965865635881/config/secrets');
   } catch (error) {
     console.error('[Startup] ❌ Failed to upload to Firestore:', error.message);
     throw error;
@@ -122,10 +126,9 @@ async function uploadToFirestore(url) {
 function startDevServer() {
   console.log('[Startup] Starting dev:hosted server on port 3300...');
   
-  const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  devServerProcess = spawn(npmCmd, ['run', 'dev:hosted'], {
+  // Just use 'npm' - it's in PATH
+  devServerProcess = spawn('npm', ['run', 'dev:hosted'], {
     stdio: 'inherit',
-    shell: true,
     env: {
       ...process.env,
       PUPPETEER_SERVICE_URL: ngrokUrl
