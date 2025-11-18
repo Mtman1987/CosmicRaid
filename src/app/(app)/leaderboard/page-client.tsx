@@ -27,8 +27,19 @@ export default function LeaderboardPage() {
 
   const { data: rawLeaderboard, isLoading: isLoadingLeaderboard } = useCollection<LeaderboardEntry>(leaderboardQuery);
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('[Leaderboard] serverId:', serverId);
+    console.log('[Leaderboard] rawLeaderboard:', rawLeaderboard?.length, 'entries');
+    console.log('[Leaderboard] isLoadingLeaderboard:', isLoadingLeaderboard);
+  }, [serverId, rawLeaderboard, isLoadingLeaderboard]);
+
   const fetchAndCombineLeaderboardData = React.useCallback(async () => {
-    if (!rawLeaderboard || !firestore || !serverId) return;
+    if (!rawLeaderboard || !firestore || !serverId) {
+      console.log('[Leaderboard] Skipping fetch - missing data:', { hasRawLeaderboard: !!rawLeaderboard, hasFirestore: !!firestore, hasServerId: !!serverId });
+      setIsLoading(false);
+      return;
+    }
     
     setIsLoading(true);
     const combinedData: LeaderboardDisplayEntry[] = [];
