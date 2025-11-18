@@ -54,6 +54,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Skeleton } from '@/components/ui/skeleton';
 import { MissionCalendarCard, MissionLogCard, CaptainStat } from '@/components/mission-calendar-ui';
 import { CalendarDisplay } from './_components/calendar-display';
+import { useServerId, useUserId } from '@/lib/get-server-id';
 
 // Define a type for the new event, making eventDateTime a Timestamp
 type NewCalendarEvent = Omit<CalendarEvent, 'id' | 'eventDateTime'> & {

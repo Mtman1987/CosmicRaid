@@ -163,11 +163,11 @@ export default function SettingsPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        <input type="hidden" name="guildId" value={guildId} />
                         <div className="space-y-2">
                             <Label htmlFor="sync-guild-id">Guild (Server) ID</Label>
                             <Input
                                 id="sync-guild-id"
-                                name="guildId"
                                 value={guildId}
                                 readOnly
                                 disabled

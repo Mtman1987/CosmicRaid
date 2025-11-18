@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { collection } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
-import { useServerId } from '@/hooks/use-space-mountain-auth';
+import { useServerId } from '@/lib/get-server-id';
 import { PageHeader } from '@/components/page-header';
 import {
   Card,
