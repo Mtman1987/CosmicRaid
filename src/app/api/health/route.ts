@@ -6,8 +6,8 @@ export async function GET() {
     service: 'Cosmic Raid Local Services',
     timestamp: new Date().toISOString(),
     capabilities: [
-      'puppeteer-screenshots',
-      'ffmpeg-conversion', 
+      'local-screenshots',
+      'local-conversion', 
       'gif-processing',
       'media-optimization'
     ]

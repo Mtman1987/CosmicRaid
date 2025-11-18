@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     const { username, contentType } = await request.json();
     
-    // Use local Puppeteer/FFmpeg services
+    // Use local conversion services
     const { convertClipToGif } = await import('@/lib/gif-conversion-service');
     const { getTwitchUserClips } = await import('@/lib/twitch-api-service');
     

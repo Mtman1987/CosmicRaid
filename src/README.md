@@ -81,7 +81,7 @@ Run via `npx tsx startup.ts` (or your preferred runner). Pass `--event '{"userId
 
 ### 2. Dynamic Image Generation Engine
 
-*   **Current State:** The application uses a sophisticated server-side image generation system powered by **Genkit** and the **`puppeteer`** library.
+*   **Current State:** The application uses a sophisticated server-side image generation system powered by **Genkit** and **local conversion services**.
     *   `src/ai/flows/generate-calendar-image.ts`: This flow successfully queries Firestore for events and user logs, then programmatically draws a high-fidelity calendar image.
     *   `src/ai/flows/generate-leaderboard-image.ts`: This flow queries Firestore for the top users and generates a rich leaderboard image, complete with avatars and point totals.
 *   **Unified Workflow:** Both the web app and Discord bot are designed to use these generated images as the **single source of truth** for visual data. The Discord interaction handler calls these image generation flows and uses the resulting base64 data URL to `PATCH` (update) the deferred message.

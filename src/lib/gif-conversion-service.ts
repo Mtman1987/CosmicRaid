@@ -60,12 +60,12 @@ class GifConversionService {
   ): Promise<string | null> {
     const { serverId } = options;
     
-    // 1. Try local Puppeteer/FFmpeg service first (free, live recordings)
+    // 1. Try local conversion service first (free, live recordings)
     try {
       const localResult = await this.tryLocalConversion(clipUrl, clipId, streamerName, duration, contentType, serverId);
       if (localResult) return localResult;
     } catch (error) {
-      console.log('Local Puppeteer service unavailable, trying FreeConvert');
+      console.log('Local conversion service unavailable, trying FreeConvert');
     }
     
     // 2. Try FreeConvert API (costs money, uses Twitch clips)
@@ -89,7 +89,7 @@ class GifConversionService {
       
       if (serverId) {
         const { getServerConfig } = await import('./config-service');
-        const tunnelUrl = await getServerConfig(serverId, 'PUPPETEER_SERVICE_URL');
+        const tunnelUrl = await getServerConfig(serverId, 'LOCAL_CONVERSION_SERVICE_URL');
         if (tunnelUrl) {
           serviceUrl = tunnelUrl;
           console.log('[GIF] Using tunnel URL:', tunnelUrl?.replace(/[\r\n]/g, ''));
@@ -389,51 +389,33 @@ class GifConversionService {
     }
   }
 
-  private async convertWithFFmpeg(clipPath: string, clipId: string, streamerName: string, duration: number, contentType: 'stream' | 'header' | 'footer' = 'stream'): Promise<string | null> {
+  private async convertWithLocalService(clipPath: string, clipId: string, streamerName: string, duration: number, contentType: 'stream' | 'header' | 'footer' = 'stream'): Promise<string | null> {
+    const localServiceUrl = process.env.LOCAL_CONVERSION_SERVICE_URL;
+    if (!localServiceUrl) return null;
+    
     try {
-      const { exec } = await import('child_process');
-      const { promisify } = await import('util');
-      const execAsync = promisify(exec);
+      const response = await fetch(`${localServiceUrl}/api/convert-gif`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          clipPath,
+          clipId,
+          streamerName,
+          duration,
+          contentType,
+          dimensions: this.getDimensions(contentType)
+        })
+      });
       
-      const os = await import('os');
-      const fs = await import('fs');
-      const tempDir = os.tmpdir();
-      const tempGif = `${tempDir}/${clipId}.gif`;
-      
-      // Check if input file exists
-      if (!fs.existsSync(clipPath)) {
-        throw new Error(`Input MP4 file not found: ${clipPath}`);
+      if (response.ok) {
+        const { gifUrl } = await response.json();
+        console.log(`Local service GIF conversion completed: ${gifUrl}`);
+        return gifUrl;
       }
-      
-      // Convert MP4 to GIF with FFmpeg (optimized for small file size)
-      console.log('Converting MP4 to GIF with FFmpeg...');
-      const dimensions = this.getDimensions(contentType);
-      const paletteFile = `${tempDir}/palette_${clipId}.png`;
-      const ffmpegCmd = `ffmpeg -i "${clipPath}" -vf "fps=10,scale=${dimensions.width}:${dimensions.height}:flags=lanczos,palettegen" -frames:v 1 -y "${paletteFile}" && ffmpeg -i "${clipPath}" -i "${paletteFile}" -t ${duration} -filter_complex "[0:v]fps=10,scale=${dimensions.width}:${dimensions.height}:flags=lanczos[v];[v][1:v]paletteuse" -y "${tempGif}"`;
-      
-      await execAsync(ffmpegCmd);
-      
-      // Upload to Firebase Storage
-      const gifBuffer = fs.readFileSync(tempGif);
-      const base64Gif = `data:image/gif;base64,${gifBuffer.toString('base64')}`;
-      
-      const { uploadGifFromUrl, generateFileName } = await import('./firebase-storage-service');
-      const fileName = await generateFileName(clipId, streamerName);
-      const firebaseUrl = await uploadGifFromUrl(base64Gif, `gifs/${fileName}.gif`);
-      
-      // Cleanup temp files
-      try {
-        fs.unlinkSync(tempGif);
-        fs.unlinkSync(paletteFile);
-      } catch (e) {}
-      
-      console.log(`FFmpeg GIF conversion completed: ${firebaseUrl}`);
-      return firebaseUrl;
-      
     } catch (error) {
-      console.error('FFmpeg conversion failed, falling back to FreeConvert:', error);
-      return null;
+      console.error('Local service conversion failed, falling back to FreeConvert:', error);
     }
+    return null;
   }
 
   // Final fallback: get random GIF from storage bucket

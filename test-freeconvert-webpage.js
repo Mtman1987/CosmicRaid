@@ -3,7 +3,7 @@ require('dotenv').config();
 
 async function testFreeConvertWebpage() {
   const apiKey = process.env.FREE_CONVERT_API_KEY;
-  const calendarUrl = 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/calendar';
+  const calendarUrl = 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/calendar/1240832965865635881';
   
   console.log('📸 Testing FreeConvert webpage screenshot...');
   console.log('API Key:', apiKey ? `${apiKey.substring(0, 20)}...` : 'NOT FOUND');
@@ -22,7 +22,7 @@ async function testFreeConvertWebpage() {
           "input_format": "webpage",
           "output_format": "png",
           "options": {
-            "viewport_width": 1200,
+            "viewport_width": 1280,
             "viewport_height": 800,
             "delay": 3000
           }

@@ -276,7 +276,7 @@ async function convertClipToGif(clip: TwitchClip, serverId: string): Promise<Con
 
 /**
  * Generate spotlight content using server-side fallback
- * This is called when the local server is offline (no puppeteer/ffmpeg)
+ * This is called when the local server is offline (no local conversion service)
  */
 export async function generateSpotlightServerSideFallback(serverId: string): Promise<ConvertedGif | null> {
   try {

@@ -1,6 +1,5 @@
 'use server';
 
-import puppeteer from 'puppeteer';
 import { uploadFileToFirebase } from './firebase-storage-service';
 
 export async function generateCommunityCard(
@@ -8,27 +7,11 @@ export async function generateCommunityCard(
   streamerName: string,
   streamData: any
 ): Promise<string | null> {
-  let browser;
+  const localServiceUrl = process.env.LOCAL_CONVERSION_SERVICE_URL;
   
   try {
     console.log(`[CommunityCard] Generating card for ${streamerName}`);
     
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu'
-      ]
-    });
-
-    const page = await browser.newPage();
-    await page.setViewport({ width: 960, height: 360 });
-
     // Build URL with stream data
     const params = new URLSearchParams({
       streamer: streamerName,
@@ -44,32 +27,39 @@ export async function generateCommunityCard(
     const cardUrl = `${appUrl}/headless/community-card/${serverId}?${params.toString()}`;
     console.log(`[CommunityCard] Navigating to ${cardUrl}`);
 
-    await page.goto(cardUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+    if (localServiceUrl) {
+      const response = await fetch(`${localServiceUrl}/api/screenshot`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          url: cardUrl,
+          width: 960,
+          height: 360,
+          waitFor: 2000,
+          selector: 'main'
+        })
+      });
+      
+      if (response.ok) {
+        const { dataUrl } = await response.json();
+        const base64Data = dataUrl.split(',')[1];
+        const screenshot = Buffer.from(base64Data, 'base64');
+        
+        // Upload to Firebase Storage
+        const timestamp = Date.now();
+        const fileName = `community_cards/${streamerName}_${timestamp}.png`;
+        const downloadUrl = await uploadFileToFirebase(screenshot, fileName, 'image/png');
+
+        console.log(`[CommunityCard] Generated card: ${downloadUrl}`);
+        return downloadUrl;
+      }
+    }
     
-    // Wait for content to load
-    await page.waitForSelector('main', { timeout: 10000 });
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // Take screenshot
-    const screenshot = await page.screenshot({
-      type: 'png',
-      fullPage: false
-    });
-
-    // Upload to Firebase Storage
-    const timestamp = Date.now();
-    const fileName = `community_cards/${streamerName}_${timestamp}.png`;
-    const downloadUrl = await uploadFileToFirebase(screenshot, fileName, 'image/png');
-
-    console.log(`[CommunityCard] Generated card: ${downloadUrl}`);
-    return downloadUrl;
+    console.log(`[CommunityCard] Local service unavailable for ${streamerName}`);
+    return null;
 
   } catch (error) {
     console.error(`[CommunityCard] Error generating card for ${streamerName}:`, error);
     return null;
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
   }
 }

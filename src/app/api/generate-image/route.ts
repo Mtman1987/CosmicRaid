@@ -9,10 +9,11 @@ export async function POST(request: NextRequest) {
   try {
     const { username, contentType } = await request.json();
     
-    // Use local Puppeteer for screenshots
-    const puppeteer = await import('puppeteer');
-    const browser = await puppeteer.default.launch({ headless: true });
-    const page = await browser.newPage();
+    // Use local conversion service for screenshots
+    const localServiceUrl = process.env.LOCAL_CONVERSION_SERVICE_URL;
+    if (!localServiceUrl) {
+      return NextResponse.json({ error: 'Local service not configured' }, { status: 503 });
+    }
     
     let screenshotUrl: string;
     
@@ -27,15 +28,23 @@ export async function POST(request: NextRequest) {
         screenshotUrl = `https://twitch.tv/${username}`;
     }
     
-    await page.goto(screenshotUrl, { waitUntil: 'networkidle0' });
-    await page.setViewport({ width: 1920, height: 1080 });
-    
-    const screenshot = await page.screenshot({ 
-      type: 'png',
-      fullPage: false
+    const response = await fetch(`${localServiceUrl}/api/screenshot`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        url: screenshotUrl,
+        width: 1920,
+        height: 1080
+      })
     });
     
-    await browser.close();
+    if (!response.ok) {
+      throw new Error(`Screenshot service failed: ${response.status}`);
+    }
+    
+    const { dataUrl } = await response.json();
+    const base64Data = dataUrl.split(',')[1];
+    const screenshot = Buffer.from(base64Data, 'base64');
     
     // Upload to Firebase Storage
     const { uploadToStorage } = await import('@/lib/firebase-storage-service');

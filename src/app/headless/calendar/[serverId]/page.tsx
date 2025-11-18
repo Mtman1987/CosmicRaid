@@ -1,4 +1,3 @@
-
 import { db } from '@/firebase/server-init';
 import { Timestamp } from 'firebase-admin/firestore';
 import {
@@ -133,15 +132,21 @@ export default async function HeadlessCalendarPage({
   }
 
   return (
-    <main className="w-[620px] h-[660px] bg-blue-900 text-white rounded-3xl shadow-xl overflow-hidden p-2.5">
-      <div className="flex flex-col gap-2.5 h-full">
-        <MissionCalendarCard
+    <main className="w-[1280px] h-[660px] bg-blue-900 text-white rounded-3xl shadow-xl overflow-visible p-2.5">
+      <div className="w-[1300px] h-full bg-gradient-to-br from-[#0d1c4d] via-[#0f245f] to-[#070c1f] rounded-2xl p-2.5">
+        <div className="flex h-full">
+        <div className="w-[620px] h-full flex flex-col">
+          <MissionCalendarCard
           month={month}
           today={today}
           allEvents={allEvents}
           monthCaptains={monthCaptains}
-        />
-        <MissionLogCard missionEvents={missionEvents} todaysCaptain={todaysCaptain} />
+            className="h-full flex-1"
+          />
+        </div>
+        <div className="w-[620px] h-full">
+          <MissionLogCard missionEvents={missionEvents} todaysCaptain={todaysCaptain} className="h-full" />
+        </div>
       </div>
     </main>
   );

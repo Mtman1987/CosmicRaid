@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview This file defines a flow for generating a calendar image.
- * Uses the local conversion service via HTTP instead of direct Puppeteer.
+ * Uses the local conversion service via HTTP instead of direct browser automation.
  */
 
 export async function generateCalendarImage(

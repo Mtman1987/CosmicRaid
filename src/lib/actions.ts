@@ -349,9 +349,9 @@ export async function testCalendarPostAction(prevState: any, formData: FormData)
         `[${new Date().toISOString()}] Initiating calendar post...`,
         `[${new Date().toISOString()}] Guild ID: ${guildId}`,
         `[${new Date().toISOString()}] Channel ID: ${channelId}`,
-        `[${new Date().toISOString()}] Generating calendar image via Puppeteer...`,
+        `[${new Date().toISOString()}] Generating calendar image via local service...`,
         // Simulate a delay
-        await new Promise(resolve => setTimeout(() => resolve(`[${new Date().toISOString()}] Puppeteer process finished.`), 1500)),
+        await new Promise(resolve => setTimeout(() => resolve(`[${new Date().toISOString()}] Image generation finished.`), 1500)),
         `[${new Date().toISOString()}] Image generated, posting to Discord...`,
         `[${new Date().toISOString()}] Discord API response: 200 OK`,
         `[${new Date().toISOString()}] Calendar successfully posted.`
