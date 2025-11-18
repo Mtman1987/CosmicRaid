@@ -2,7 +2,7 @@
 
 import { db } from '@/firebase/server-init';
 import { checkMultipleStreamsStatus, getUserByLogin, getClipsForUser, getRandomClipFromOnlineUsers } from './twitch-api-service';
-import { convertClipToGif, getThumbnailAsGif } from './gif-conversion-service';
+import { convertClipToGif } from './gif-conversion-service';
 import { isCommunityGroupSync, isVipGroupSync } from './group-utils';
 import { runAutomatedShoutoutCycle } from './automated-shoutout-system';
 
