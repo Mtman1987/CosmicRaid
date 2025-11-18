@@ -19,7 +19,7 @@ let serverLogs = [];
 let isLoggingEnabled = false;
 
 const isDev = process.env.NODE_ENV === 'development';
-const port = process.env.HOSTED_DEV_PORT || '3300';
+const port = process.env.HOSTED_DEV_PORT || '5500';
 
 function createTray() {
   // Use the cosmic raid icon
@@ -101,11 +101,13 @@ function createWindow() {
     width: 1200,
     height: 800,
     show: false, // Start hidden
+    skipTaskbar: true, // Don't show in taskbar when hidden
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      backgroundThrottling: false // Prevent throttling when hidden
     },
-    icon: path.join(__dirname, 'public', 'CosmicRaid.ico')
+    icon: path.join(__dirname, 'public', 'cosmicraid.png')
   });
 
   // Load a simple HTML page with logs
@@ -166,7 +168,7 @@ function createWindow() {
 function startDevServer() {
   // Add startup log
   if (isLoggingEnabled) {
-    serverLogs.push(`[SYS] ${new Date().toLocaleTimeString()}: Starting Cosmic Raid Local Services (ngrok + dev server)...`);
+    serverLogs.push(`[SYS] ${new Date().toLocaleTimeString()}: Starting Cosmic Raid Local Services (concurrent mode)...`);
   }
   
   const env = {
@@ -176,11 +178,11 @@ function startDevServer() {
     ELECTRON_MODE: '1'
   };
 
-  // Spawn startup script that handles ngrok + dev server
+  // Spawn concurrent startup script for minimal resource usage
   const nodeCmd = process.platform === 'win32' ? 'node' : 'node';
   devServer = spawn(
     nodeCmd,
-    ['startup.js'],
+    ['electron-startup.js'],
     {
       cwd: __dirname,
       env: {
@@ -189,7 +191,8 @@ function startDevServer() {
       },
       stdio: 'pipe',
       shell: true,
-      windowsHide: true
+      windowsHide: true,
+      detached: false
     }
   );
   
@@ -295,16 +298,22 @@ app.on('activate', () => {
 });
 
 app.on('before-quit', () => {
+  console.log('[Electron] Shutting down services...');
   if (devServer && !devServer.killed) {
-    devServer.kill('SIGKILL');
+    // Send shutdown message to child process
+    devServer.send && devServer.send({ type: 'shutdown' });
+    // Force kill after 5 seconds if not responding
+    setTimeout(() => {
+      if (devServer && !devServer.killed) {
+        devServer.kill('SIGKILL');
+      }
+    }, 5000);
   }
 });
 
 app.on('window-all-closed', () => {
-  // Force quit on Windows when all windows closed
-  if (process.platform === 'win32') {
-    app.quit();
-  }
+  // Don't quit - keep running in system tray
+  // This ensures minimal resource usage for long-term running
 });
 
 // Handle IPC for logs

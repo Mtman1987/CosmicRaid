@@ -458,7 +458,7 @@ export async function convertClipToGif(
   streamerName: string,
   duration: number = 10,
   contentType: 'stream' | 'header' | 'footer' = 'stream',
-  options: ConversionOptions = {}
+  options: GifConversionOptions = {}
 ): Promise<string | null> {
   return gifConverterService.convertClipToGif(clipUrl, clipId, streamerName, duration, contentType, options);
 }

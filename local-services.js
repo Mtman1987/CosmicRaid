@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3300;
+const port = process.env.PORT || 5500;
 
 app.use(cors());
 app.use(express.json());
@@ -34,7 +34,7 @@ app.post('/api/screenshot', async (req, res) => {
     const page = await browser.newPage();
     await page.setViewport({ width, height });
     await page.goto(url, { waitUntil: 'networkidle0' });
-    await page.waitForTimeout(waitFor);
+    await new Promise(resolve => setTimeout(resolve, waitFor));
     
     const screenshot = await page.screenshot({ 
       type: 'png',

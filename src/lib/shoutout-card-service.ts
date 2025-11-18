@@ -1,43 +1,70 @@
 'use server';
 
-import { getSecret } from './config-service';
-
 export async function generateShoutoutCard(
   serverId: string,
   cardData: any
 ): Promise<string | null> {
-  const localServiceUrl = process.env.LOCAL_CONVERSION_SERVICE_URL;
-  
   try {
-    console.log(`[ShoutoutCard] Generating card for ${cardData.streamerName}`);
+    const { getServerConfig } = await import('./config-service');
+    const tunnelUrl = await getServerConfig(serverId, 'LOCAL_CONVERSION_SERVICE_URL');
     
-    const appUrl = localServiceUrl || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
-    const cardUrl = `${appUrl}/headless/shoutout-card/${serverId}?streamer=${cardData.streamerName}`;
-
-    if (localServiceUrl) {
-      const response = await fetch(`${localServiceUrl}/api/screenshot`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          url: cardUrl,
-          width: 960,
-          height: 540,
-          waitFor: 3000
-        })
-      });
-      
-      if (response.ok) {
-        const { dataUrl } = await response.json();
-        console.log(`[ShoutoutCard] Generated card successfully`);
-        return dataUrl;
-      }
+    if (!tunnelUrl) {
+      console.log('[ShoutoutCard] No tunnel URL configured');
+      return null;
     }
-    
-    console.log(`[ShoutoutCard] Local service unavailable`);
-    return null;
 
+    const response = await fetch(`${tunnelUrl}/api/screenshot`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/headless/shoutout-card/${serverId}?streamer=${cardData.streamerName}`,
+        width: 960,
+        height: 540,
+        waitFor: 3000
+      }),
+      signal: AbortSignal.timeout(10000)
+    });
+    
+    if (response.ok) {
+      const { dataUrl } = await response.json();
+      return dataUrl;
+    }
+    return null;
   } catch (error) {
-    console.error(`[ShoutoutCard] Error:`, error);
+    console.error('[ShoutoutCard] Error:', error);
+    return null;
+  }
+}
+
+export async function generateShoutoutCardGif(
+  serverId: string,
+  cardData: any
+): Promise<string | null> {
+  try {
+    const { getServerConfig } = await import('./config-service');
+    const tunnelUrl = await getServerConfig(serverId, 'LOCAL_CONVERSION_SERVICE_URL');
+    
+    if (!tunnelUrl) return null;
+
+    const response = await fetch(`${tunnelUrl}/api/record`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/headless/shoutout-card/${serverId}?streamer=${cardData.streamerName}`,
+        width: 960,
+        height: 540,
+        duration: 5000,
+        format: 'gif'
+      }),
+      signal: AbortSignal.timeout(15000)
+    });
+    
+    if (response.ok) {
+      const { gifUrl } = await response.json();
+      return gifUrl;
+    }
+    return null;
+  } catch (error) {
     return null;
   }
 }

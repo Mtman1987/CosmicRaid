@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Users, ArrowRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { matchesGroup } from '@/lib/group-utils';
+import { matchesGroup } from '@/lib/group-utils-client';
 
 type GroupCardProps = {
   groupName: 'VIP' | 'Community' | 'Raid Train' | 'Raid Pile';

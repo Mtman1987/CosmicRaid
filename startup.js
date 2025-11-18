@@ -33,10 +33,10 @@ const SHOUTOUT_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
  */
 async function startNgrok() {
   return new Promise((resolve, reject) => {
-    console.log('[Startup] Starting ngrok tunnel on port 3300...');
+    console.log('[Startup] Starting ngrok tunnel on port 5500...');
     
     // Just use 'ngrok' - it's in PATH on Windows via WindowsApps
-    ngrokProcess = spawn('ngrok', ['http', '3300'], {
+    ngrokProcess = spawn('ngrok', ['http', '5500'], {
       stdio: 'pipe',
       windowsHide: true
     });
@@ -124,13 +124,13 @@ async function uploadToFirestore(url) {
  * Start the dev:hosted server
  */
 function startDevServer() {
-  console.log('[Startup] Starting dev:hosted server on port 3300...');
+  console.log('[Startup] Starting local services on port 5500...');
   
-  // Just use 'npm' - it's in PATH
-  devServerProcess = spawn('npm', ['run', 'dev:hosted'], {
+  devServerProcess = spawn('node', ['local-services.js'], {
     stdio: 'inherit',
     env: {
       ...process.env,
+      PORT: '5500',
       LOCAL_CONVERSION_SERVICE_URL: ngrokUrl
     }
   });
@@ -253,7 +253,7 @@ async function main() {
     
     console.log('\n✅ All services running!');
     console.log(`📡 ngrok: ${ngrokUrl}`);
-    console.log('🎬 Puppeteer: http://localhost:3300');
+    console.log('🎬 Puppeteer: http://localhost:5500');
     console.log('🤖 Shoutouts: Every 10 minutes');
     console.log('☁️  App Hosting can now access your local services\n');
     
