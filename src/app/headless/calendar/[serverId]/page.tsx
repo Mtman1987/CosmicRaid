@@ -148,6 +148,7 @@ export default async function HeadlessCalendarPage({
           <MissionLogCard missionEvents={missionEvents} todaysCaptain={todaysCaptain} className="h-full" />
         </div>
       </div>
+      </div>
     </main>
   );
 }
