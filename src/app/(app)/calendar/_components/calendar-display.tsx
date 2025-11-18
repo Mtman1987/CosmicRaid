@@ -87,9 +87,6 @@ export function CalendarDisplay({ serverId, forScreenshot = false }: { serverId:
     return { viewStart: start, viewEnd: end };
   }, [month]);
 
-  const viewStartMs = viewStart.getTime();
-  const viewEndMs = viewEnd.getTime();
-
   // Load ALL events and filter client-side to avoid needing composite index
   const eventsQuery = React.useMemo(() => {
       if (!firestore || !serverId) return null;
@@ -106,7 +103,7 @@ export function CalendarDisplay({ serverId, forScreenshot = false }: { serverId:
       const eventDate = event.eventDateTime.toDate();
       return eventDate >= viewStart && eventDate <= viewEnd;
     });
-  }, [rawEvents, viewStartMs, viewEndMs]);
+  }, [rawEvents, viewStart, viewEnd]);
 
   const { monthCaptains } = React.useMemo(() => {
     if (!allEvents) return { monthCaptains: [] };
