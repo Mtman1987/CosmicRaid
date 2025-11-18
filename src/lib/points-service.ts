@@ -209,4 +209,45 @@ export class PointsService {
     const snapshot = await leaderboardRef.get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
+
+  async getUserRank(userId: string, serverId?: string): Promise<number> {
+    const actualServerId = serverId || process.env.HARDCODED_GUILD_ID || 'default';
+    
+    // Get user's points first
+    const userDoc = await db
+      .collection('servers')
+      .doc(actualServerId)
+      .collection('leaderboard')
+      .doc(userId)
+      .get();
+    
+    if (!userDoc.exists) {
+      return 0;
+    }
+    
+    const userPoints = userDoc.data()?.points || 0;
+    
+    // Count how many users have more points
+    const higherRankedSnapshot = await db
+      .collection('servers')
+      .doc(actualServerId)
+      .collection('leaderboard')
+      .where('points', '>', userPoints)
+      .get();
+    
+    return higherRankedSnapshot.size + 1;
+  }
+
+  async getUserPoints(userId: string, serverId?: string): Promise<number> {
+    const actualServerId = serverId || process.env.HARDCODED_GUILD_ID || 'default';
+    
+    const userDoc = await db
+      .collection('servers')
+      .doc(actualServerId)
+      .collection('leaderboard')
+      .doc(userId)
+      .get();
+    
+    return userDoc.exists ? (userDoc.data()?.points || 0) : 0;
+  }
 }

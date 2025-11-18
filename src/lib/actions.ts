@@ -662,3 +662,144 @@ export async function autoAssignUserGroups(prevState: any, formData: FormData) {
     }
 }
 
+/**
+ * Post a shoutout to Discord
+ */
+export async function postShoutoutAction(prevState: any, formData: FormData) {
+    const sessionId = formData.get('sessionId') as string;
+    const groupType = formData.get('groupType') as string;
+    
+    if (!sessionId || !groupType) {
+        return { status: 'error' as const, message: 'Session ID and group type are required.' };
+    }
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
+
+    try {
+        const { postAllShoutoutsToDiscord } = await import('./automated-shoutout-system');
+        await postAllShoutoutsToDiscord(serverId, {
+            includeCommunity: groupType === 'Community',
+            includeVip: groupType === 'VIP',
+            includeSpotlight: true
+        });
+        
+        return handleSuccess(`${groupType} shoutouts posted successfully.`);
+    } catch (error) {
+        return handleError(error, 'Failed to post shoutouts.');
+    }
+}
+
+/**
+ * Update user group assignment
+ */
+export async function updateUserGroupAction(prevState: any, formData: FormData) {
+    const sessionId = formData.get('sessionId') as string;
+    const userId = formData.get('userId') as string;
+    const newGroup = formData.get('group') as string;
+    
+    if (!sessionId || !userId || !newGroup) {
+        return { status: 'error' as const, message: 'Session ID, user ID, and group are required.' };
+    }
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
+
+    try {
+        await db.collection('servers').doc(serverId).collection('users').doc(userId).update({
+            group: newGroup,
+            groupUpdatedAt: new Date(),
+            groupUpdatedBy: 'manual'
+        });
+        
+        return handleSuccess(`User group updated to ${newGroup}.`);
+    } catch (error) {
+        return handleError(error, 'Failed to update user group.');
+    }
+}
+
+/**
+ * Update users by role assignment
+ */
+export async function updateUsersByRoleAction(prevState: any, formData: FormData) {
+    const sessionId = formData.get('sessionId') as string;
+    const roleId = formData.get('roleId') as string;
+    const newGroup = formData.get('group') as string;
+    
+    if (!sessionId || !roleId || !newGroup) {
+        return { status: 'error' as const, message: 'Session ID, role ID, and group are required.' };
+    }
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
+
+    try {
+        const usersSnapshot = await db.collection('servers').doc(serverId).collection('users')
+            .where('roles', 'array-contains', roleId).get();
+        
+        const batch = db.batch();
+        usersSnapshot.docs.forEach(doc => {
+            batch.update(doc.ref, {
+                group: newGroup,
+                groupUpdatedAt: new Date(),
+                groupUpdatedBy: 'role-assignment'
+            });
+        });
+        
+        await batch.commit();
+        return handleSuccess(`Updated ${usersSnapshot.size} users with role ${roleId} to group ${newGroup}.`);
+    } catch (error) {
+        return handleError(error, 'Failed to update users by role.');
+    }
+}
+
+/**
+ * Update shoutout channel configuration
+ */
+export async function updateShoutoutChannelAction(prevState: any, formData: FormData) {
+    const sessionId = formData.get('sessionId') as string;
+    const channelId = formData.get('channelId') as string;
+    const groupType = formData.get('groupType') as string;
+    
+    if (!sessionId || !channelId || !groupType) {
+        return { status: 'error' as const, message: 'Session ID, channel ID, and group type are required.' };
+    }
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
+
+    try {
+        await db.collection('servers').doc(serverId).collection('config').doc('channels').update({
+            [`${groupType.toLowerCase()}ShoutoutChannel`]: channelId,
+            updatedAt: new Date()
+        });
+        
+        return handleSuccess(`${groupType} shoutout channel updated.`);
+    } catch (error) {
+        return handleError(error, 'Failed to update shoutout channel.');
+    }
+}
+
+/**
+ * Reply to a Discord message
+ */
+export async function replyToMessageAction(prevState: any, formData: FormData) {
+    const sessionId = formData.get('sessionId') as string;
+    const messageId = formData.get('messageId') as string;
+    const channelId = formData.get('channelId') as string;
+    const reply = formData.get('reply') as string;
+    
+    if (!sessionId || !messageId || !channelId || !reply) {
+        return { status: 'error' as const, message: 'All fields are required.' };
+    }
+    
+    const { serverId } = await getUserCredentialsBySession(sessionId);
+
+    try {
+        const result = await replyToMessage(serverId, channelId, messageId, reply);
+        if (result.success) {
+            return handleSuccess('Reply sent successfully.');
+        } else {
+            throw new Error(result.error || 'Failed to send reply');
+        }
+    } catch (error) {
+        return handleError(error, 'Failed to send reply.');
+    }
+}
+

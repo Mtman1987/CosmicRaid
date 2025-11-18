@@ -1,6 +1,7 @@
 import { db } from '@/firebase/server-init';
 import { PointsService } from './points-service';
 import { getSecret } from './firestore-secrets';
+import { setDoc, doc, deleteDoc, collection, query, orderBy, getDocs } from 'firebase/firestore';
 
 export interface RaidPileMember {
   userId: string;

@@ -258,3 +258,14 @@ export async function getRandomClipFromOnlineUsers(userLogins: string[]): Promis
 export async function checkMultipleStreamsStatus(userLogins: string[]): Promise<Map<string, boolean>> {
   return twitchApiService.checkMultipleStreamsStatus(userLogins);
 }
+
+/**
+ * Get clips for a Twitch user by their username
+ */
+export async function getTwitchUserClips(username: string, limit: number = 5): Promise<TwitchClip[]> {
+  const user = await getUserByLogin(username);
+  if (!user) {
+    return [];
+  }
+  return getClipsForUser(user.id, limit);
+}

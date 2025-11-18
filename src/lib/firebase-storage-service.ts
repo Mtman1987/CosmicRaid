@@ -127,3 +127,15 @@ export async function uploadFileToFirebase(buffer: Buffer, fileName: string, con
 export async function uploadToStorage(buffer: Buffer, fileName: string, contentType: string): Promise<string> {
   return firebaseStorageService.uploadGifFromUrl(`data:${contentType};base64,${buffer.toString('base64')}`, fileName);
 }
+
+/**
+ * Upload a file from a URL to Firebase Storage
+ */
+export async function uploadFromUrl(url: string, fileName: string): Promise<string> {
+  return firebaseStorageService.uploadGifFromUrl(url, fileName);
+}
+
+/**
+ * Export the Firebase Storage service instance
+ */
+export const firebaseStorage = firebaseStorageService;
