@@ -26,19 +26,20 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
     
     const fetchChannel = async () => {
       try {
-        const serverRef = doc(firestore, 'servers', serverId);
-        const snapshot = await getDoc(serverRef);
-        if (!snapshot.exists()) return;
+        // Try to read from servers/{serverId}/config/channels subcollection instead
+        const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
+        const snapshot = await getDoc(channelsRef);
         
-        const storedChannels = snapshot.data()?.shoutoutChannels || {};
-        const leaderboardChannel = storedChannels.leaderboard;
-        
-        if (typeof leaderboardChannel === 'string' && leaderboardChannel.trim().length > 0) {
-          setChannelId(leaderboardChannel);
-          setChannelInput(leaderboardChannel);
+        if (snapshot.exists()) {
+          const leaderboardChannel = snapshot.data()?.leaderboard;
+          if (typeof leaderboardChannel === 'string' && leaderboardChannel.trim().length > 0) {
+            setChannelId(leaderboardChannel);
+            setChannelInput(leaderboardChannel);
+          }
         }
       } catch (error) {
-        console.error('Failed to load leaderboard channel from Firestore', error);
+        // Silently handle permissions error - just means no channel configured yet
+        console.log('[LeaderboardChannel] Could not load channel config (this is normal if not set up yet)');
       }
     };
     
@@ -66,15 +67,11 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
     }
 
     try {
-      const serverRef = doc(firestore, 'servers', serverId);
-      const serverDoc = await getDoc(serverRef);
-      const currentChannels = serverDoc.exists() ? serverDoc.data()?.shoutoutChannels || {} : {};
+      // Save to servers/{serverId}/config/channels subcollection
+      const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
       
-      await updateDoc(serverRef, {
-        shoutoutChannels: {
-          ...currentChannels,
-          leaderboard: trimmed
-        }
+      await updateDoc(channelsRef, {
+        leaderboard: trimmed
       });
       
       setChannelId(trimmed);
@@ -95,15 +92,10 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
     if (!serverId || !firestore) return;
 
     try {
-      const serverRef = doc(firestore, 'servers', serverId);
-      const serverDoc = await getDoc(serverRef);
-      const currentChannels = serverDoc.exists() ? serverDoc.data()?.shoutoutChannels || {} : {};
+      const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
       
-      await updateDoc(serverRef, {
-        shoutoutChannels: {
-          ...currentChannels,
-          leaderboard: ''
-        }
+      await updateDoc(channelsRef, {
+        leaderboard: ''
       });
       
       setChannelId('');
