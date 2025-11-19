@@ -1,32 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { startPolling } from '@/lib/polling-service';
 
 export async function POST(request: NextRequest) {
   try {
-    const serverId = process.env.HARDCODED_GUILD_ID;
-    
-    if (!serverId) {
-      return NextResponse.json({ error: 'Server ID not configured' }, { status: 400 });
-    }
-
-    console.log('Auto-starting polling service...');
-    await startPolling(serverId);
+    const { runUnifiedCronCycle } = await import('@/lib/unified-cron-service');
+    const result = await runUnifiedCronCycle();
     
     return NextResponse.json({ 
-      success: true, 
-      message: 'Polling service started automatically',
-      serverId 
+      success: result.success,
+      message: `Processed ${result.serversProcessed} servers, ${result.totalUsers} users`,
+      details: result
     });
   } catch (error) {
-    console.error('Error auto-starting polling:', error);
+    console.error('Error running unified cron:', error);
     return NextResponse.json({ 
-      error: 'Failed to start polling service',
+      error: 'Failed to run unified cron cycle',
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
 
-// Auto-start on server startup
 export async function GET() {
   return POST(new NextRequest('http://localhost/api/auto-poll', { method: 'POST' }));
 }

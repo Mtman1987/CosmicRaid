@@ -83,3 +83,37 @@ export function isVipGroupSync(group: GroupValue): boolean {
 export function isCommunityGroupSync(group: GroupValue): boolean {
   return normalizeGroupValue(group) === 'community';
 }
+
+export async function getUserGroupFromRoles(userRoles: string[], serverId: string): Promise<string> {
+  if (!Array.isArray(userRoles) || userRoles.length === 0) {
+    return 'Community';
+  }
+
+  try {
+    const { db } = await import('@/firebase/server-init');
+    const groupMappingsDoc = await db.collection('servers').doc(serverId).collection('config').doc('groupMappings').get();
+    
+    if (groupMappingsDoc.exists) {
+      const mappings = groupMappingsDoc.data();
+      
+      const vipRoles = mappings?.vipRoles || [];
+      if (vipRoles.some((role: string) => userRoles.includes(role))) {
+        return 'VIP';
+      }
+      
+      const raidTrainRoles = mappings?.raidTrainRoles || [];
+      if (raidTrainRoles.some((role: string) => userRoles.includes(role))) {
+        return 'Raid Train';
+      }
+      
+      const raidPileRoles = mappings?.raidPileRoles || [];
+      if (raidPileRoles.some((role: string) => userRoles.includes(role))) {
+        return 'Raid Pile';
+      }
+    }
+  } catch (error) {
+    console.error('Error getting user group from roles:', error);
+  }
+  
+  return 'Community';
+}
