@@ -6,6 +6,7 @@ import { convertClipToGif } from './gif-conversion-service';
 import { isCommunityGroupSync, isVipGroupSync } from './group-utils';
 import { runAutomatedShoutoutCycle } from './automated-shoutout-system';
 
+// Internal interface - not exported
 interface CachedClip {
   clipId: string;
   clipUrl: string;
@@ -17,6 +18,7 @@ interface CachedClip {
   cachedAt: string;
 }
 
+// Internal class - not exported
 class PollingService {
   private isPolling = false;
   private pollInterval: NodeJS.Timeout | null = null;
@@ -419,6 +421,7 @@ class PollingService {
   }
 }
 
+// Internal instance - not exported
 const pollingService = new PollingService();
 
 export async function startPolling(serverId: string): Promise<void> {

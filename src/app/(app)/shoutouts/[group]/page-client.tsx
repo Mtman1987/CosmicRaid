@@ -56,7 +56,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { matchesGroup, slugToCanonicalGroup } from '@/lib/group-utils';
+import { matchesGroup, slugToCanonicalGroup } from '@/lib/group-utils-client';
 import { deriveStreamStats, getMediaPreviewUrl } from '@/lib/shoutout-display';
 
 

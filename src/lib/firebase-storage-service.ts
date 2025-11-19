@@ -138,4 +138,6 @@ export async function uploadFromUrl(url: string, fileName: string): Promise<stri
 /**
  * Export the Firebase Storage service instance
  */
-export const firebaseStorage = firebaseStorageService;
+export async function getFirebaseStorage() {
+  return firebaseStorageService;
+}

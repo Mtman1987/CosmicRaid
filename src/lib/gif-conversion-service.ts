@@ -10,7 +10,8 @@ interface ConversionJob {
   created_at: string;
 }
 
-export interface GifConversionOptions {
+// Internal interface - not exported
+interface GifConversionOptions {
   serverId?: string;
   fallbackGifUrl?: string;
 }

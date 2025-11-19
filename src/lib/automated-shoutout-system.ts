@@ -9,13 +9,19 @@ import { sendDiscordMessage, updateDiscordMessage, deleteDiscordMessage, cleanup
 import { updateVipSpotlights } from "./vip-spotlight-service";
 import { getSecret } from './firestore-secrets';
 
+// Internal types - not exported
 type PostOptions = {
   includeCommunity?: boolean;
   includeVip?: boolean;
   includeSpotlight?: boolean;
 };
-import { isCommunityGroup, isVipGroup } from "./group-utils-server";
 
+// Internal interface - not exported
+interface CycleOptions {
+  force?: boolean;
+}
+
+// Internal helper function - not exported
 async function getDiscordInvite(): Promise<string | null> {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/discord/create-invite`, {
@@ -32,11 +38,6 @@ async function getDiscordInvite(): Promise<string | null> {
   }
   const discordInvite = await getSecret('DISCORD_INVITE_URL');
   return process.env.NEXT_PUBLIC_DISCORD_INVITE_URL || discordInvite || null;
-}
-
-
-interface CycleOptions {
-  force?: boolean;
 }
 
 function getShoutoutIntervalMs() {

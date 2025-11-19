@@ -72,4 +72,9 @@ class StorageCleanupService {
   }
 }
 
-export const storageCleanup = new StorageCleanupService();
+// Internal instance - not exported
+const storageCleanup = new StorageCleanupService();
+
+export async function getStorageCleanup() {
+  return storageCleanup;
+}

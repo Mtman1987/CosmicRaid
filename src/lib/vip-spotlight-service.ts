@@ -8,7 +8,8 @@ import { getUserTodaysClips, manageUserClips } from './clip-management-service';
 import { DAILY_CLIP_LIMIT } from './clip-settings';
 import { isVipGroupSync } from './group-utils';
 
-export interface VipSpotlightData {
+// Internal interface - not exported
+interface VipSpotlightData {
   streamerName: string;
   streamerLogin: string;
   cardGifUrl: string;

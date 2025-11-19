@@ -8,7 +8,8 @@ type ForwardAttachment = {
   description?: string
 }
 
-export interface ForwardMessagePayload {
+// Internal interface - not exported
+interface ForwardMessagePayload {
   targetChannelId: string
   content?: string
   embeds?: any[]

@@ -61,7 +61,8 @@ import { isCommunityGroupSync, isVipGroupSync } from "./group-utils";
 import { getUserGroupFromRoles } from "./group-utils-server";
 
 
-export interface ShoutoutResult {
+// Internal interface - not exported
+interface ShoutoutResult {
   streamerName: string
   success: boolean
   message: string

@@ -6,10 +6,11 @@ import { generateShoutoutCardGif } from './shoutout-card-service';
 import { manageUserClips, getRandomClipFromPool } from './clip-management-service';
 import { isCommunityGroupSync } from './group-utils';
 
-
+// Internal constants - not exported
 const MIN_SPOTLIGHT_DURATION_MS = 2 * 60 * 1000;
 const MAX_SPOTLIGHT_DURATION_MS = 10 * 60 * 1000;
 
+// Internal helper function - not exported
 function toDate(value: any): Date | null {
   if (!value) return null;
   if (value instanceof Date) return value;
@@ -18,6 +19,7 @@ function toDate(value: any): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
+// Internal interface - not exported
 interface SpotlightData {
   streamerName: string;
   cardGifUrl: string;

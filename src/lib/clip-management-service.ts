@@ -3,8 +3,8 @@
 import { db } from "@/firebase/server-init";
 import type { DocumentReference, DocumentSnapshot } from 'firebase-admin/firestore';
 import { deleteGif } from "./firebase-storage-service";
-import { DAILY_CLIP_LIMIT } from "./clip-settings";
 
+// Internal interface - not exported
 interface ClipRecord {
   gifUrl: string;
   mp4Url: string;
@@ -13,8 +13,13 @@ interface ClipRecord {
   gameName: string;
 }
 
+// Internal types - not exported
 type ClipInput = { gifUrl: string; mp4Url: string; streamTitle: string; gameName: string };
 type UserLookup = { userId?: string; username?: string };
+
+export async function getDailyClipLimit() {
+  return 6; // Max 6 clips per user per day for variety
+}
 
 async function resolveUserDoc(
   serverId: string,
@@ -106,12 +111,13 @@ export async function manageUserClips(
   }
   
   // Check if we've hit the daily limit
-  if (todaysClips.length >= DAILY_CLIP_LIMIT) {
+  const dailyLimit = await getDailyClipLimit();
+  if (todaysClips.length >= dailyLimit) {
     // Rotate through existing clips
     const clipIndex = Math.floor(Math.random() * todaysClips.length);
     const selectedClip = todaysClips[clipIndex];
     
-    console.log(`[ClipManager] User ${lookup.username ?? lookup.userId} hit daily limit (${DAILY_CLIP_LIMIT}), using existing clip ${clipIndex + 1}/${todaysClips.length}`);
+    console.log(`[ClipManager] User ${lookup.username ?? lookup.userId} hit daily limit (${dailyLimit}), using existing clip ${clipIndex + 1}/${todaysClips.length}`);
     
     return { 
       shouldCreateNew: false, 
@@ -119,7 +125,7 @@ export async function manageUserClips(
     };
   }
   
-  console.log(`[ClipManager] ${lookup.username ?? lookup.userId} has ${todaysClips.length}/${DAILY_CLIP_LIMIT} clips today`);
+  console.log(`[ClipManager] ${lookup.username ?? lookup.userId} has ${todaysClips.length}/${dailyLimit} clips today`);
 
   // Add new clip to today's collection
   const newClipRecord: ClipRecord = {
@@ -135,7 +141,7 @@ export async function manageUserClips(
     lastClipUpdate: now
   });
   
-  console.log(`[ClipManager] Created new clip for ${lookup.username ?? lookup.userId} (${updatedClips.length}/${DAILY_CLIP_LIMIT} today)`);
+  console.log(`[ClipManager] Created new clip for ${lookup.username ?? lookup.userId} (${updatedClips.length}/${dailyLimit} today)`);
   
   return { shouldCreateNew: true };
 }
@@ -246,7 +252,8 @@ export async function addClipToPool(serverId: string, lookup: UserLookup, clip: 
     createdAt: now
   };
 
-  const updatedClips = [...todaysClips, newClipRecord].slice(-DAILY_CLIP_LIMIT);
+  const dailyLimit = await getDailyClipLimit();
+  const updatedClips = [...todaysClips, newClipRecord].slice(-dailyLimit);
 
   await userRef.update({
     dailyClips: updatedClips,
