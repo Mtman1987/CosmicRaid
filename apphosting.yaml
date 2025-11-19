@@ -4,7 +4,6 @@
 
 runConfig:
   maxInstances: 1
-  invoker_iam_disabled: true
 
   env:
     GOOGLE_CLOUD_PROJECT: studio-9468926194-e03ac
