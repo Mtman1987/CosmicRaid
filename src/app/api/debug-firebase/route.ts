@@ -6,9 +6,19 @@ export async function GET() {
     const envCheck = {
       hasCredentialsJson: !!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
       hasCredentialsPath: !!process.env.GOOGLE_APPLICATION_CREDENTIALS,
-      hasProjectId: !!process.env.FIREBASE_ADMIN_PROJECT_ID,
+      hasProjectId: !!(
+        process.env.FIREBASE_ADMIN_PROJECT_ID ||
+        process.env.GOOGLE_CLOUD_PROJECT ||
+        process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+      ),
       hasApiKey: !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-      projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || 'not set',
+      projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || 
+                process.env.GOOGLE_CLOUD_PROJECT || 
+                process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 
+                'not set',
+      googleCloudProject: process.env.GOOGLE_CLOUD_PROJECT || 'not set',
+      firebaseAdminProjectId: process.env.FIREBASE_ADMIN_PROJECT_ID || 'not set',
+      nextPublicProjectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'not set'
     };
 
     // Try to initialize Firebase Admin

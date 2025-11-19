@@ -51,21 +51,15 @@ function readServiceAccountFromFile(filePath: string | undefined | null): Servic
 }
 
 function fetchServiceAccountFromFirestore(): ServiceAccount | null {
-  const docPath =
-    process.env.FIREBASE_SERVICE_ACCOUNT_DOC_PATH ||
-    'infrastructure/credentials/adminServiceAccount';
-  const field =
-    process.env.FIREBASE_SERVICE_ACCOUNT_DOC_FIELD || 'serviceAccountBase64';
-  const apiKey =
-    process.env.FIREBASE_WEB_API_KEY ||
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
-    process.env.FIREBASE_API_KEY;
-  const project =
-    process.env.FIREBASE_SERVICE_ACCOUNT_DOC_PROJECT ||
-    process.env.FIREBASE_ADMIN_PROJECT_ID ||
-    firebaseConfig.projectId;
+  const docPath = 'infrastructure/credentials/adminServiceAccount';
+  const field = 'serviceAccountBase64';
+  const apiKey = firebaseConfig.apiKey;
+  const project = firebaseConfig.projectId;
 
-  if (!apiKey || !project || !docPath) {
+  console.log('[FirebaseAdmin] Fetching credentials from Firestore:', { project, docPath, field });
+
+  if (!apiKey || !project) {
+    console.warn('[FirebaseAdmin] Missing API key or project ID for Firestore fetch');
     return null;
   }
 
@@ -105,41 +99,49 @@ res.on('end',()=>{process.stdout.write(data);});
       return null;
     }
 
+    console.log('[FirebaseAdmin] Found credential data in Firestore, parsing...');
     const trimmed = rawValue.trim();
     if (trimmed.startsWith('{')) {
+      console.log('[FirebaseAdmin] Parsing as JSON');
       return parseServiceAccount(trimmed);
     }
+    console.log('[FirebaseAdmin] Decoding as base64');
     return decodeBase64(trimmed);
   } catch (error) {
-    console.warn('[FirebaseAdmin] Firestore credential fetch error:', error);
+    console.error('[FirebaseAdmin] Firestore credential fetch error:', error);
     return null;
   }
 }
 
 function resolveServiceAccount(): ServiceAccount | null {
+  console.log('[FirebaseAdmin] Attempting to resolve service account from database first');
   return (
+    fetchServiceAccountFromFirestore() ||
     parseServiceAccount(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) ||
     decodeBase64(process.env.FIREBASE_SERVICE_ACCOUNT_B64) ||
-    readServiceAccountFromFile(process.env.GOOGLE_APPLICATION_CREDENTIALS) ||
-    fetchServiceAccountFromFirestore()
+    readServiceAccountFromFile(process.env.GOOGLE_APPLICATION_CREDENTIALS)
   );
 }
 
 let adminApp;
 
 if (getApps().length === 0) {
-  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID ?? firebaseConfig.projectId;
-  const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+  const projectId = firebaseConfig.projectId;
+  const storageBucket = firebaseConfig.storageBucket;
+
+  console.log('[FirebaseAdmin] Initializing with projectId:', projectId);
 
   try {
     const serviceAccount = resolveServiceAccount();
     if (serviceAccount) {
+      console.log('[FirebaseAdmin] Using service account credentials');
       adminApp = initializeApp({
         credential: cert(serviceAccount),
         projectId,
         storageBucket,
       });
     } else {
+      console.log('[FirebaseAdmin] Using application default credentials');
       adminApp = initializeApp({
         credential: applicationDefault(),
         projectId,
@@ -148,6 +150,7 @@ if (getApps().length === 0) {
     }
   } catch (error) {
     console.error('Firebase Admin initialization error:', error);
+    console.log('[FirebaseAdmin] Falling back to minimal config');
     adminApp = initializeApp({
       projectId,
       storageBucket,
