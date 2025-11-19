@@ -51,12 +51,13 @@ function readServiceAccountFromFile(filePath: string | undefined | null): Servic
 }
 
 function fetchServiceAccountFromFirestore(): ServiceAccount | null {
-  const docPath = 'infrastructure/credentials/adminServiceAccount';
-  const field = 'serviceAccountBase64';
   const apiKey = firebaseConfig.apiKey;
   const project = firebaseConfig.projectId;
+  const serverId = process.env.HARDCODED_GUILD_ID || '1240832965865635881';
+  const docPath = `servers/${serverId}/config/secrets`;
+  const field = 'GOOGLE_APPLICATION_CREDENTIALS';
 
-  console.log('[FirebaseAdmin] Fetching credentials from Firestore:', { project, docPath, field });
+  console.log('[FirebaseAdmin] Fetching credentials from server secrets:', { project, serverId, docPath, field });
 
   if (!apiKey || !project) {
     console.warn('[FirebaseAdmin] Missing API key or project ID for Firestore fetch');
@@ -95,17 +96,17 @@ res.on('end',()=>{process.stdout.write(data);});
     const rawValue: string | undefined = fields[field]?.stringValue;
 
     if (!rawValue) {
-      console.warn('[FirebaseAdmin] Firestore credential doc missing expected field');
+      console.warn('[FirebaseAdmin] Server secrets doc missing GOOGLE_APPLICATION_CREDENTIALS field');
       return null;
     }
 
-    console.log('[FirebaseAdmin] Found credential data in Firestore, parsing...');
+    console.log('[FirebaseAdmin] Found credential data in server secrets, parsing...');
     const trimmed = rawValue.trim();
     if (trimmed.startsWith('{')) {
-      console.log('[FirebaseAdmin] Parsing as JSON');
+      console.log('[FirebaseAdmin] Parsing credentials as JSON');
       return parseServiceAccount(trimmed);
     }
-    console.log('[FirebaseAdmin] Decoding as base64');
+    console.log('[FirebaseAdmin] Decoding credentials as base64');
     return decodeBase64(trimmed);
   } catch (error) {
     console.error('[FirebaseAdmin] Firestore credential fetch error:', error);
