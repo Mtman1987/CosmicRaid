@@ -6,7 +6,7 @@ import { generateAllShoutouts } from "./community-shoutout-service";
 import { updateCommunitySpotlight } from "./community-spotlight-service";
 import { cleanupAllOldClips } from "./clip-management-service";
 import { sendDiscordMessage, updateDiscordMessage, deleteDiscordMessage, cleanupDuplicateBotMessages } from "./discord-bot-service";
-import { updateVipSpotlights } from "./vip-spotlight-service";
+import { updateVipAnimatedCards } from "./vip-animated-card-service";
 import { getSecret } from './firestore-secrets';
 import { isCommunityGroup, isVipGroup } from './group-utils-server';
 
@@ -76,9 +76,9 @@ export async function runAutomatedShoutoutCycle(serverId: string, options: Cycle
     const cleanedCount = await cleanupAllOldClips(serverId);
     console.log('[AutoShoutout] Cleaned up old clips:', cleanedCount);
     
-    // 2. Generate/refresh VIP spotlight clips
-    await updateVipSpotlights(serverId);
-    console.log('[AutoShoutout] Updated VIP spotlights');
+    // 2. Generate/refresh VIP animated cards
+    await updateVipAnimatedCards(serverId);
+    console.log('[AutoShoutout] Updated VIP animated cards');
     
     // 3. Generate all shoutouts (Community + VIP)
     const shoutoutResults = await generateAllShoutouts(serverId);
