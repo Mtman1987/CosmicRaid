@@ -16,6 +16,7 @@ import { forwardMessage } from '@/lib/forwarding-service'
 import { replyToMessage } from '@/lib/reply-service'
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { Buffer } from 'node:buffer'
+import { checkRequiredSecrets } from '@/lib/required-secrets'
 
 // Reusable error handler
 function handleError(error: any, defaultMessage: string) {
@@ -806,4 +807,9 @@ export async function replyToMessageAction(prevState: any, formData: FormData) {
         return handleError(error, 'Failed to send reply.');
     }
 }
+
+/**
+ * Check what secrets are required and missing
+ */
+export { checkRequiredSecrets }
 
