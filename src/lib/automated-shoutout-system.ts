@@ -240,10 +240,14 @@ export async function startAutomatedShoutouts(serverId: string): Promise<void> {
 
 async function postOrUpdateShoutout(channelId: string, user: any, serverId: string): Promise<string | null> {
   try {
+    const description = typeof user.dailyShoutout === 'string' 
+      ? user.dailyShoutout 
+      : user.dailyShoutout?.description || 'Come check out the stream!';
+    
     const messageId = await sendDiscordMessage(channelId, {
       embeds: [{
         title: `🎮 ${user.username} is live!`,
-        description: user.dailyShoutout || 'Come check out the stream!',
+        description,
         color: 0x9146FF,
         thumbnail: { url: user.avatarUrl || '' },
         timestamp: new Date().toISOString()

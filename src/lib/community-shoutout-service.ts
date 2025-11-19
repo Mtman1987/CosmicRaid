@@ -5,7 +5,7 @@ import { FieldValue } from "firebase-admin/firestore"
 import { getUserByLogin, getStreamByUserId } from "./twitch-api-service"
 import { generateShoutoutCardGif } from "./shoutout-card-service"
 import { generateCommunityCard } from "./community-card-service"
-import { getVipSpotlight } from "./vip-spotlight-service"
+// VIP spotlight service removed - VIP members handled with animated cards
 import { addClipToPool, getRandomClipFromPool } from "./clip-management-service"
 import { addCommunityCardToPool, getReusableCommunityCard } from "./community-card-pool-service"
 import { getSecret } from './firestore-secrets';
