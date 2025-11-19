@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { RaidPileService } from '@/lib/raid-pile-service';
-import { generateRaidPileShoutout } from '@/ai/flows/generate-raid-pile-shoutout';
+
+function generateSimpleShoutout(username: string, isHolder: boolean): string {
+  if (isHolder) {
+    return `🏔️ AVALANCHE ALERT! Pile Holder Captain ${username} is commanding the Space Mountain summit! All raiders, prepare for the PILE ON at twitch.tv/${username} - let's create a cosmic avalanche!`;
+  } else {
+    return `🏔️ Captain ${username} is ready for action in the Space Mountain Pile! Pile on over to twitch.tv/${username} and join the adventure!`;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,11 +31,8 @@ export async function POST(request: NextRequest) {
     for (const pile of piles) {
       for (const member of pile.members) {
         const isHolder = pile.holderId === member.userId;
-        const shoutoutResult = await generateRaidPileShoutout({
-          username: member.username,
-          isHolder
-        });
-        shoutouts.push(shoutoutResult.shoutout);
+        const shoutout = generateSimpleShoutout(member.username, isHolder);
+        shoutouts.push(shoutout);
       }
     }
     
