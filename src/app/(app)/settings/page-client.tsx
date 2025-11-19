@@ -111,6 +111,7 @@ export default function SettingsPage() {
       />
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-1 space-y-8">
+          <DevSessionCard />
           <Card>
             <CardHeader>
               <CardTitle className="font-headline">Discord Integration</CardTitle>
@@ -192,7 +193,6 @@ export default function SettingsPage() {
         </div>
         
         <div className="lg:col-span-3 space-y-6">
-            <DevSessionCard />
             <DiscordSyncSettings />
             <ChannelSelectionSettings />
             <UptimeMonitorCard />
