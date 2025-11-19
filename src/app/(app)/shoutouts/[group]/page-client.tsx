@@ -779,8 +779,8 @@ export default function GroupDetailPage() {
     let mutableUsers = allUsers ? [...allUsers] : [];
 
     const groupMembers = mutableUsers.filter((u) => matchesGroup(u.group, groupName));
-    const online = groupMembers.filter(u => u.isOnline);
-    const offline = groupMembers.filter(u => !u.isOnline);
+    const online = groupMembers.filter(u => u.isOnline || u.lastTwitchData?.isLive);
+    const offline = groupMembers.filter(u => !u.isOnline && !u.lastTwitchData?.isLive);
     const community = mutableUsers.filter(u => matchesGroup(u.group, 'Community'));
 
     // Extract all unique roles from all users
