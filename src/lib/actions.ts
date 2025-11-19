@@ -189,17 +189,19 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
     batch.set(channelsRef, { list: textChannels })
 
     // Member profiles
+    const { getUserGroupFromRoles } = await import('./group-utils-server');
     for (const member of membersData) {
       if (member.user.bot) continue // Skip bots
       const userRef = serverRef.collection('users').doc(member.user.id)
       const userRoles = member.roles.map((roleId: string) => rolesData.find((r: any) => r.id === roleId)?.name).filter(Boolean)
+      const userGroup = await getUserGroupFromRoles(userRoles, guildId)
       
       batch.set(userRef, {
         discordUserId: member.user.id,
         username: member.user.username,
         avatarUrl: member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png` : null,
         roles: userRoles,
-        group: 'Community', // Default group
+        group: userGroup, // Determined from role mappings
         isOnline: false, // Placeholder
         topic: '' // Placeholder
       }, { merge: true })
