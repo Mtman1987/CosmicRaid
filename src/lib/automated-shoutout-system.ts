@@ -8,6 +8,7 @@ import { cleanupAllOldClips } from "./clip-management-service";
 import { sendDiscordMessage, updateDiscordMessage, deleteDiscordMessage, cleanupDuplicateBotMessages } from "./discord-bot-service";
 import { updateVipSpotlights } from "./vip-spotlight-service";
 import { getSecret } from './firestore-secrets';
+import { isCommunityGroup, isVipGroup } from './group-utils-server';
 
 // Internal types - not exported
 type PostOptions = {

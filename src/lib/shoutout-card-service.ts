@@ -6,7 +6,7 @@ export async function generateShoutoutCard(
 ): Promise<string | null> {
   try {
     const { getServerConfig } = await import('./config-service');
-    const tunnelUrl = await getServerConfig(serverId, 'LOCAL_CONVERSION_SERVICE_URL');
+    const tunnelUrl = await getServerConfig(serverId, 'PUPPETEER_SERVICE_URL');
     
     if (!tunnelUrl) {
       console.log('[ShoutoutCard] No tunnel URL configured');
@@ -42,7 +42,7 @@ export async function generateShoutoutCardGif(
 ): Promise<string | null> {
   try {
     const { getServerConfig } = await import('./config-service');
-    const tunnelUrl = await getServerConfig(serverId, 'LOCAL_CONVERSION_SERVICE_URL');
+    const tunnelUrl = await getServerConfig(serverId, 'PUPPETEER_SERVICE_URL');
     
     if (!tunnelUrl) return null;
 

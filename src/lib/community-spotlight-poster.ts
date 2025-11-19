@@ -12,7 +12,10 @@ export async function postCommunitySpotlight(serverId: string): Promise<void> {
     // Get server config for Discord settings
     const { getServerConfig } = await import('./config-service');
     const botToken = await getServerConfig(serverId, 'DISCORD_BOT_TOKEN');
-    const channelId = await getServerConfig(serverId, 'COMMUNITY_CHANNEL_ID');
+    
+    // Get channel ID from channels config (set via UI)
+    const channelsDoc = await db.collection('servers').doc(serverId).collection('config').doc('channels').get();
+    const channelId = channelsDoc.exists ? channelsDoc.data()?.communityShoutoutChannel : null;
     
     if (!botToken || !channelId) {
       console.log(`[CommunitySpotlight] Missing Discord config for server ${serverId}`);
