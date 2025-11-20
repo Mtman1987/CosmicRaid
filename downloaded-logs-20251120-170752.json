@@ -1,0 +1,2465 @@
+[
+  {
+    "textPayload": "[HeadlessLeaderboard] Fetching leaderboard for serverId: 1240832965865635881",
+    "insertId": "691f9aa3000c5484a196e9ed",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:03.808068Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:48:04.112001066Z"
+  },
+  {
+    "textPayload": "[HeadlessLeaderboard] No leaderboard data found, using sample data",
+    "insertId": "691f9aa3000ca37d1d4932f6",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:03.828285Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:48:04.112001066Z"
+  },
+  {
+    "textPayload": "[HeadlessLeaderboard] Formatted leaderboard data: [",
+    "insertId": "691f9aa3000ca4156c678787",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:03.828437Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:48:04.112001066Z"
+  },
+  {
+    "textPayload": "  { username: 'TestUser', points: 400, rank: 1, avatarUrl: undefined }",
+    "insertId": "691f9aa3000ca41dd4156ae5",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:03.828445Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:48:04.112001066Z"
+  },
+  {
+    "textPayload": "]",
+    "insertId": "691f9aa3000ca421241d5b08",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:03.828449Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:48:04.112001066Z"
+  },
+  {
+    "insertId": "691f9aa4000101651748522f",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/media/c3f6eb667c0186c5-s.p.woff2",
+      "requestSize": "1265",
+      "status": 200,
+      "responseSize": "11905",
+      "userAgent": "Google",
+      "remoteIp": "64.233.172.199",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.76.2",
+      "latency": "0.004644976s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.058911Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/88b5b65a621c7d669ae5e4489efe28dc",
+    "receiveTimestamp": "2025-11-20T22:48:04.092481943Z",
+    "spanId": "e605e92677594ed3"
+  },
+  {
+    "insertId": "691f9aa4000106fd111f762e",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/css/92b3b694921d2809.css",
+      "requestSize": "1199",
+      "status": 200,
+      "responseSize": "11970",
+      "userAgent": "Google",
+      "remoteIp": "192.178.15.96",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.78.2",
+      "latency": "0.006200048s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.059353Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/ab424cd4fe8a7496c7150186e05f51e2",
+    "receiveTimestamp": "2025-11-20T22:48:04.092481943Z",
+    "spanId": "4557a3a670aab92b"
+  },
+  {
+    "insertId": "691f9aa400010e0faebb4779",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/css/66abe623977a35a1.css",
+      "requestSize": "1199",
+      "status": 200,
+      "responseSize": "786",
+      "userAgent": "Google",
+      "remoteIp": "66.102.6.228",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.75.2",
+      "latency": "0.007892775s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.059560Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/3cb9c83529b9f7830ffd87ab52bad739",
+    "receiveTimestamp": "2025-11-20T22:48:04.092481943Z",
+    "spanId": "4aaffdc15291eb43"
+  },
+  {
+    "insertId": "691f9aa40001290a0abffc49",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/media/58f662ed5ba12a72-s.p.woff2",
+      "requestSize": "1264",
+      "status": 200,
+      "responseSize": "11745",
+      "userAgent": "Google",
+      "remoteIp": "74.125.215.225",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.77.2",
+      "latency": "0.002991576s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.070587Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/9bbf6186b5b47385a07b5b6ec8aeb54c",
+    "receiveTimestamp": "2025-11-20T22:48:04.092481943Z",
+    "spanId": "5a9b4159c9b34d96"
+  },
+  {
+    "insertId": "691f9aa40001475af466864a",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/media/eaead17c7dbfcd5d-s.p.woff2",
+      "requestSize": "1264",
+      "status": 200,
+      "responseSize": "38741",
+      "userAgent": "Google",
+      "remoteIp": "64.233.172.229",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.77.2",
+      "latency": "0.003162841s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.078359Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/3a2e3f800d4f162e0d29788a14ccd9bb",
+    "receiveTimestamp": "2025-11-20T22:48:04.092481943Z",
+    "spanId": "4f5c478d58e91b5e"
+  },
+  {
+    "insertId": "691f9aa40003a654de72c0ba",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/chunks/webpack-d469b87bc1e12364.js",
+      "requestSize": "1181",
+      "status": 200,
+      "responseSize": "2136",
+      "userAgent": "Google",
+      "remoteIp": "74.125.212.202",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.78.2",
+      "latency": "0.004105202s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.232887Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/da797772a96d22f212f139a1c6af015b",
+    "receiveTimestamp": "2025-11-20T22:48:04.425214037Z",
+    "spanId": "fe7858b08b12e53b"
+  },
+  {
+    "insertId": "691f9aa40003c2724e1e289a",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/chunks/5984-796f3b94633f57d8.js",
+      "requestSize": "1177",
+      "status": 200,
+      "responseSize": "6108",
+      "userAgent": "Google",
+      "remoteIp": "64.233.172.141",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.72.2",
+      "latency": "0.005533825s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.238698Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/78b0ca648d4990c9e208774ccb59f8b9",
+    "receiveTimestamp": "2025-11-20T22:48:04.425214037Z",
+    "spanId": "878b8c389b0e8a71"
+  },
+  {
+    "insertId": "691f9aa40003d9f71497a55e",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/chunks/1684-4f1372af58c4596f.js",
+      "requestSize": "1177",
+      "status": 200,
+      "responseSize": "45986",
+      "userAgent": "Google",
+      "remoteIp": "74.125.215.200",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.72.2",
+      "latency": "0.010292202s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.240615Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/26384260a039a0febc0e879529a280cb",
+    "receiveTimestamp": "2025-11-20T22:48:04.425214037Z",
+    "spanId": "db8a3f708212e1c2"
+  },
+  {
+    "insertId": "691f9aa40003cd9b48d6f384",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/chunks/4277-df121688a085fe5d.js",
+      "requestSize": "1178",
+      "status": 200,
+      "responseSize": "8182",
+      "userAgent": "Google",
+      "remoteIp": "74.125.215.68",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.77.2",
+      "latency": "0.006399705s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.241132Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/4b8055df5b2baab929a48e28e29acde7",
+    "receiveTimestamp": "2025-11-20T22:48:04.425214037Z",
+    "spanId": "057910433949a91d"
+  },
+  {
+    "insertId": "691f9aa40003cbb8a4eb45fb",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/chunks/app/layout-54d384f8637ff682.js",
+      "requestSize": "1183",
+      "status": 200,
+      "responseSize": "7318",
+      "userAgent": "Google",
+      "remoteIp": "192.178.15.104",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.77.2",
+      "latency": "0.004709505s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.242282Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/c7725ad261c64f9d786e8d4d42f09bcc",
+    "receiveTimestamp": "2025-11-20T22:48:04.425214037Z",
+    "spanId": "09d55ff8b1d76bce"
+  },
+  {
+    "insertId": "691f9aa40003e3d805c973f1",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/chunks/4bd1b696-a69ab92e69acbb0a.js",
+      "requestSize": "1181",
+      "status": 200,
+      "responseSize": "53674",
+      "userAgent": "Google",
+      "remoteIp": "64.233.172.74",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.72.2",
+      "latency": "0.010399627s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.242562Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/c17e3d99cc134ff876e1a259f4c213ea",
+    "receiveTimestamp": "2025-11-20T22:48:04.425214037Z",
+    "spanId": "7a0f8ca6d71eb35d"
+  },
+  {
+    "insertId": "691f9aa40003d9d187b12f08",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/_next/static/chunks/main-app-57181503e9ff832a.js",
+      "requestSize": "1181",
+      "status": 200,
+      "responseSize": "843",
+      "userAgent": "Google",
+      "remoteIp": "66.102.6.163",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.75.2",
+      "latency": "0.002608924s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.247624Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/0ea77310f45be021b6b39e881bfeda2d",
+    "receiveTimestamp": "2025-11-20T22:48:04.425214037Z",
+    "spanId": "1ccec10c810b741c"
+  },
+  {
+    "insertId": "691f9aa40007b2f0cc449f60",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/cosmicraid.png",
+      "requestSize": "1225",
+      "status": 200,
+      "responseSize": "1077321",
+      "userAgent": "Google",
+      "remoteIp": "74.125.212.8",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.76.2",
+      "latency": "0.007503244s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.494815Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/9f1c95a2e2ee40127e7782e95513fe13",
+    "receiveTimestamp": "2025-11-20T22:48:04.756962566Z",
+    "spanId": "d52e34dc1f1eff03"
+  },
+  {
+    "insertId": "691f9aa4000cfa6f1e38d8f2",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/manifest.json",
+      "requestSize": "1160",
+      "status": 200,
+      "responseSize": "882",
+      "userAgent": "Google",
+      "remoteIp": "64.233.172.203",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.79.2",
+      "latency": "0.004531596s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:04.843878Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/f778da3743154229c5e9c8c68abadb50",
+    "receiveTimestamp": "2025-11-20T22:48:05.090345059Z",
+    "spanId": "1fe55615e96b623f"
+  },
+  {
+    "insertId": "691f9aa500002e917ff48f40",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/cosmicraid.png",
+      "requestSize": "1314",
+      "status": 304,
+      "responseSize": "224",
+      "userAgent": "Google",
+      "remoteIp": "192.178.15.38",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/headless/leaderboard/1240832965865635881",
+      "serverIp": "34.143.77.2",
+      "latency": "0.003126954s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:48:05.006858Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/73b7b54e6a06a3c010689fb0a43a52f9",
+    "receiveTimestamp": "2025-11-20T22:48:05.090345059Z",
+    "spanId": "a360b735d58772b3"
+  },
+  {
+    "textPayload": "[generateLeaderboardImage] Error: Error: FreeConvert job timeout",
+    "insertId": "691f9afd00015081f877d289",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:49:33.086145Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:49:33.092156506Z"
+  },
+  {
+    "textPayload": "    at n (.next/server/chunks/801.js:13:3736)",
+    "insertId": "691f9afd000150a9d5c7c4ea",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:49:33.086185Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:49:33.092156506Z"
+  },
+  {
+    "textPayload": "    at async f (.next/server/app/api/points/leaderboard/route.js:1:4383)",
+    "insertId": "691f9afd000150aff5175a0e",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T22:49:33.086191Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:49:33.092156506Z"
+  },
+  {
+    "insertId": "691f9bb80008609c8b8299ec",
+    "httpRequest": {
+      "requestMethod": "HEAD",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/api/cron/shoutouts",
+      "requestSize": "1137",
+      "status": 200,
+      "responseSize": "220",
+      "userAgent": "Google",
+      "remoteIp": "74.125.212.225",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/api/cron/shoutouts",
+      "serverIp": "34.143.73.2",
+      "latency": "0.408439903s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.127273Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/d32b48059aba166f87195fdf2966234a",
+    "receiveTimestamp": "2025-11-20T22:52:40.553205516Z",
+    "spanId": "d88c6c434968564a",
+    "traceSampled": true
+  },
+  {
+    "textPayload": "[Cron] Shoutout cycle triggered { isCloudScheduler: false, hasAuth: undefined, source: 'Google' }",
+    "insertId": "691f9bb8000235e7ccce2ac1",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.144871Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.152718570Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Starting optimized unified cron cycle...",
+    "insertId": "691f9bb8000236030edfead6",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.144899Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.152718570Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Processing active servers: 1",
+    "insertId": "691f9bb800031b7e91a98de8",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.203646Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Checking unique users: 268 across servers: 1",
+    "insertId": "691f9bb800045a1936e09a27",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285209Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Will use Twitch API calls: 3 (limit: 100 per call)",
+    "insertId": "691f9bb800045a27df05716a",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285223Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "[TwitchAPI] Checking 268 users for live status",
+    "insertId": "691f9bb800045a39405f3e52",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285241Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "[TwitchAPI] Sample usernames: [",
+    "insertId": "691f9bb800045a7c54a75620",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285308Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "  'rabbit01xp',",
+    "insertId": "691f9bb800045a80cebb90e5",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285312Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "  'mrrichboy19',",
+    "insertId": "691f9bb800045a838e9e02bc",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285315Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "  'crimson_orion69',",
+    "insertId": "691f9bb800045a85c75ec40e",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285317Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "  'jamoladd',",
+    "insertId": "691f9bb800045a889a1260d2",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285320Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "  'infuse_carnage'",
+    "insertId": "691f9bb800045a8becef08fb",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285323Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "]",
+    "insertId": "691f9bb800045a8ebf4df605",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285326Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "[TwitchAPI] Calling endpoint for 100 users",
+    "insertId": "691f9bb800045aeed3a3c097",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285422Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Updating server: 1240832965865635881 with users: 268",
+    "insertId": "691f9bb800045d212fc448fb",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.285985Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Found online users: 0 for server: 1240832965865635881",
+    "insertId": "691f9bb800045d4992ba54b6",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.286025Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "[Firestore Secrets] No serverId provided; skipping Firestore load and using cached/env defaults",
+    "insertId": "691f9bb800045d6d003316a6",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.286061Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:52:40.292285206Z"
+  },
+  {
+    "textPayload": "Error checking stream status: Error: Twitch credentials not found in Firestore secrets",
+    "insertId": "691f9bb800045d9af5bd712f",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.286106Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:52:40.292285206Z"
+  },
+  {
+    "textPayload": "    at p.initialize (.next/server/chunks/8305.js:1:466)",
+    "insertId": "691f9bb800045d9f5cf9ecec",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.286111Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:52:40.292285206Z"
+  },
+  {
+    "textPayload": "    at async p.getAccessToken (.next/server/chunks/8305.js:1:633)",
+    "insertId": "691f9bb800045da3f8cdf7eb",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.286115Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:52:40.292285206Z"
+  },
+  {
+    "textPayload": "    at async p.makeApiCall (.next/server/chunks/8305.js:1:1471)",
+    "insertId": "691f9bb800045da7e8b0426a",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.286119Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:52:40.292285206Z"
+  },
+  {
+    "textPayload": "    at async p.checkMultipleStreamsStatus (.next/server/chunks/8305.js:1:3381)",
+    "insertId": "691f9bb800045dadfcfd891e",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.286125Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:52:40.292285206Z"
+  },
+  {
+    "textPayload": "No online community members, trying cached clips",
+    "insertId": "691f9bb8000509b0eeeed4e8",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.330160Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "No community members with cached clips",
+    "insertId": "691f9bb800061b465741f5df",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.400198Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "No online users found to generate shoutouts for.",
+    "insertId": "691f9bb80006aac3c6f16b6b",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.436931Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.482352897Z"
+  },
+  {
+    "textPayload": "[Firestore Secrets] No serverId provided; skipping Firestore load and using cached/env defaults",
+    "insertId": "691f9bb8000720102f5da38c",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.466960Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:52:40.622311723Z"
+  },
+  {
+    "textPayload": "[Firestore Secrets] No serverId provided; skipping Firestore load and using cached/env defaults",
+    "insertId": "691f9bb8000720216c8eeecc",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.466977Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T22:52:40.622311723Z"
+  },
+  {
+    "textPayload": "[AutoShoutout] Community Channel ID: undefined",
+    "insertId": "691f9bb80007aa426918fdc3",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.502338Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.816286951Z"
+  },
+  {
+    "textPayload": "[AutoShoutout] Found community users: 0",
+    "insertId": "691f9bb80007aa4c2257e788",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.502348Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.816286951Z"
+  },
+  {
+    "textPayload": "[AutoShoutout] VIP Channel ID: undefined",
+    "insertId": "691f9bb80007aa518b5b79a1",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.502353Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.816286951Z"
+  },
+  {
+    "textPayload": "[AutoShoutout] Found VIP users: 0",
+    "insertId": "691f9bb80007aa637fa021f8",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.502371Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.816286951Z"
+  },
+  {
+    "textPayload": "[Discord Bot Token] Successfully loaded from globalConfig",
+    "insertId": "691f9bb8000810ee9175aa75",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.528622Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.816286951Z"
+  },
+  {
+    "textPayload": "[CommunitySpotlight] Missing Discord config for server 1240832965865635881",
+    "insertId": "691f9bb80008589768bb440b",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.546967Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.816286951Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Optimized cycle complete. Servers: 1/1 Users: 268 API calls: 3",
+    "insertId": "691f9bb8000858a463256fee",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T22:52:40.546980Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T22:52:40.816286951Z"
+  },
+  {
+    "insertId": "691f9e15000e9324620e122b",
+    "httpRequest": {
+      "requestMethod": "HEAD",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/api/cron/shoutouts",
+      "requestSize": "1138",
+      "status": 200,
+      "responseSize": "220",
+      "userAgent": "Google",
+      "remoteIp": "66.102.6.76",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/api/cron/shoutouts",
+      "serverIp": "34.143.77.2",
+      "latency": "0.537613468s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.404373Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/617f4d7152e7e3114e8bdbe93891a705",
+    "receiveTimestamp": "2025-11-20T23:02:45.959954143Z",
+    "spanId": "c9175ad7f2ad08df",
+    "traceSampled": true
+  },
+  {
+    "textPayload": "[Cron] Shoutout cycle triggered { isCloudScheduler: false, hasAuth: undefined, source: 'Google' }",
+    "insertId": "691f9e1500066feaae3e7880",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.421866Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.427988978Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Starting optimized unified cron cycle...",
+    "insertId": "691f9e15000670048fbcfe2b",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.421892Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.427988978Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Processing active servers: 1",
+    "insertId": "691f9e150007e4a7f15a175f",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.517287Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Checking unique users: 268 across servers: 1",
+    "insertId": "691f9e15000a2a68de43c4dc",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666216Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Will use Twitch API calls: 3 (limit: 100 per call)",
+    "insertId": "691f9e15000a2a78888a4c92",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666232Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "[TwitchAPI] Checking 268 users for live status",
+    "insertId": "691f9e15000a2aa80d5e4774",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666280Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "[TwitchAPI] Sample usernames: [",
+    "insertId": "691f9e15000a2ad63e482c05",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666326Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "  'rabbit01xp',",
+    "insertId": "691f9e15000a2adac70cc9d2",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666330Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "  'mrrichboy19',",
+    "insertId": "691f9e15000a2adf409ba34a",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666335Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "  'crimson_orion69',",
+    "insertId": "691f9e15000a2ae94f31036c",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666345Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "  'jamoladd',",
+    "insertId": "691f9e15000a2aeeeeb9c43b",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666350Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "  'infuse_carnage'",
+    "insertId": "691f9e15000a2af14be595a3",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666353Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "]",
+    "insertId": "691f9e15000a2af56d81a3b4",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666357Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "[TwitchAPI] Calling endpoint for 100 users",
+    "insertId": "691f9e15000a2b332966b89e",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666419Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "[Firestore Secrets] No serverId provided; skipping Firestore load and using cached/env defaults",
+    "insertId": "691f9e15000a2b8bda28dcfa",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.666507Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T23:02:45.670417255Z"
+  },
+  {
+    "textPayload": "Error checking stream status: Error: Twitch credentials not found in Firestore secrets",
+    "insertId": "691f9e15000a2df193fc3075",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.667121Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T23:02:46.004318021Z"
+  },
+  {
+    "textPayload": "    at p.initialize (.next/server/chunks/8305.js:1:466)",
+    "insertId": "691f9e15000a2dfaf2258210",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.667130Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T23:02:46.004318021Z"
+  },
+  {
+    "textPayload": "    at async p.getAccessToken (.next/server/chunks/8305.js:1:633)",
+    "insertId": "691f9e15000a2e003969233f",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.667136Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T23:02:46.004318021Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Updating server: 1240832965865635881 with users: 268",
+    "insertId": "691f9e15000a2e02cb38642f",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.667138Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "    at async p.makeApiCall (.next/server/chunks/8305.js:1:1471)",
+    "insertId": "691f9e15000a2e05ad919636",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.667141Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T23:02:46.004318021Z"
+  },
+  {
+    "textPayload": "    at async p.checkMultipleStreamsStatus (.next/server/chunks/8305.js:1:3381)",
+    "insertId": "691f9e15000a2e0b475fe009",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.667147Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T23:02:46.004318021Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Found online users: 0 for server: 1240832965865635881",
+    "insertId": "691f9e15000a2e3d4f279efd",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.667197Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "No online community members, trying cached clips",
+    "insertId": "691f9e15000acca421eb2718",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.707748Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:45.760927543Z"
+  },
+  {
+    "textPayload": "No community members with cached clips",
+    "insertId": "691f9e15000bd46b1853c6d3",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.775275Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:46.092794026Z"
+  },
+  {
+    "textPayload": "No online users found to generate shoutouts for.",
+    "insertId": "691f9e15000c9d7e9cb41045",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.826750Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:46.092794026Z"
+  },
+  {
+    "textPayload": "[Firestore Secrets] No serverId provided; skipping Firestore load and using cached/env defaults",
+    "insertId": "691f9e15000d2a29676c72f8",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.862761Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T23:02:46.004318021Z"
+  },
+  {
+    "textPayload": "[Firestore Secrets] No serverId provided; skipping Firestore load and using cached/env defaults",
+    "insertId": "691f9e15000d2a3cfd297c28",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.862780Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-20T23:02:46.004318021Z"
+  },
+  {
+    "textPayload": "[AutoShoutout] Community Channel ID: undefined",
+    "insertId": "691f9e15000daba600eb4cfc",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.895910Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:46.092794026Z"
+  },
+  {
+    "textPayload": "[AutoShoutout] Found community users: 0",
+    "insertId": "691f9e15000dabc4f9aa0a75",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.895940Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:46.092794026Z"
+  },
+  {
+    "textPayload": "[AutoShoutout] VIP Channel ID: undefined",
+    "insertId": "691f9e15000dabc835a59c52",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.895944Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:46.092794026Z"
+  },
+  {
+    "textPayload": "[AutoShoutout] Found VIP users: 0",
+    "insertId": "691f9e15000dabcdcbaf064d",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.895949Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:46.092794026Z"
+  },
+  {
+    "textPayload": "[Discord Bot Token] Successfully loaded from globalConfig",
+    "insertId": "691f9e15000e07d1dfbaf9e7",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.919505Z",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:46.092794026Z"
+  },
+  {
+    "textPayload": "[CommunitySpotlight] Missing Discord config for server 1240832965865635881",
+    "insertId": "691f9e15000e89d2ea7fd803",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.952786Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:46.092794026Z"
+  },
+  {
+    "textPayload": "[UnifiedCron] Optimized cycle complete. Servers: 1/1 Users: 268 API calls: 3",
+    "insertId": "691f9e15000e89e5521f088d",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-11-20T23:02:45.952805Z",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-20T23:02:46.092794026Z"
+  },
+  {
+    "insertId": "691f9e5f0000410abd187e37",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/raid-pile?_rsc=hykbs",
+      "requestSize": "1651",
+      "status": 200,
+      "responseSize": "489",
+      "userAgent": "Google",
+      "remoteIp": "74.125.212.4",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/leaderboard",
+      "serverIp": "34.143.76.2",
+      "latency": "0.017411831s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "project_id": "studio-9468926194-e03ac",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:03:58.981902Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/a979523c5d5816173056c8756be119dc",
+    "receiveTimestamp": "2025-11-20T23:03:59.348739896Z",
+    "spanId": "34c14d61e0076928",
+    "traceSampled": true
+  },
+  {
+    "insertId": "691f9e5f000023885a7b4d2b",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/calendar?_rsc=hykbs",
+      "requestSize": "1651",
+      "status": 200,
+      "responseSize": "488",
+      "userAgent": "Google",
+      "remoteIp": "64.233.172.77",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/leaderboard",
+      "serverIp": "34.143.76.2",
+      "latency": "0.011016848s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "service_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:03:58.985619Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/d94a748e5a540747aa22d069a9f62ac9",
+    "receiveTimestamp": "2025-11-20T23:03:59.017010592Z",
+    "spanId": "1706fca5afd9638a"
+  },
+  {
+    "insertId": "691f9e5f00005091da6b9b51",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/leaderboard?_rsc=hykbs",
+      "requestSize": "1654",
+      "status": 200,
+      "responseSize": "484",
+      "userAgent": "Google",
+      "remoteIp": "66.102.6.194",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/leaderboard",
+      "serverIp": "34.143.77.2",
+      "latency": "0.019743108s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:03:58.986433Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-managed-by": "firebase-app-hosting",
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/eb06a1bb38069508b65bbe959a9dc610",
+    "receiveTimestamp": "2025-11-20T23:03:59.348739896Z",
+    "spanId": "dbc8706a36fd73be"
+  },
+  {
+    "insertId": "691f9e5f000052e2c627c81e",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/forwarding?_rsc=hykbs",
+      "requestSize": "1653",
+      "status": 200,
+      "responseSize": "491",
+      "userAgent": "Google",
+      "remoteIp": "64.233.172.66",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/leaderboard",
+      "serverIp": "34.143.77.2",
+      "latency": "0.020333329s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020"
+      }
+    },
+    "timestamp": "2025-11-20T23:03:58.988190Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/a7a6de279c7ddea9722a2a4aab09f878",
+    "receiveTimestamp": "2025-11-20T23:03:59.348739896Z",
+    "spanId": "e53591fb51f2d6f8"
+  },
+  {
+    "insertId": "691f9e5f000054822887de33",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/settings?_rsc=hykbs",
+      "requestSize": "1650",
+      "status": 200,
+      "responseSize": "489",
+      "userAgent": "Google",
+      "remoteIp": "66.102.6.129",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/leaderboard",
+      "serverIp": "34.143.75.2",
+      "latency": "0.014164994s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "service_name": "cosmicraid",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:03:58.994470Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/0a1a2dde79407b9cd6d8c1dd35a6a8b3",
+    "receiveTimestamp": "2025-11-20T23:03:59.348739896Z",
+    "spanId": "c8c37889989e884d"
+  },
+  {
+    "insertId": "691f9e5f000216aa40347d98",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/shoutouts?_rsc=hykbs",
+      "requestSize": "1652",
+      "status": 200,
+      "responseSize": "490",
+      "userAgent": "Google",
+      "remoteIp": "66.102.6.73",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/leaderboard",
+      "serverIp": "34.143.79.2",
+      "latency": "0.004906386s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "studio-9468926194-e03ac",
+        "service_name": "cosmicraid",
+        "location": "us-central1",
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid"
+      }
+    },
+    "timestamp": "2025-11-20T23:03:59.129819Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/3915a2a205696cd2ace6fef4cd08fdf9",
+    "receiveTimestamp": "2025-11-20T23:03:59.348739896Z",
+    "spanId": "512a1273bfc27726"
+  },
+  {
+    "insertId": "691f9e5f0002397c4b14e651",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://t-751700922---cosmicraid-nqvxwkif3q-uc.a.run.app/dashboard?_rsc=hykbs",
+      "requestSize": "1652",
+      "status": 200,
+      "responseSize": "490",
+      "userAgent": "Google",
+      "remoteIp": "74.125.212.6",
+      "referer": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/leaderboard",
+      "serverIp": "34.143.72.2",
+      "latency": "0.005502752s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "cosmicraid-build-2025-11-20-020",
+        "configuration_name": "cosmicraid",
+        "location": "us-central1",
+        "service_name": "cosmicraid",
+        "project_id": "studio-9468926194-e03ac"
+      }
+    },
+    "timestamp": "2025-11-20T23:03:59.138389Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "001477829679973276284ea0e23273dbf8fb9d32674a1c0e64c2c03c3142e6fb486c0eb26622e69c8802a305ca7edc369837172b52b286df9e8bdb5296b4ea893799b74f66e3901b752e9ba588ae",
+      "goog-managed-by": "firebase-app-hosting"
+    },
+    "logName": "projects/studio-9468926194-e03ac/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/studio-9468926194-e03ac/traces/93c3ec5e0e175e4a04a2c26b5a037765",
+    "receiveTimestamp": "2025-11-20T23:03:59.348739896Z",
+    "spanId": "03e22f7b1b914192"
+  }
+]

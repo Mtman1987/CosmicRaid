@@ -97,14 +97,20 @@ export async function generateCalendarImage(
             "input_format": "webpage",
             "output_format": "png",
             "options": {
-              "viewport_width": 1280,
-              "viewport_height": 660,
-              "delay": 3000
+              "page_size": "auto",
+              "page_orientation": "landscape",
+              "margin": "0px",
+              "viewport_width": -2,
+              "initial_delay": "1",
+              "hide_cookie": true,
+              "use_print_stylesheet": false,
+              "png_compression_level": "light"
             }
           },
           "export-1": {
             "operation": "export/url",
-            "input": ["convert-1"]
+            "input": ["convert-1"],
+            "filename": "calendar-screenshot.png"
           }
         }
       })
@@ -116,27 +122,27 @@ export async function generateCalendarImage(
 
     const jobData = await response.json();
     
-    // Poll for completion (increased to 120 iterations = 360 seconds total to handle jobs up to 60+ seconds)
-    for (let i = 0; i < 120; i++) {
-      await new Promise(resolve => setTimeout(resolve, 3000));
+    // Poll for completion (10 iterations = 10 seconds total, since jobs average 3-4 seconds)
+    for (let i = 0; i < 10; i++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       const statusResponse = await fetch(`https://api.freeconvert.com/v1/process/jobs/${jobData.id}`, {
         headers: { 'Authorization': `Bearer ${apiKey}` }
       });
 
       const statusData = await statusResponse.json();
+      console.log(`[FreeConvert] Job status: ${statusData.status} (attempt ${i + 1}/10)`);
 
       if (statusData.status === 'completed') {
         const exportTask = statusData.tasks['export-1'];
         if (exportTask?.result?.files?.[0]?.url) {
-          const imageResponse = await fetch(exportTask.result.files[0].url);
-          const imageBuffer = await imageResponse.arrayBuffer();
           console.log('[FreeConvert] Calendar screenshot completed.');
-          return `data:image/png;base64,${Buffer.from(imageBuffer).toString('base64')}`;
+          return exportTask.result.files[0].url;
         }
       }
 
       if (statusData.status === 'failed') {
+        console.error('[FreeConvert] Job failed:', statusData);
         throw new Error('FreeConvert job failed');
       }
     }
