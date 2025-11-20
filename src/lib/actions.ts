@@ -811,5 +811,8 @@ export async function replyToMessageAction(prevState: any, formData: FormData) {
 /**
  * Check what secrets are required and missing
  */
-export { checkRequiredSecrets }
+export async function checkRequiredSecretsAction(prevState: any, formData: FormData) {
+  const { checkRequiredSecrets } = await import('@/lib/required-secrets')
+  return await checkRequiredSecrets(prevState, formData)
+}
 
