@@ -3,43 +3,32 @@
 import * as React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { testDatabaseConnection } from '@/lib/actions';
 
 interface UserProfile {
   username: string;
   avatarUrl: string;
+  serverName: string;
+  serverIcon?: string;
 }
 
 export function UserNav() {
   const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [serverId, setServerId] = React.useState('');
-  const [userId, setUserId] = React.useState('');
 
   React.useEffect(() => {
     const loadUserProfile = async () => {
-      const sessionId = localStorage.getItem('sessionId');
-      const storedServerId = localStorage.getItem('discordServerId') || '';
-      const storedUserId = localStorage.getItem('discordUserId') || '';
+      const userId = localStorage.getItem('discordUserId');
       
-      setServerId(storedServerId);
-      setUserId(storedUserId);
-      
-      if (!sessionId) {
+      if (!userId) {
         setIsLoading(false);
         return;
       }
       
       try {
-        const formData = new FormData();
-        formData.append('sessionId', sessionId);
-        
-        const result = await testDatabaseConnection(null, formData);
-        if (result.status === 'success' && result.data) {
-          setUserProfile({
-            username: result.data.username || 'Unknown',
-            avatarUrl: result.data.avatarUrl || ''
-          });
+        const response = await fetch(`/api/user-profile?userId=${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUserProfile(data);
         }
       } catch (error) {
         console.error('[UserNav] Failed to load user profile:', error);
@@ -63,22 +52,35 @@ export function UserNav() {
     );
   }
 
-  const displayName = userProfile?.username || userId || 'Not logged in';
-  const avatarUrl = userProfile?.avatarUrl || '';
-  const displayServer = serverId ? `Server: ${serverId}` : 'No server selected';
+  if (!userProfile) {
+    return (
+      <div className="flex items-center gap-3">
+        <Avatar className="h-9 w-9">
+          <AvatarFallback>?</AvatarFallback>
+        </Avatar>
+        <div className="grid gap-0.5 text-sm">
+          <div className="font-medium">Not logged in</div>
+          <div className="text-muted-foreground text-xs">No server selected</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-3">
       <Avatar className="h-9 w-9">
-        {avatarUrl && (
-          <AvatarImage src={avatarUrl} alt={displayName} />
-        )}
-        <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
+        <AvatarImage src={userProfile.avatarUrl} alt={userProfile.username} />
+        <AvatarFallback>{userProfile.username.charAt(0).toUpperCase()}</AvatarFallback>
       </Avatar>
       <div className="grid gap-0.5 text-sm">
-        <div className="font-medium">{displayName}</div>
-        <div className="text-muted-foreground text-xs truncate max-w-[180px]" title={displayServer}>
-          {displayServer}
+        <div className="font-medium">{userProfile.username}</div>
+        <div className="flex items-center gap-1 text-muted-foreground text-xs">
+          {userProfile.serverIcon && (
+            <img src={userProfile.serverIcon} alt="" className="w-3 h-3 rounded-sm" />
+          )}
+          <span className="truncate max-w-[160px]" title={userProfile.serverName}>
+            {userProfile.serverName}
+          </span>
         </div>
       </div>
     </div>
