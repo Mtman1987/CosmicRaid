@@ -1,5 +1,6 @@
 export async function GET() {
-  const serverId = '1240832965865635881'; // Your guild ID
+  // Multi-tenant app - server ID must come from request
+  return NextResponse.json({ error: 'Server ID required' }, { status: 400 });
   
   try {
     const { getServerConfig } = await import('@/lib/config-service');

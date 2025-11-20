@@ -42,7 +42,7 @@ export default async function LeaderboardPage({
     if (leaderboard.length === 0) {
       console.log('[HeadlessLeaderboard] No leaderboard data found, using sample data');
       leaderboard = [{
-        username: 'mtman1987',
+        username: 'TestUser',
         points: 400,
         rank: 1,
         avatarUrl: undefined
@@ -54,7 +54,7 @@ export default async function LeaderboardPage({
     console.error('[HeadlessLeaderboard] Error fetching leaderboard:', error);
     // Fallback to sample data on error
     leaderboard = [{
-      username: 'mtman1987',
+      username: 'TestUser',
       points: 400,
       rank: 1,
       avatarUrl: undefined

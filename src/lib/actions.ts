@@ -1,8 +1,7 @@
 'use server'
 
 // Hardcoded for testing - change these IDs to secure the app later
-const HARDCODED_SERVER_ID = '1240832965865635881';
-const HARDCODED_USER_ID = '1240832965865635881'; // Replace with your actual Discord user ID
+// Removed hardcoded values - now uses user-server mapping system
 
 import { revalidatePath } from 'next/cache'
 import { db } from '@/firebase/server-init'
@@ -500,12 +499,8 @@ async function getUserCredentialsBySession(sessionId: string) {
     } catch (error) {
         console.error('Failed to get user credentials:', error);
     }
-    // Fallback to hardcoded values if session not found
-    return {
-        serverId: HARDCODED_SERVER_ID,
-        userId: HARDCODED_USER_ID,
-        twitchUsername: 'mtman1987'
-    };
+    // No fallback - session required for multi-tenant app
+    throw new Error('Session not found - user must be logged in');
 }
 
 /**

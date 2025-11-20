@@ -23,13 +23,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CopyButton } from '@/components/copy-button';
 import { AdminRoleSettings } from './_components/admin-role-settings';
-import { UISettingsCard } from './_components/ui-settings';
 import { TwitchPollingSettings } from './_components/twitch-polling-settings';
-import { DiscordSyncSettings } from './_components/discord-sync-settings';
 import { ChannelSelectionSettings } from './_components/channel-selection-settings';
-import { ShoutoutAutomationSettings } from './_components/shoutout-automation-settings';
-import { UptimeMonitorCard } from './_components/uptime-monitor-card';
-import { DevSessionCard } from './_components/dev-session-card';
 import { useToast } from '@/hooks/use-toast';
 
 function SyncButton() {
@@ -109,9 +104,8 @@ export default function SettingsPage() {
         title="Settings"
         description="Configure your application and integrations."
       />
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <div className="lg:col-span-1 space-y-8">
-          <DevSessionCard />
+      <div className="grid gap-8 md:grid-cols-2">
+        <div className="space-y-8">
           <Card>
             <CardHeader>
               <CardTitle className="font-headline">Discord Integration</CardTitle>
@@ -155,7 +149,7 @@ export default function SettingsPage() {
           {guildId && <AdminRoleSettings serverId={guildId} />}
         </div>
         
-         <div className="space-y-8 lg:col-span-1">
+        <div className="space-y-8">
             <Card>
                 <form action={syncAction}>
                     <CardHeader>
@@ -187,115 +181,53 @@ export default function SettingsPage() {
                     </CardFooter>
                 </form>
             </Card>
-            <ShoutoutAutomationSettings />
-            <UISettingsCard />
             <TwitchPollingSettings />
-        </div>
-        
-        <div className="lg:col-span-3 space-y-6">
-            <DiscordSyncSettings />
             <ChannelSelectionSettings />
-            <UptimeMonitorCard />
         </div>
 
 
-        <div className="space-y-8 lg:col-span-1">
-            <Card className="border-destructive">
-                <CardHeader>
-                    <CardTitle className="font-headline text-destructive">Developer Tools</CardTitle>
-                    <CardDescription>For testing and development purposes only.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <Button variant="destructive" className="w-full" onClick={handleReset}>
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Clear Local Storage & Reset Session
-                    </Button>
-                    
-                    <Button 
-                        variant="outline" 
-                        className="w-full" 
-                        onClick={async () => {
-                            try {
-                                const response = await fetch('/api/points/add', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ 
-                                        userId: process.env.NEXT_PUBLIC_HARDCODED_ADMIN_DISCORD_ID || 'mtman1987',
-                                        username: 'mtman1987', 
-                                        displayName: 'mtman1987',
-                                        points: 200 
-                                    })
-                                });
-                                const result = await response.json();
-                                alert('Added 200 points to mtman1987!');
-                            } catch (error) {
-                                alert('Error adding points');
-                            }
-                        }}
-                    >
-                        <Zap className="mr-2 h-4 w-4" />
-                        Add 200 Points to mtman1987
-                    </Button>
-                    
-                    <form action={testAction} className="space-y-4">
-                        <input type="hidden" name="guildId" value={guildId} />
-                         <div className="space-y-2">
-                            <Label htmlFor="test-channel-id">Test Channel ID</Label>
-                            <Input
-                                id="test-channel-id"
-                                name="channelId"
-                                value={testChannelId}
-                                onChange={(e) => setTestChannelId(e.target.value)}
-                                placeholder="Enter a channel ID to post in"
-                                required
-                            />
-                        </div>
-                        <TestButton />
-                        {testState.status !== 'idle' && (
-                            <div className="space-y-2">
-                                <Alert variant={testState.status === 'error' ? 'destructive' : 'default'}>
-                                    <AlertTitle>{testState.status === 'success' ? 'Success!' : 'Error'}</AlertTitle>
-                                    <AlertDescription>
-                                        {testState.message}
-                                    </AlertDescription>
-                                </Alert>
-                                {testState.logs && testState.logs.length > 0 && (
-                                <div className="relative">
-                                    <h4 className="text-sm font-semibold mb-2">Server Logs:</h4>
-                                    <div className="absolute top-0 right-0">
-                                        <CopyButton value={logsAsString} />
-                                    </div>
-                                    <ScrollArea className="h-48 w-full rounded-md border bg-secondary/50 p-4">
-                                        <pre className="text-xs whitespace-pre-wrap break-words">
-                                        {logsAsString}
-                                        </pre>
-                                    </ScrollArea>
-                                </div>
-                                )}
-                            </div>
-                        )}
-                    </form>
-
-                    <form action={resetAction} className="space-y-4">
-                         <input type="hidden" name="guildId" value={guildId} />
-                         <input type="hidden" name="currentPath" value={pathname} />
-                         <ResetCalendarButton />
-                         {resetState.status !== 'idle' && (
-                            <Alert variant={resetState.status === 'error' ? 'destructive' : 'default'}>
-                                <AlertTitle>{resetState.status === 'success' ? 'Success!' : 'Error'}</AlertTitle>
-                                <AlertDescription>
-                                    {resetState.message}
-                                </AlertDescription>
-                            </Alert>
-                         )}
-                    </form>
-
-                </CardContent>
-                <CardFooter>
-                    <p className="text-xs text-muted-foreground">Use these tools for testing server-side functions and clearing test data.</p>
-                </CardFooter>
-            </Card>
-        </div>
+      </div>
+      
+      <div className="grid gap-8 md:grid-cols-2">
+        {guildId && <AdminRoleSettings serverId={guildId} />}
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline flex items-center gap-2">
+              📖 Documentation
+            </CardTitle>
+            <CardDescription>
+              Download user guide and system information
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = '/README.md';
+                link.download = 'CosmicRaid-UserGuide.md';
+                link.click();
+              }}
+            >
+              📥 Download User Guide
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-destructive">
+          <CardHeader>
+            <CardTitle className="font-headline text-destructive">Reset Session</CardTitle>
+            <CardDescription>Clear login data and return to login page.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="destructive" className="w-full" onClick={handleReset}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Logout & Reset
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

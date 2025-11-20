@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { startPolling } from '@/lib/polling-service';
 import { startAutomatedShoutouts } from '@/lib/automated-shoutout-system';
 
-const HARDCODED_SERVER_ID = process.env.HARDCODED_GUILD_ID || '1240832965865635881';
+// Multi-tenant app - no hardcoded server ID
 
 export async function POST(request: NextRequest) {
   try {

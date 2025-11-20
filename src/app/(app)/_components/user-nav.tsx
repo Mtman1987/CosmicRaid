@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import Image from 'next/image';
 
 interface UserProfile {
   username: string;
@@ -76,7 +77,7 @@ export function UserNav() {
         <div className="font-medium">{userProfile.username}</div>
         <div className="flex items-center gap-1 text-muted-foreground text-xs">
           {userProfile.serverIcon && (
-            <img src={userProfile.serverIcon} alt="" className="w-3 h-3 rounded-sm" />
+            <Image src={userProfile.serverIcon} alt="" width={12} height={12} className="w-3 h-3 rounded-sm" />
           )}
           <span className="truncate max-w-[160px]" title={userProfile.serverName}>
             {userProfile.serverName}

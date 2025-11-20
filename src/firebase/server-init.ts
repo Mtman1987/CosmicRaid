@@ -53,7 +53,9 @@ function readServiceAccountFromFile(filePath: string | undefined | null): Servic
 function fetchServiceAccountFromFirestore(): ServiceAccount | null {
   const apiKey = firebaseConfig.apiKey;
   const project = firebaseConfig.projectId;
-  const serverId = process.env.HARDCODED_GUILD_ID || '1240832965865635881';
+  // Firebase Admin needs to initialize without server context
+  // Server-specific secrets are loaded per-request via user-server mapping
+  const serverId = 'global'; // Firebase Admin is global, secrets are per-server
   const docPath = `servers/${serverId}/config/secrets`;
   const field = 'GOOGLE_APPLICATION_CREDENTIALS';
 

@@ -9,9 +9,7 @@ export default function Home() {
   useEffect(() => {
     // Auto-login with hardcoded credentials
     localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('discordServerId', '1240832965865635881');
-    localStorage.setItem('discordUserId', '767875979561009173');
-    localStorage.setItem('twitchUsername', 'mtman1987');
+    // Multi-tenant app - users must login with their own credentials
     
     router.push('/dashboard');
   }, [router]);

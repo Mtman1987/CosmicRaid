@@ -7,6 +7,12 @@ const lastFetchMap = new Map<string, number>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export async function getServerConfig(serverId: string, key: string): Promise<string | undefined> {
+  // Special case: Discord bot token is global
+  if (key === 'DISCORD_BOT_TOKEN') {
+    const { getGlobalBotToken } = await import('./global-config');
+    return await getGlobalBotToken() || undefined;
+  }
+  
   const lastFetch = lastFetchMap.get(serverId) || 0;
   
   if (Date.now() - lastFetch > CACHE_TTL) {

@@ -25,8 +25,8 @@ export async function getGuildIdFromRequest(request?: Request): Promise<string> 
     }
   }
   
-  // Default to hardcoded guild ID
-  return '1240832965865635881';
+  // No default - multi-tenant app requires explicit guild ID
+  throw new Error('Guild ID not found - user must be logged in');
 }
 
 /**

@@ -4,15 +4,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 // Hardcoded for testing - change these to secure the app later
-const HARDCODED_SERVER_ID = '1240832965865635881';
-const HARDCODED_USER_ID = '1240832965865635881'; // Replace with your actual Discord user ID
+// Multi-tenant app - no hardcoded values
 
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     discordServerId: HARDCODED_SERVER_ID,
     discordUserId: HARDCODED_USER_ID,
-    twitchUsername: 'mtman1987'
+    twitchUsername: 'unknown'
   });
 
   // Load saved values on mount (for display purposes)
@@ -20,7 +19,7 @@ export default function LoginPage() {
     const saved = {
       discordServerId: localStorage.getItem('discordServerId') || HARDCODED_SERVER_ID,
       discordUserId: localStorage.getItem('discordUserId') || HARDCODED_USER_ID,
-      twitchUsername: localStorage.getItem('twitchUsername') || 'mtman1987'
+      twitchUsername: localStorage.getItem('twitchUsername') || 'unknown'
     };
     setFormData(saved);
   }, []);
@@ -81,6 +80,14 @@ export default function LoginPage() {
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <div style={{
+            fontSize: '12px',
+            fontStyle: 'italic',
+            color: '#888',
+            marginBottom: '16px'
+          }}>
+            "Ad astra per aspera"
+          </div>
           <div style={{
             fontSize: '48px',
             marginBottom: '16px'

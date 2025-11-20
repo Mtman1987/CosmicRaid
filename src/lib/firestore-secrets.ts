@@ -16,21 +16,22 @@ export async function getSecrets(guildId?: string): Promise<Record<string, strin
   }
 
   try {
-    // HARDCODED GUILD ID - NO DEPENDENCIES
-    const serverId = '1240832965865635881';
+    if (!guildId) {
+      throw new Error('Server ID required - must come from user-server mapping');
+    }
+    const serverId = guildId;
     
-    console.log('[Firestore Secrets] Loading from hardcoded path: servers/1240832965865635881/config/secrets');
+    console.log(`[Firestore Secrets] Loading from path: servers/${serverId}/config/secrets`);
     
-    // EXPLICIT HARDCODED PATH
     const secretsDoc = await db
       .collection('servers')
-      .doc('1240832965865635881')
+      .doc(serverId)
       .collection('config')
       .doc('secrets')
       .get();
 
     if (!secretsDoc.exists) {
-      console.error('[Firestore Secrets] Document not found at servers/1240832965865635881/config/secrets');
+      console.error(`[Firestore Secrets] Document not found at servers/${serverId}/config/secrets`);
       console.error('[Firestore Secrets] Make sure this document exists in Firestore!');
       return {};
     }

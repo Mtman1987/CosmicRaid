@@ -19,10 +19,7 @@ export async function getServerId(): Promise<string> {
   // The server ID is hardcoded in firestore-secrets.ts
   // This is the ONLY place it should be hardcoded
   // All other code uses this function to get it
-  const serverId = '1240832965865635881';
-  
-  cachedServerId = serverId;
-  return serverId;
+  throw new Error('Multi-tenant app - server ID must come from user session');
 }
 
 /**
@@ -30,9 +27,14 @@ export async function getServerId(): Promise<string> {
  * Use this in React components
  */
 export function useServerId(): string {
-  // For now, return the hardcoded value directly on client
-  // This will be replaced with a proper context provider later
-  return '1240832965865635881';
+  const userId = localStorage.getItem('discordUserId');
+  if (!userId) throw new Error('User not logged in');
+  
+  // Get from user-server mapping - this is now async but hooks can't be async
+  // For now, get from localStorage which is set during login
+  const serverId = localStorage.getItem('discordServerId');
+  if (!serverId) throw new Error('Server ID not found - user must login');
+  return serverId;
 }
 
 /**
@@ -41,6 +43,7 @@ export function useServerId(): string {
  * TODO: Get from auth context or user session
  */
 export function useUserId(): string {
-  // Hardcoded for now - will be replaced with auth context
-  return '767875979561009173';
+  const userId = localStorage.getItem('discordUserId');
+  if (!userId) throw new Error('User not logged in');
+  return userId;
 }
