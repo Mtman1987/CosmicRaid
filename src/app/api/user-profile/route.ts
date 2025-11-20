@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerIdByUserId } from '@/lib/user-server-mapping';
+import { getServerIdForUser } from '@/lib/user-server-mapping';
 import { db } from '@/firebase/server-init';
 
 export async function GET(request: NextRequest) {
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    const serverId = await getServerIdByUserId(userId);
+    const serverId = await getServerIdForUser(userId);
     if (!serverId) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
