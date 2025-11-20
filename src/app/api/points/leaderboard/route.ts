@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PointsService } from '@/lib/points-service';
 import { takeLeaderboardScreenshot } from '@/lib/leaderboard-screenshot-service';
-import { getUserRank, generateLeaderboardGifFromPage } from '@/lib/leaderboard-service';
+import { getUserRank } from '@/lib/leaderboard-service';
 import { sendDiscordMessage } from '@/lib/discord-bot-service';
+import { getStorage } from 'firebase-admin/storage';
+import { app } from '@/firebase/server-init';
+import { getBaseUrl } from '@/lib/base-url';
+import { generateLeaderboardImage } from '@/ai/flows/generate-leaderboard-image';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +23,6 @@ export async function GET(request: NextRequest) {
     
     const pointsService = PointsService.getInstance();
     
-    // Return user rank if userId provided
     if (userId) {
       const userRank = await pointsService.getUserRank(userId);
       const userPoints = await pointsService.getUserPoints(userId);
@@ -45,7 +48,6 @@ export async function GET(request: NextRequest) {
       });
     }
     
-    // Return image if format=image
     if (format === 'image') {
       const dataUrl = await takeLeaderboardScreenshot(serverId);
       
@@ -65,7 +67,6 @@ export async function GET(request: NextRequest) {
       });
     }
     
-    // Return JSON leaderboard data
     const leaderboard = await pointsService.getLeaderboard(limit, serverId);
     return NextResponse.json(leaderboard);
 
@@ -83,29 +84,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'serverId and channelId are required' }, { status: 400 });
     }
     
-    // Generate leaderboard screenshot
-    const dataUrl = await takeLeaderboardScreenshot(serverId);
-    
+    let dataUrl = await takeLeaderboardScreenshot(serverId);
+    if (!dataUrl) {
+      dataUrl = await generateLeaderboardImage(serverId);
+    }
     if (!dataUrl) {
       return NextResponse.json({ error: 'Failed to generate leaderboard screenshot' }, { status: 500 });
     }
 
-    // Send image as plain attachment first
-    await sendDiscordMessage(channelId, {
-      files: [{
-        name: 'leaderboard.png',
-        data: dataUrl.split(',')[1],
-        contentType: 'image/png'
-      }]
-    });
+    let imageUrl: string | null = null;
+    if (dataUrl.startsWith('http')) {
+      imageUrl = dataUrl;
+    } else {
+      const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || process.env.FIREBASE_STORAGE_BUCKET;
+      if (!bucketName) {
+        return NextResponse.json({ error: 'No storage bucket configured for upload' }, { status: 500 });
+      }
+      const buffer = Buffer.from(dataUrl.split(',')[1] || dataUrl, 'base64');
+      const storage = getStorage(app);
+      const bucket = storage.bucket(bucketName);
+      const fileName = `leaderboard-images/${serverId}/leaderboard-${Date.now()}.png`;
+      const file = bucket.file(fileName);
+      await file.save(buffer, { metadata: { contentType: 'image/png' }, public: true });
+      imageUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
+    }
 
-    // Send second message with embed and button
-    await sendDiscordMessage(channelId, {
+    const baseUrl = await getBaseUrl(serverId);
+
+    const payload: any = {
+      content: '**🚀 Space Mountain Leaderboard**',
       embeds: [{
-        title: '🏆 Space Mountain Leaderboard',
+        title: 'Space Mountain Leaderboard',
         description: 'Current top performers on the server',
         color: 0x8B5CF6,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        image: { url: imageUrl }
       }],
       components: [{
         type: 1,
@@ -114,12 +127,17 @@ export async function POST(request: NextRequest) {
           style: 2,
           label: 'Check My Rank',
           custom_id: `leaderboard_rank_${serverId}`,
-          emoji: { name: '📊' }
+          emoji: { name: 'dY\"S' }
         }]
       }]
-    });
-    
-    return NextResponse.json({ success: true });
+    };
+
+    const msgId = await sendDiscordMessage(channelId, payload, serverId);
+    if (!msgId) {
+      return NextResponse.json({ error: 'Failed to send to Discord' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, messageId: msgId, imageUrl });
   } catch (error) {
     console.error('[LeaderboardPost] Error:', error);
     return NextResponse.json({ error: 'Failed to post leaderboard' }, { status: 500 });

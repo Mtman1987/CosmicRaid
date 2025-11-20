@@ -4,11 +4,8 @@ export async function generateLeaderboardForDiscord(serverId: string): Promise<s
   try {
     console.log(`[LeaderboardDiscord] Generating leaderboard for ${serverId}`);
     
-    const HOSTED_BASE = 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app';
-    const appUrl =
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
-      HOSTED_BASE;
+    const { getBaseUrl } = await import('./base-url');
+    const appUrl = await getBaseUrl(serverId);
     const leaderboardUrl = `${appUrl}/headless/leaderboard/${serverId}`;
 
     const { getServerConfig } = await import('./config-service');

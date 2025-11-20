@@ -8,11 +8,8 @@ export async function generateCalendarImage(
   guildId: string,
   monthOffset = 0
 ): Promise<string | null> {
-  const HOSTED_BASE = 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app';
-  const appUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
-    HOSTED_BASE;
+  const { getBaseUrl } = await import('@/lib/base-url');
+  const appUrl = await getBaseUrl(guildId);
   const screenshotUrl = `${appUrl}/headless/calendar/${guildId?.replace(/[\r\n]/g, '')}?offset=${monthOffset}`;
   const { getServerConfig } = await import('@/lib/config-service');
   const localServiceUrl =

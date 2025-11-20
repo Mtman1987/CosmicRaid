@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { takeLeaderboardScreenshot } from '@/lib/leaderboard-screenshot-service';
 import { sendDiscordMessage } from '@/lib/discord-bot-service';
-import { db } from '@/firebase/server-init';
+import { db, app } from '@/firebase/server-init';
+import { getStorage } from 'firebase-admin/storage';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,50 +30,59 @@ export async function POST(request: NextRequest) {
 
     console.log('[Leaderboard/Generate] Starting', { serverId, channelId });
 
-    const dataUrl = await takeLeaderboardScreenshot(serverId);
+    let dataUrl = await takeLeaderboardScreenshot(serverId);
     if (!dataUrl) {
-      throw new Error('Failed to generate leaderboard screenshot');
+      // Fallback: try FreeConvert/local flow from generateLeaderboardImage
+      const { generateLeaderboardImage } = await import('@/ai/flows/generate-leaderboard-image');
+      dataUrl = await generateLeaderboardImage(serverId);
+      if (!dataUrl) {
+        throw new Error('Failed to generate leaderboard screenshot');
+      }
     }
 
+    let imageUrl: string | null = null;
     let fileBase64: string | null = null;
 
     if (dataUrl.startsWith('http')) {
-      try {
-        const imgResp = await fetch(dataUrl);
-        const buf = Buffer.from(await imgResp.arrayBuffer());
-        fileBase64 = buf.toString('base64');
-      } catch (err) {
-        console.error('[Leaderboard/Generate] Failed to fetch image URL, will try sending as embed URL:', err);
-      }
+      imageUrl = dataUrl;
     } else {
       fileBase64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+      const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || process.env.FIREBASE_STORAGE_BUCKET;
+      if (!bucketName) {
+        throw new Error('No storage bucket configured to upload screenshot');
+      }
+      const buffer = Buffer.from(fileBase64, 'base64');
+      const storage = getStorage(app);
+      const bucket = storage.bucket(bucketName);
+      const fileName = `leaderboard-images/${serverId}/leaderboard-${Date.now()}.png`;
+      const file = bucket.file(fileName);
+      await file.save(buffer, { metadata: { contentType: 'image/png' }, public: true });
+      imageUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
+      fileBase64 = null;
     }
 
     const basePayload: any = {
       content: '**🚀 Space Mountain Leaderboard**',
     };
 
+    basePayload.embeds = [{
+      title: 'Space Mountain Leaderboard',
+      image: { url: imageUrl },
+      timestamp: new Date().toISOString(),
+    }];
+    // Optional attachment for clients that prefer files (Discord will still need multipart to truly attach)
     if (fileBase64) {
       basePayload.files = [{
         name: 'leaderboard.png',
         data: fileBase64,
         contentType: 'image/png',
       }];
-    } else if (dataUrl.startsWith('http')) {
-      basePayload.embeds = [{
-        title: 'Space Mountain Leaderboard',
-        image: { url: dataUrl },
-        timestamp: new Date().toISOString(),
-      }];
-    } else {
-      console.error('[Leaderboard/Generate] No file or imageUrl to send', { serverId, channelId, dataUrlSnippet: dataUrl?.slice?.(0, 50) });
-      throw new Error('No image generated to send');
     }
 
     console.log('[Leaderboard/Generate] Discord payload summary', {
       hasFile: !!fileBase64,
       hasEmbed: !!basePayload.embeds,
-      dataUrlSnippet: dataUrl?.slice?.(0, 50),
+      imageUrl,
     });
 
     const messageId = await sendDiscordMessage(channelId, basePayload, serverId);
