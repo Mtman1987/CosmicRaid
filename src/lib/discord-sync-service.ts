@@ -2,6 +2,7 @@
 
 import { db } from '@/firebase/server-init';
 import { getSecret } from './firestore-secrets';
+import { getDiscordBotToken } from './discord-bot-token';
 
 interface DiscordMember {
   id: string;
@@ -27,14 +28,14 @@ class DiscordSyncService {
   private baseUrl = 'https://discord.com/api/v10';
 
   private async getBotToken(serverId: string): Promise<string> {
-    // Load from Firestore secrets instead of process.env
-    const token = await getSecret('DISCORD_BOT_TOKEN');
+    // Load from globalConfig/discordBot
+    const token = await getDiscordBotToken();
     
     if (!token) {
-      throw new Error('DISCORD_BOT_TOKEN not found in Firestore secrets');
+      throw new Error('DISCORD_BOT_TOKEN not found in globalConfig');
     }
     
-    console.log('[DiscordSync] Bot token loaded from Firestore secrets');
+    console.log('[DiscordSync] Bot token loaded from globalConfig');
     return token;
   }
 

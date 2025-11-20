@@ -62,9 +62,9 @@ async function getCommunityStats(serverId: string) {
  */
 export async function postCommunitySpotlight(serverId: string): Promise<void> {
   try {
-    // Get server config for Discord settings
-    const { getServerConfig } = await import('./config-service');
-    const botToken = await getServerConfig(serverId, 'DISCORD_BOT_TOKEN');
+    // Get Discord bot token from globalConfig
+    const { getDiscordBotToken } = await import('./discord-bot-token');
+    const botToken = await getDiscordBotToken();
     
     // Get channel ID from channels config (set via UI)
     const channelsDoc = await db.collection('servers').doc(serverId).collection('config').doc('channels').get();

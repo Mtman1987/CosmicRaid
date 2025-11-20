@@ -1,0 +1,28 @@
+{
+  "name": "cosmic-raid-local-services",
+  "version": "1.0.0",
+  "description": "Local Puppeteer and FFmpeg services for Cosmic Raid",
+  "main": "local-services.js",
+  "scripts": {
+    "start": "node local-services.js",
+    "build": "pkg . --out-path=dist"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "puppeteer": "^21.0.0",
+    "firebase-admin": "^12.0.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "assets": [
+      ".env"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ]
+  }
+}

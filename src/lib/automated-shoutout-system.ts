@@ -8,6 +8,7 @@ import { cleanupAllOldClips } from "./clip-management-service";
 import { sendDiscordMessage, updateDiscordMessage, deleteDiscordMessage, cleanupDuplicateBotMessages } from "./discord-bot-service";
 import { updateVipAnimatedCards } from "./vip-animated-card-service";
 import { getSecret } from './firestore-secrets';
+import { getDiscordBotToken } from './discord-bot-token';
 import { isCommunityGroup, isVipGroup } from './group-utils-server';
 
 // Internal types - not exported

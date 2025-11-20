@@ -23,9 +23,15 @@ export async function generateLeaderboardImage(
       });
       
       if (response.ok) {
-        const { dataUrl } = await response.json();
+        const result = await response.json();
         console.log('[LocalService] Leaderboard screenshot taken successfully.');
-        return dataUrl;
+        
+        // Handle both Firebase Storage URL and base64 fallback
+        if (result.imageUrl) {
+          return result.imageUrl;
+        } else if (result.dataUrl) {
+          return result.dataUrl;
+        }
       }
     } catch (error) {
       console.error('[LocalService] Failed, falling back to FreeConvert:', error);

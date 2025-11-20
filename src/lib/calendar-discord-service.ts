@@ -15,8 +15,9 @@ type CalendarMessageMeta = {
   monthOffset?: number;
 };
 
-async function ensureBotToken() {
-  const token = await getSecret('DISCORD_BOT_TOKEN');
+async function ensureBotToken(serverId?: string) {
+  const { getDiscordBotToken } = await import('./discord-bot-token');
+  const token = await getDiscordBotToken();
   if (!token) {
     throw new Error('DISCORD_BOT_TOKEN is not configured');
   }
@@ -229,7 +230,7 @@ export async function refreshCalendarMessage(serverId: string) {
     payload.components = buildCalendarButtons(serverId);
   }
 
-  const botToken = ensureBotToken();
+  const botToken = await ensureBotToken(serverId);
 
   const response = await fetch(
     `https://discord.com/api/v10/channels/${meta.channelId}/messages/${meta.messageId}`,
@@ -270,6 +271,13 @@ export async function uploadCalendarImageFromGenerator(serverId: string, monthOf
   if (!calendarImage) {
     throw new Error('Failed to generate calendar image.');
   }
+  
+  // If it's already a Firebase Storage URL, return as is
+  if (calendarImage.startsWith('https://storage.googleapis.com/')) {
+    return calendarImage;
+  }
+  
+  // Otherwise upload base64 to Firebase Storage
   return uploadCalendarImage(serverId, calendarImage);
 }
 

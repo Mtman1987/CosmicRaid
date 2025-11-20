@@ -122,10 +122,10 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
   }
 
   try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = await getServerConfig(guildId, 'DISCORD_BOT_TOKEN');
+    const { getDiscordBotToken } = await import('./discord-bot-token');
+    const botToken = await getDiscordBotToken();
     if (!botToken) {
-      return { status: 'error' as const, message: 'Discord bot token not found for this server.' }
+      return { status: 'error' as const, message: 'Discord bot token not found.' }
     }
 
     const headers = {

@@ -15,7 +15,12 @@ export async function generateCalendarImage(
   // Try local service first if available
   if (localServiceUrl) {
     try {
-      console.log('[LocalService] Taking calendar screenshot via local service:', screenshotUrl?.replace(/[\r\n]/g, ''));
+      console.log('[LocalService] Attempting screenshot:', {
+        localServiceUrl: localServiceUrl?.replace(/[\r\n]/g, ''),
+        screenshotUrl: screenshotUrl?.replace(/[\r\n]/g, ''),
+        guildId: guildId?.replace(/[\r\n]/g, ''),
+        monthOffset
+      });
       
       const response = await fetch(`${localServiceUrl}/api/screenshot`, {
         method: 'POST',
@@ -35,8 +40,24 @@ export async function generateCalendarImage(
 
       if (response.ok) {
         const result = await response.json();
-        console.log('[LocalService] Calendar screenshot completed successfully');
-        return result.imageUrl;
+        console.log('[LocalService] Screenshot response:', {
+          success: result.success,
+          hasImageUrl: !!result.imageUrl,
+          hasDataUrl: !!result.dataUrl,
+          width: result.width,
+          height: result.height
+        });
+        
+        // Handle both Firebase Storage URL and base64 fallback
+        if (result.imageUrl) {
+          console.log('[LocalService] Using Firebase Storage URL');
+          return result.imageUrl;
+        } else if (result.dataUrl) {
+          console.log('[LocalService] Using base64 fallback');
+          return result.dataUrl;
+        }
+      } else {
+        console.error('[LocalService] Screenshot failed:', response.status, await response.text());
       }
     } catch (error) {
       console.error('[LocalService] Failed, falling back to FreeConvert:', error);

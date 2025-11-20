@@ -16,6 +16,7 @@ import { MainNav } from './_components/main-nav';
 import { UserNav } from './_components/user-nav';
 import { FirebaseComponentsProvider } from '@/firebase';
 import { AuthGuard } from '@/components/auth-guard';
+import { LocalServiceStatus } from '@/components/local-service-status';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -53,6 +54,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <div className="flex-1">
                 {/* Future header content can go here, like a search bar */}
               </div>
+              <LocalServiceStatus />
             </header>
             <main className="flex-1 overflow-y-auto p-4 md:p-8">
               {children}

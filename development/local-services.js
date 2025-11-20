@@ -1,5 +1,26 @@
 const express = require('express');
 const cors = require('cors');
+const admin = require('firebase-admin');
+require('dotenv').config();
+
+// Initialize Firebase Admin from environment
+let bucket;
+try {
+  const serviceAccountBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+  if (serviceAccountBase64) {
+    const serviceAccount = JSON.parse(Buffer.from(serviceAccountBase64, 'base64').toString());
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET
+    });
+    bucket = admin.storage().bucket();
+    console.log('✅ Firebase initialized from environment');
+  } else {
+    console.log('⚠️  Firebase not configured - will return base64 fallback');
+  }
+} catch (error) {
+  console.log('⚠️  Firebase initialization failed - will return base64 fallback:', error.message);
+}
 
 const app = express();
 const port = process.env.PORT || 5500;
@@ -43,6 +64,32 @@ app.post('/api/screenshot', async (req, res) => {
     
     await browser.close();
     
+    // Try Firebase Storage first, fallback to base64
+    if (bucket) {
+      try {
+        const fileName = `calendar-images/local-service/calendar-${Date.now()}.png`;
+        const file = bucket.file(fileName);
+        
+        await file.save(screenshot, {
+          metadata: { contentType: 'image/png' },
+          public: true
+        });
+        
+        const publicUrl = `https://storage.googleapis.com/${process.env.FIREBASE_STORAGE_BUCKET}/${fileName}`;
+        
+        res.json({
+          success: true,
+          imageUrl: publicUrl,
+          width,
+          height
+        });
+        return;
+      } catch (error) {
+        console.error('Firebase upload failed, falling back to base64:', error.message);
+      }
+    }
+    
+    // Fallback to base64
     const dataUrl = `data:image/png;base64,${screenshot.toString('base64')}`;
     
     res.json({
