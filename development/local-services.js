@@ -127,7 +127,7 @@ app.get('/heartbeat', (req, res) => {
 // Optional ping back to hosted app to keep it warm (set HOSTED_PING_URL)
 const hostedPingUrl = process.env.HOSTED_PING_URL;
 if (hostedPingUrl) {
-  const intervalMs = Number(process.env.HOSTED_PING_INTERVAL_MS || 240000); // 4 minutes default
+  const intervalMs = Number(process.env.HOSTED_PING_INTERVAL_MS || 240000); // default 4 minutes; adjust if needed
   const pingHosted = async () => {
     try {
       const resp = await fetch(hostedPingUrl, { method: 'GET', cache: 'no-store' });
