@@ -11,6 +11,14 @@ export function LocalServiceStatus() {
     timestamp?: string;
   }>({ connected: false });
 
+  const listenOnly = process.env.NEXT_PUBLIC_HEARTBEAT_LISTEN_ONLY === 'true';
+  // Allow hosted env to control/disable polling (0 = no interval)
+  const intervalMs = React.useMemo(() => {
+    const raw = process.env.NEXT_PUBLIC_HEARTBEAT_INTERVAL_MS;
+    const parsed = raw ? Number(raw) : 0;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+  }, []);
+
   const checkStatus = React.useCallback(async () => {
     try {
       const response = await fetch('/api/heartbeat');
@@ -25,10 +33,14 @@ export function LocalServiceStatus() {
   }, []);
 
   React.useEffect(() => {
+    if (listenOnly) return undefined;
     checkStatus();
-    const interval = setInterval(checkStatus, 30000); // Check every 30 seconds
-    return () => clearInterval(interval);
-  }, [checkStatus]);
+    if (intervalMs > 0) {
+      const interval = setInterval(checkStatus, intervalMs);
+      return () => clearInterval(interval);
+    }
+    return undefined;
+  }, [checkStatus, intervalMs, listenOnly]);
 
   return (
     <Badge 
