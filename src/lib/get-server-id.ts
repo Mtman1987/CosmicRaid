@@ -27,11 +27,8 @@ export async function getServerId(): Promise<string> {
  * Use this in React components
  */
 export function useServerId(): string {
-  const userId = localStorage.getItem('discordUserId');
-  if (!userId) throw new Error('User not logged in');
-  
-  // Get from user-server mapping - this is now async but hooks can't be async
-  // For now, get from localStorage which is set during login
+  // For client-side, still use localStorage as fallback since hooks can't be async
+  // The user-server mapping is used on the server-side in actions
   const serverId = localStorage.getItem('discordServerId');
   if (!serverId) throw new Error('Server ID not found - user must login');
   return serverId;

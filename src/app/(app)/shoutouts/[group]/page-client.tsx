@@ -302,6 +302,7 @@ function OnlineStreamerCard({
         </div>
         {canPost ? (
           <form action={postAction} className="w-full">
+            <input type="hidden" name="userId" value={localStorage.getItem('discordUserId') || ''} />
             <input type="hidden" name="serverId" value={serverId ?? ''} />
             <input type="hidden" name="channelId" value={channelId ?? ''} />
             <input type="hidden" name="streamerName" value={streamer.username} />
@@ -472,6 +473,7 @@ function VipMemberCard({
                 <CardFooter className="p-0 mt-4 flex-col gap-2">
                     {canPost ? (
                         <form action={postAction} className="w-full">
+                            <input type="hidden" name="userId" value={localStorage.getItem('discordUserId') || ''} />
                             <input type="hidden" name="serverId" value={serverId ?? ''} />
                             <input type="hidden" name="channelId" value={channelId ?? ''} />
                             <input type="hidden" name="streamerName" value={streamer.username} />
@@ -550,6 +552,7 @@ function ManageMembersDialog({ groupName, communityMembers, allRoles, serverId, 
                 {/* Promote Single Member (not for Community page) */}
                 {groupName !== 'Community' && (
                     <form ref={promoteFormRef} action={promoteAction} className="space-y-4 rounded-lg border p-4">
+                         <input type="hidden" name="currentUserId" value={localStorage.getItem('discordUserId') || ''} />
                          <input type="hidden" name="serverId" value={serverId} />
                          <input type="hidden" name="newGroup" value={groupName} />
                          <input type="hidden" name="currentPath" value={currentPath} />
@@ -582,6 +585,7 @@ function ManageMembersDialog({ groupName, communityMembers, allRoles, serverId, 
 
                  {/* Assign by Role */}
                 <form ref={roleFormRef} action={roleAction} className="space-y-4 rounded-lg border p-4">
+                    <input type="hidden" name="currentUserId" value={localStorage.getItem('discordUserId') || ''} />
                     <input type="hidden" name="serverId" value={serverId} />
                     <input type="hidden" name="newGroup" value={groupName} />
                     <input type="hidden" name="currentPath" value={currentPath} />
@@ -721,6 +725,7 @@ export default function GroupDetailPage() {
         description: `Shoutouts will be posted to channel ${trimmed}.`,
       });
       const formData = new FormData();
+      formData.append('userId', localStorage.getItem('discordUserId') || '');
       formData.append('serverId', serverId);
       formData.append('groupKey', channelGroupKey);
       formData.append('channelId', trimmed);
@@ -744,6 +749,7 @@ export default function GroupDetailPage() {
         description: 'Configure a new channel before posting shoutouts.',
       });
       const formData = new FormData();
+      formData.append('userId', localStorage.getItem('discordUserId') || '');
       formData.append('serverId', serverId);
       formData.append('groupKey', channelGroupKey);
       formData.append('channelId', '');
@@ -955,6 +961,7 @@ export default function GroupDetailPage() {
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
                 <form action={vipFormAction} className="w-full space-y-3">
+                  <input type="hidden" name="userId" value={localStorage.getItem('discordUserId') || ''} />
                   {serverId && <input type="hidden" name="serverId" value={serverId} />}
                   <input type="hidden" name="currentPath" value={pathname} />
                   <VipTriggerButton idleLabel="Sync & Post VIP Shoutouts" disabled={!serverId} pending={vipActionState.status === 'pending'} />
@@ -1063,6 +1070,7 @@ export default function GroupDetailPage() {
             
            <form action={formAction} className="space-y-6">
             {serverId && <input type="hidden" name="serverId" value={serverId} />}
+            <input type="hidden" name="userId" value={localStorage.getItem('discordUserId') || ''} />
             <SubmitButton pending={generateState.status === 'pending'} />
 
             {generateState.status === 'error' && generateState.error && (

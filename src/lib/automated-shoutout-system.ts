@@ -115,24 +115,12 @@ export async function postAllShoutoutsToDiscord(serverId: string, options: PostO
       includeSpotlight = includeCommunity,
     } = options;
 
-    // Get server config for channel IDs
-    const serverDoc = await db.collection('servers').doc(serverId).get();
-    const serverData = serverDoc.data();
+    // Get channel config from where the UI saves it
+    const channelsDoc = await db.collection('servers').doc(serverId).collection('config').doc('channels').get();
+    const channelsData = channelsDoc.exists ? channelsDoc.data() : {};
     
-    if (!serverData) {
-      console.log('[AutoShoutout] No server config found');
-      return;
-    }
-    
-    const customChannels = serverData.shoutoutChannels || {};
-    const communityChannelId =
-      customChannels.community ||
-      serverData.config?.channels?.community ||
-      await getSecret('DISCORD_SHOUTOUT_CHANNEL_ID');
-    const vipChannelId =
-      customChannels.vip ||
-      serverData.config?.channels?.vip ||
-      await getSecret('DISCORD_VIP_CHANNEL_ID');
+    const communityChannelId = channelsData?.community || await getSecret('DISCORD_SHOUTOUT_CHANNEL_ID');
+    const vipChannelId = channelsData?.vip || await getSecret('DISCORD_VIP_CHANNEL_ID');
     
     // Get all users with generated shoutouts (split query to avoid composite index)
     const usersRef = db.collection('servers').doc(serverId).collection('users');
@@ -149,9 +137,9 @@ export async function postAllShoutoutsToDiscord(serverId: string, options: PostO
         const userData = doc.data();
         // Only include users with dailyShoutout
         if (userData.dailyShoutout) {
-          if (await isCommunityGroup(userData.group)) {
+          if (await isCommunityGroup(userData.group, serverId)) {
             communityUsers.push(userData);
-          } else if (await isVipGroup(userData.group)) {
+          } else if (await isVipGroup(userData.group, serverId)) {
             vipUsers.push(userData);
           }
         }
@@ -264,5 +252,31 @@ async function postCommunitySpotlightMessage(serverId: string, channelId: string
     await postCommunitySpotlight(serverId);
   } catch (error) {
     console.error('Failed to post community spotlight:', error);
+  }
+}
+
+/**
+ * Post a single shoutout to Discord
+ */
+export async function postShoutoutToDiscord(serverId: string, channelId: string, streamerName: string, shoutoutData: any): Promise<void> {
+  try {
+    const description = typeof shoutoutData === 'string' 
+      ? shoutoutData 
+      : shoutoutData?.description || `Come check out ${streamerName}'s stream!`;
+    
+    const messageId = await sendDiscordMessage(channelId, {
+      embeds: [{
+        title: `🎮 ${streamerName} is live!`,
+        description,
+        color: 0x9146FF,
+        thumbnail: { url: shoutoutData?.avatarUrl || '' },
+        timestamp: new Date().toISOString()
+      }]
+    });
+    
+    console.log(`[PostShoutout] Posted shoutout for ${streamerName} to channel ${channelId}, message ID: ${messageId}`);
+  } catch (error) {
+    console.error(`[PostShoutout] Failed to post shoutout for ${streamerName}:`, error);
+    throw error;
   }
 }

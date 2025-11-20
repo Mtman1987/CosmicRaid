@@ -100,18 +100,32 @@ export async function syncDiscordDataForServer(guildId: string): Promise<void> {
     channels: channelsData.filter((c: any) => c.type === 0).map((c: any) => ({ id: c.id, name: c.name })) 
   });
   
-  allMembers.forEach((member: any) => {
-    const memberRef = db.collection('servers').doc(guildId).collection('members').doc(member.user.id);
-    batch.set(memberRef, {
+  const { getUserGroupFromRoles } = await import('./group-utils-server');
+  
+  for (const member of allMembers) {
+    if (member.user.bot) continue;
+    
+    const userRoles = member.roles.map((roleId: string) => 
+      rolesData.find((r: any) => r.id === roleId)?.name
+    ).filter(Boolean);
+    
+    const userGroup = await getUserGroupFromRoles(userRoles, guildId);
+    
+    const userRef = db.collection('servers').doc(guildId).collection('users').doc(member.user.id);
+    batch.set(userRef, {
       id: member.user.id,
+      discordUserId: member.user.id,
       username: member.user.username,
       displayName: member.nick || member.user.global_name || member.user.username,
-      roles: member.roles,
+      avatarUrl: member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png` : null,
+      roles: userRoles,
+      group: userGroup,
       joinedAt: member.joined_at,
-      avatar: member.user.avatar,
+      isOnline: false,
+      topic: '',
       lastSeen: new Date()
     }, { merge: true });
-  });
+  }
   
   await batch.commit();
 }

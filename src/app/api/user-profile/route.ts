@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     const profile = {
       username: userData?.username || 'Unknown User',
       avatarUrl: userData?.avatarUrl || '',
-      serverName: serverData?.name || 'Unknown Server',
+      serverName: serverData?.serverName || serverData?.name || 'Unknown Server',
       serverIcon: serverData?.iconUrl || ''
     };
 

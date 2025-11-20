@@ -65,13 +65,11 @@ export async function updateGroupRoleMappings(prevState: any, formData: FormData
     if (!serverId) throw new Error('Server ID is required.')
 
     const vipRoles = Array.from(formData.keys()).filter(key => key.startsWith('vip_')).map(key => key.replace('vip_', ''))
-    const raidTrainRoles = Array.from(formData.keys()).filter(key => key.startsWith('raidTrain_')).map(key => key.replace('raidTrain_', ''))
     const raidPileRoles = Array.from(formData.keys()).filter(key => key.startsWith('raidPile_')).map(key => key.replace('raidPile_', ''))
 
     const groupMappingsRef = db.collection('servers').doc(serverId).collection('config').doc('groupMappings')
     await groupMappingsRef.set({
       vipRoles,
-      raidTrainRoles,
       raidPileRoles,
       updatedAt: new Date()
     })
@@ -209,7 +207,24 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
 
     try {
       await batch.commit()
-      return handleSuccess(`Successfully synced ${serverName} with ${membersData.length} members, ${roleNames.length} roles, and ${textChannels.length} channels.`)
+      
+      // Count users by group
+      const groupCounts = { Community: 0, VIP: 0, 'Raid Pile': 0 };
+      for (const member of membersData) {
+        if (member.user.bot) continue;
+        const userRoles = member.roles.map((roleId: string) => rolesData.find((r: any) => r.id === roleId)?.name).filter(Boolean);
+        const userGroup = await getUserGroupFromRoles(userRoles, guildId);
+        if (userGroup in groupCounts) {
+          groupCounts[userGroup as keyof typeof groupCounts]++;
+        }
+      }
+      
+      const groupStats = Object.entries(groupCounts)
+        .filter(([_, count]) => count > 0)
+        .map(([group, count]) => `${count} ${group}`)
+        .join(', ');
+      
+      return handleSuccess(`Successfully synced ${serverName} with ${membersData.length} members (${groupStats}), ${roleNames.length} roles, and ${textChannels.length} channels.`)
     } catch (batchError: any) {
       console.error('Batch commit error:', batchError)
       // Try individual writes as fallback
@@ -226,111 +241,7 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
   }
 }
 
-/**
- * Generates and posts a new calendar image to a specified Discord channel.
- */
-export async function postNewCalendar(sessionId: string, channelId: string) {
-  try {
-    const { serverId } = await getUserCredentialsBySession(sessionId);
-    const { getServerConfig } = await import('./config-service');
-    const botToken = await getServerConfig(serverId, 'DISCORD_BOT_TOKEN');
-    if (!botToken) {
-      throw new Error('Discord bot token not found for this server.')
-    }
-    
-    const guildId = serverId;
-
-    const calendarImage = await generateCalendarImage(guildId)
-    if (!calendarImage) throw new Error('Failed to generate calendar image.')
-
-    const leaderboardImage = await generateLeaderboardImage(guildId)
-
-    const attachments: Array<{
-      buffer: Buffer
-      mime: string
-      filename: string
-    }> = []
-
-    function decodeImage(dataUrl: string, filename: string) {
-      const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/)
-      if (!match) {
-        throw new Error(`Invalid image data URL for ${filename}.`)
-      }
-      const [, mime, base64] = match
-      return {
-        buffer: Buffer.from(base64, 'base64'),
-        mime,
-        filename,
-      }
-    }
-
-    attachments.push(decodeImage(calendarImage, 'calendar.png'))
-    if (leaderboardImage) {
-      attachments.push(decodeImage(leaderboardImage, 'leaderboard.png'))
-    }
-
-    const embeds: any[] = [
-      {
-        title: 'Community Calendar',
-        description: 'Latest events and schedule from Streamer\'s Hub.',
-        color: 0x5865f2,
-        image: { url: 'attachment://calendar.png' },
-        timestamp: new Date().toISOString(),
-      },
-    ]
-
-    if (leaderboardImage) {
-      embeds.push({
-        title: 'Leaderboard Snapshot',
-        description: 'Top community contributors, updated just now.',
-        color: 0xf1c40f,
-        image: { url: 'attachment://leaderboard.png' },
-        timestamp: new Date().toISOString(),
-      })
-    }
-
-    const payload = {
-      embeds,
-      attachments: attachments.map((attachment, index) => ({
-        id: index,
-        filename: attachment.filename,
-        description: `Auto generated ${attachment.filename}`,
-      })),
-    }
-
-    const formData = new FormData()
-    formData.append('payload_json', JSON.stringify(payload))
-
-    attachments.forEach((attachment, index) => {
-      formData.append(
-        `files[${index}]`,
-        new Blob([new Uint8Array(attachment.buffer)], { type: attachment.mime }),
-        attachment.filename,
-      )
-    })
-
-    const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bot ${botToken}`,
-      },
-      body: formData,
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Discord API responded with ${response.status}: ${errorText}`)
-    }
-
-    const message = await response.json()
-    console.log(`[postNewCalendar] Posted calendar message ${message.id} to channel ${channelId}`)
-
-    return { success: true, message: 'Calendar posted successfully.' }
-  } catch (error) {
-    console.error('[postNewCalendar] Error:', error)
-    return { success: false, message: error instanceof Error ? error.message : 'An unknown error occurred.' }
-  }
-}
+// Legacy function - removed in favor of user-server mapping system
 
 /**
  * A test action to verify calendar posting from the UI.
@@ -362,48 +273,18 @@ export async function testCalendarPostAction(prevState: any, formData: FormData)
     return { status: 'success', message: 'Test post simulated successfully!', logs };
 }
 
-/**
- * Resets all calendar data for a server.
- */
-export async function resetCalendarAction(prevState: any, formData: FormData) {
-    const sessionId = formData.get('sessionId') as string;
-    const currentPath = formData.get('currentPath') as string;
-    if (!sessionId) {
-        return { status: 'error' as const, message: 'Session ID is required.' };
-    }
-    
-    const { serverId } = await getUserCredentialsBySession(sessionId);
-    const guildId = serverId;
-
-    try {
-        const calendarEventsRef = db.collection('servers').doc(guildId).collection('calendarEvents');
-        const snapshot = await calendarEventsRef.get();
-        if (snapshot.empty) {
-            return handleSuccess('No calendar data to delete.', currentPath);
-        }
-
-        const batch = db.batch();
-        snapshot.docs.forEach(doc => {
-            batch.delete(doc.ref);
-        });
-        await batch.commit();
-
-        return handleSuccess(`Successfully deleted ${snapshot.size} calendar entries.`, currentPath);
-    } catch (error) {
-        return handleError(error, 'Failed to reset calendar data.');
-    }
-}
+// Legacy function - removed in favor of user-server mapping system
 
 /**
  * Generates shoutouts for all online members of the 'Community' group.
  */
 export async function generateAllShoutoutsAction(prevState: any, formData: FormData) {
-    const sessionId = formData.get('sessionId') as string;
-    if (!sessionId) {
-        return { status: 'error' as const, results: [], error: 'Session ID is required.' };
+    const userId = formData.get('userId') as string;
+    if (!userId) {
+        return { status: 'error' as const, results: [], error: 'User ID is required.' };
     }
     
-    const { serverId } = await getUserCredentialsBySession(sessionId);
+    const { serverId } = await getUserCredentialsByUserId(userId);
     if (!serverId) {
         return { status: 'error' as const, results: [], error: 'Server ID is required.' };
     }
@@ -423,14 +304,14 @@ export async function generateAllShoutoutsAction(prevState: any, formData: FormD
 }
 
 export async function triggerVipShoutoutsAction(prevState: any, formData: FormData) {
-    const sessionId = formData.get('sessionId') as string;
+    const userId = formData.get('userId') as string;
     const currentPath = formData.get('currentPath') as string | null;
     
-    if (!sessionId) {
-        return { status: 'error' as const, message: 'Session ID is required.' };
+    if (!userId) {
+        return { status: 'error' as const, message: 'User ID is required.' };
     }
     
-    const { serverId } = await getUserCredentialsBySession(sessionId);
+    const { serverId } = await getUserCredentialsByUserId(userId);
     if (!serverId) {
         return { status: 'error' as const, message: 'Server ID is required.' };
     }
@@ -449,58 +330,28 @@ export async function triggerVipShoutoutsAction(prevState: any, formData: FormDa
     }
 }
 
-/**
- * Save login credentials with session ID for multi-tenant support
- */
-export async function saveLoginCredentials(prevState: any, formData: FormData) {
-    const serverId = formData.get('serverId') as string;
-    const userId = formData.get('userId') as string;
-    const twitchUsername = formData.get('twitchUsername') as string;
-    const sessionId = formData.get('sessionId') as string;
-
-    if (!serverId || !userId || !sessionId) {
-        return { status: 'error' as const, message: 'Server ID, User ID, and Session ID are required.' };
-    }
-
-    try {
-        // Save to user sessions collection - each session gets its own document
-        await db.collection('userSessions').doc(sessionId).set({
-            serverId,
-            userId,
-            twitchUsername,
-            createdAt: new Date(),
-            lastActive: new Date()
-        });
-
-        return { status: 'success' as const, message: 'Login credentials saved successfully.', sessionId };
-    } catch (error) {
-        return handleError(error, 'Failed to save login credentials.');
-    }
-}
+// Legacy function - now handled by user-server mapping system in login page
 
 /**
- * Get user credentials by session ID
+ * Get user credentials by user ID using user-server mapping
  */
-async function getUserCredentialsBySession(sessionId: string) {
+async function getUserCredentialsByUserId(userId: string) {
     try {
-        const doc = await db.collection('userSessions').doc(sessionId).get();
-        if (doc.exists) {
-            const data = doc.data();
-            // Update last active timestamp
-            await db.collection('userSessions').doc(sessionId).update({
-                lastActive: new Date()
-            });
-            return {
-                serverId: data?.serverId,
-                userId: data?.userId,
-                twitchUsername: data?.twitchUsername
-            };
+        const { getServerIdForUser } = await import('./user-server-mapping');
+        const serverId = await getServerIdForUser(userId);
+        
+        if (!serverId) {
+            throw new Error('Server mapping not found - user must be logged in');
         }
+        
+        return {
+            serverId,
+            userId
+        };
     } catch (error) {
         console.error('Failed to get user credentials:', error);
+        throw new Error('User mapping not found - user must be logged in');
     }
-    // No fallback - session required for multi-tenant app
-    throw new Error('Session not found - user must be logged in');
 }
 
 /**
@@ -664,26 +515,26 @@ export async function autoAssignUserGroups(prevState: any, formData: FormData) {
  * Post a shoutout to Discord
  */
 export async function postShoutoutAction(prevState: any, formData: FormData) {
-    const sessionId = formData.get('sessionId') as string;
-    const groupType = formData.get('groupType') as string;
+    const userId = formData.get('userId') as string;
+    const serverId = formData.get('serverId') as string;
+    const channelId = formData.get('channelId') as string;
+    const streamerName = formData.get('streamerName') as string;
+    const payload = formData.get('payload') as string;
+    const currentPath = formData.get('currentPath') as string;
     
-    if (!sessionId || !groupType) {
-        return { status: 'error' as const, message: 'Session ID and group type are required.' };
+    if (!userId || !serverId || !channelId || !streamerName || !payload) {
+        return { status: 'error' as const, message: 'User ID, server ID, channel ID, streamer name, and payload are required.' };
     }
-    
-    const { serverId } = await getUserCredentialsBySession(sessionId);
 
     try {
-        const { postAllShoutoutsToDiscord } = await import('./automated-shoutout-system');
-        await postAllShoutoutsToDiscord(serverId, {
-            includeCommunity: groupType === 'Community',
-            includeVip: groupType === 'VIP',
-            includeSpotlight: true
-        });
+        const shoutoutData = JSON.parse(payload);
+        const { postShoutoutToDiscord } = await import('./automated-shoutout-system');
         
-        return handleSuccess(`${groupType} shoutouts posted successfully.`);
+        await postShoutoutToDiscord(serverId, channelId, streamerName, shoutoutData);
+        
+        return handleSuccess(`Shoutout posted for ${streamerName}`, currentPath);
     } catch (error) {
-        return handleError(error, 'Failed to post shoutouts.');
+        return handleError(error, 'Failed to post shoutout.');
     }
 }
 
@@ -691,24 +542,24 @@ export async function postShoutoutAction(prevState: any, formData: FormData) {
  * Update user group assignment
  */
 export async function updateUserGroupAction(prevState: any, formData: FormData) {
-    const sessionId = formData.get('sessionId') as string;
-    const userId = formData.get('userId') as string;
-    const newGroup = formData.get('group') as string;
+    const currentUserId = formData.get('currentUserId') as string;
+    const targetUserId = formData.get('userId') as string;
+    const newGroup = formData.get('newGroup') as string;
+    const serverId = formData.get('serverId') as string;
+    const currentPath = formData.get('currentPath') as string;
     
-    if (!sessionId || !userId || !newGroup) {
-        return { status: 'error' as const, message: 'Session ID, user ID, and group are required.' };
+    if (!currentUserId || !targetUserId || !newGroup || !serverId) {
+        return { status: 'error' as const, message: 'Current user ID, target user ID, group, and server ID are required.' };
     }
-    
-    const { serverId } = await getUserCredentialsBySession(sessionId);
 
     try {
-        await db.collection('servers').doc(serverId).collection('users').doc(userId).update({
+        await db.collection('servers').doc(serverId).collection('users').doc(targetUserId).update({
             group: newGroup,
             groupUpdatedAt: new Date(),
             groupUpdatedBy: 'manual'
         });
         
-        return handleSuccess(`User group updated to ${newGroup}.`);
+        return handleSuccess(`User group updated to ${newGroup}.`, currentPath);
     } catch (error) {
         return handleError(error, 'Failed to update user group.');
     }
@@ -718,19 +569,19 @@ export async function updateUserGroupAction(prevState: any, formData: FormData) 
  * Update users by role assignment
  */
 export async function updateUsersByRoleAction(prevState: any, formData: FormData) {
-    const sessionId = formData.get('sessionId') as string;
-    const roleId = formData.get('roleId') as string;
-    const newGroup = formData.get('group') as string;
+    const currentUserId = formData.get('currentUserId') as string;
+    const roleName = formData.get('roleName') as string;
+    const newGroup = formData.get('newGroup') as string;
+    const serverId = formData.get('serverId') as string;
+    const currentPath = formData.get('currentPath') as string;
     
-    if (!sessionId || !roleId || !newGroup) {
-        return { status: 'error' as const, message: 'Session ID, role ID, and group are required.' };
+    if (!currentUserId || !roleName || !newGroup || !serverId) {
+        return { status: 'error' as const, message: 'Current user ID, role name, group, and server ID are required.' };
     }
-    
-    const { serverId } = await getUserCredentialsBySession(sessionId);
 
     try {
         const usersSnapshot = await db.collection('servers').doc(serverId).collection('users')
-            .where('roles', 'array-contains', roleId).get();
+            .where('roles', 'array-contains', roleName).get();
         
         const batch = db.batch();
         usersSnapshot.docs.forEach(doc => {
@@ -742,7 +593,7 @@ export async function updateUsersByRoleAction(prevState: any, formData: FormData
         });
         
         await batch.commit();
-        return handleSuccess(`Updated ${usersSnapshot.size} users with role ${roleId} to group ${newGroup}.`);
+        return handleSuccess(`Updated ${usersSnapshot.size} users with role ${roleName} to group ${newGroup}.`, currentPath);
     } catch (error) {
         return handleError(error, 'Failed to update users by role.');
     }
@@ -752,23 +603,23 @@ export async function updateUsersByRoleAction(prevState: any, formData: FormData
  * Update shoutout channel configuration
  */
 export async function updateShoutoutChannelAction(prevState: any, formData: FormData) {
-    const sessionId = formData.get('sessionId') as string;
+    const userId = formData.get('userId') as string;
+    const serverId = formData.get('serverId') as string;
+    const groupKey = formData.get('groupKey') as string;
     const channelId = formData.get('channelId') as string;
-    const groupType = formData.get('groupType') as string;
+    const currentPath = formData.get('currentPath') as string;
     
-    if (!sessionId || !channelId || !groupType) {
-        return { status: 'error' as const, message: 'Session ID, channel ID, and group type are required.' };
+    if (!userId || !serverId || !groupKey) {
+        return { status: 'error' as const, message: 'User ID, server ID, and group key are required.' };
     }
-    
-    const { serverId } = await getUserCredentialsBySession(sessionId);
 
     try {
-        await db.collection('servers').doc(serverId).collection('config').doc('channels').update({
-            [`${groupType.toLowerCase()}ShoutoutChannel`]: channelId,
+        await db.collection('servers').doc(serverId).collection('config').doc('channels').set({
+            [groupKey]: channelId,
             updatedAt: new Date()
-        });
+        }, { merge: true });
         
-        return handleSuccess(`${groupType} shoutout channel updated.`);
+        return handleSuccess(`Shoutout channel updated for ${groupKey}.`, currentPath);
     } catch (error) {
         return handleError(error, 'Failed to update shoutout channel.');
     }

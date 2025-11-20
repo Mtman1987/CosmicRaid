@@ -59,11 +59,6 @@ export async function getUserGroupFromRoles(userRoles: string[], serverId: strin
         return 'VIP';
       }
       
-      const raidTrainRoles = mappings?.raidTrainRoles || [];
-      if (raidTrainRoles.some((role: string) => userRoles.includes(role))) {
-        return 'Raid Train';
-      }
-      
       const raidPileRoles = mappings?.raidPileRoles || [];
       if (raidPileRoles.some((role: string) => userRoles.includes(role))) {
         return 'Raid Pile';

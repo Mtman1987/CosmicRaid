@@ -27,7 +27,7 @@ export async function generateCalendarImage(
       },
       body: JSON.stringify({
         url: screenshotUrl,
-        width: 620,
+        width: 1280,
         height: 660,
         deviceScaleFactor: 1.5,
         waitFor: 2000,

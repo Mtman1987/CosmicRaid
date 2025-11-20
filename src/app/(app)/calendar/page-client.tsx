@@ -612,18 +612,7 @@ export default function CalendarPage() {
         <MissionLogCard missionEvents={missionEvents} todaysCaptain={todaysCaptain} />
       </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="bg-white/5 border-white/10 text-white">
-            <CardHeader>
-              <CardTitle>Interactive Calendar</CardTitle>
-              <CardDescription className="text-blue-200">Tap a day to inspect events or logs.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CalendarDisplay serverId={serverId} />
-            </CardContent>
-          </Card>
-          <SimpleEventList serverId={serverId} />
-        </div>
+
 
         <Card className="bg-white/5 border-white/10 text-white">
           <CardHeader>
