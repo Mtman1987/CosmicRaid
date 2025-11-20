@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Save, Trash2, Send } from 'lucide-react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
-import styles from './leaderboard-channel-config.module.css';
+
 
 interface LeaderboardChannelConfigProps {
   serverId: string;
@@ -153,17 +153,17 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
 
   const activeChannelId = channelId.trim().length > 0 ? channelId.trim() : null;
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 className="text-xl font-bold mb-2">
         Leaderboard Channel Configuration
       </h2>
-      <p className={styles.description}>
+      <p className="text-gray-400 text-sm mb-6">
         Configure where leaderboard screenshots should be posted in Discord.
       </p>
       
-      <div className={styles.content}>
-        <div className={styles.inputGroup}>
-          <Label htmlFor="leaderboard-channel" className={styles.label}>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="leaderboard-channel">
             Discord Channel ID
           </Label>
           <Input
@@ -171,11 +171,11 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
             placeholder="e.g. 123456789012345678"
             value={channelInput}
             onChange={(event) => setChannelInput(event.target.value)}
-            className={styles.input}
+
           />
         </div>
         
-        <div className={styles.buttonGroup}>
+        <div className="flex gap-2">
           <Button type="button" onClick={handleChannelSave}>
             <Save className="mr-2 h-4 w-4" />
             Save Channel
@@ -200,8 +200,8 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
           </Button>
         </div>
         
-        <div className={styles.footer}>
-          <span>Leaderboard screenshots will be posted to this channel.</span>
+        <div className="flex items-center justify-between pt-4 border-t border-gray-800">
+          <span className="text-sm text-gray-400">Leaderboard screenshots will be posted to this channel.</span>
           <Badge variant={activeChannelId ? 'secondary' : 'outline'}>
             {activeChannelId ? `Posting to: ${activeChannelId}` : 'No channel configured'}
           </Badge>
