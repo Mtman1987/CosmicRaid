@@ -81,10 +81,11 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
         description: `Leaderboard screenshots will be posted to channel ${trimmed}.`,
       });
     } catch (error) {
+      console.error('Channel save error:', error);
       toast({
         variant: 'destructive',
         title: 'Failed to save channel',
-        description: 'Could not save the leaderboard channel configuration.',
+        description: `Could not save the leaderboard channel configuration. ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     }
   }, [channelInput, serverId, firestore, toast]);
@@ -106,10 +107,11 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
         description: 'Configure a new channel before posting leaderboard screenshots.',
       });
     } catch (error) {
+      console.error('Channel clear error:', error);
       toast({
         variant: 'destructive',
         title: 'Failed to clear channel',
-        description: 'Could not clear the leaderboard channel configuration.',
+        description: `Could not clear the leaderboard channel configuration. ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     }
   }, [serverId, firestore, toast]);
@@ -126,10 +128,10 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
 
     setIsPosting(true);
     try {
-      const response = await fetch('/api/leaderboard/generate', {
+      const response = await fetch('/api/points/leaderboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ serverId }),
+        body: JSON.stringify({ serverId, channelId }),
       });
 
       if (response.ok) {

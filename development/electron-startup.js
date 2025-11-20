@@ -10,19 +10,11 @@ const path = require('path');
 let services = [];
 
 function startConcurrentServices() {
-  console.log('[Electron] Starting all services concurrently...');
+  console.log('[Electron] Starting local services directly...');
   
-  // Use concurrently to run all services in one command window
-  const concurrentProcess = spawn('npx', [
-    'concurrently',
-    '-k', // Kill all on exit
-    '-n', 'ngrok,local-services,tunnel-update', // Service names
-    '-c', 'cyan,green,yellow', // Colors
-    '--kill-others-on-fail',
-    '"ngrok http 5500"',
-    '"node local-services.js"',
-    '"node scripts/update-tunnel-url.js"'
-  ], {
+  // Start local services directly
+  const localServices = spawn('node', ['local-services.js'], {
+    cwd: __dirname,
     stdio: 'pipe',
     windowsHide: true,
     shell: true,
@@ -33,28 +25,102 @@ function startConcurrentServices() {
     }
   });
 
-  services.push(concurrentProcess);
+  services.push(localServices);
 
-  concurrentProcess.stdout.on('data', (data) => {
+  localServices.stdout.on('data', (data) => {
     const output = data.toString();
-    console.log(`[Services] ${output.trim()}`);
+    output.split('\n').forEach(line => {
+      if (line.trim()) {
+        console.log(`[LocalServices] ${line.trim()}`);
+      }
+    });
     
-    // Notify parent process when ready
-    if (output.includes('Ready') || output.includes('started server') || output.includes('Local services running')) {
+    if (output.includes('Local services running') || output.includes('started server')) {
+      console.log('[System] Local services ready, starting ngrok tunnel...');
+      startNgrokTunnel();
       process.send && process.send({ type: 'ready' });
     }
   });
 
-  concurrentProcess.stderr.on('data', (data) => {
-    console.error(`[Services] ${data.toString().trim()}`);
+  localServices.stderr.on('data', (data) => {
+    const output = data.toString();
+    output.split('\n').forEach(line => {
+      if (line.trim()) {
+        console.error(`[LocalServices] ${line.trim()}`);
+      }
+    });
   });
 
-  concurrentProcess.on('exit', (code) => {
-    console.log(`[Services] Concurrent services exited with code ${code}`);
+  localServices.on('exit', (code) => {
+    console.log(`[LocalServices] Exited with code ${code}`);
     process.send && process.send({ type: 'exit', code });
   });
 
-  return concurrentProcess;
+  return localServices;
+}
+
+function startNgrokTunnel() {
+  console.log('[System] Starting ngrok tunnel on port 5500...');
+  
+  const ngrok = spawn('ngrok', ['http', '5500'], {
+    stdio: 'pipe',
+    windowsHide: true,
+    shell: true
+  });
+
+  services.push(ngrok);
+
+  ngrok.stdout.on('data', (data) => {
+    const output = data.toString();
+    output.split('\n').forEach(line => {
+      if (line.trim()) {
+        console.log(`[Ngrok] ${line.trim()}`);
+      }
+    });
+    
+    if (output.includes('started tunnel') || output.includes('https://')) {
+      console.log('[System] Ngrok tunnel created, updating Firestore...');
+      setTimeout(() => updateTunnelUrl(), 2000);
+    }
+  });
+
+  ngrok.stderr.on('data', (data) => {
+    const output = data.toString();
+    output.split('\n').forEach(line => {
+      if (line.trim()) {
+        console.error(`[Ngrok] ${line.trim()}`);
+      }
+    });
+  });
+}
+
+function updateTunnelUrl() {
+  console.log('[System] Updating tunnel URL in Firestore...');
+  
+  const updateScript = spawn('node', ['add-puppeteer-tunnel.js'], {
+    cwd: __dirname,
+    stdio: 'pipe',
+    windowsHide: true,
+    shell: true
+  });
+
+  updateScript.stdout.on('data', (data) => {
+    const output = data.toString();
+    output.split('\n').forEach(line => {
+      if (line.trim()) {
+        console.log(`[TunnelUpdate] ${line.trim()}`);
+      }
+    });
+  });
+
+  updateScript.stderr.on('data', (data) => {
+    const output = data.toString();
+    output.split('\n').forEach(line => {
+      if (line.trim()) {
+        console.error(`[TunnelUpdate] ${line.trim()}`);
+      }
+    });
+  });
 }
 
 function cleanup() {

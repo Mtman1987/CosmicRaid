@@ -406,7 +406,7 @@ export default function CalendarPage() {
 
     setIsPostingCalendar(true);
     try {
-      const response = await fetch('/api/calendar/post', {
+      const response = await fetch('/api/calendar/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ serverId, channelId }),

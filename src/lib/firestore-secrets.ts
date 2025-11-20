@@ -9,17 +9,25 @@ let cachedSecrets: Record<string, string> | null = null;
 let lastFetch: number = 0;
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-export async function getSecrets(guildId?: string): Promise<Record<string, string>> {
+export async function getSecrets(guildId?: string, userId?: string): Promise<Record<string, string>> {
   // Return cached secrets if still valid
   if (cachedSecrets && Date.now() - lastFetch < CACHE_TTL) {
     return cachedSecrets;
   }
 
   try {
-    if (!guildId) {
+    let serverId = guildId;
+    
+    // Fallback: if no serverId but we have userId, look up from mapping
+    if (!serverId && userId) {
+      const { getServerIdForUser } = await import('./user-server-mapping');
+      serverId = await getServerIdForUser(userId);
+      console.log(`[Firestore Secrets] Resolved serverId from userId ${userId}: ${serverId}`);
+    }
+    
+    if (!serverId) {
       throw new Error('Server ID required - must come from user-server mapping');
     }
-    const serverId = guildId;
     
     console.log(`[Firestore Secrets] Loading from path: servers/${serverId}/config/secrets`);
     
@@ -55,8 +63,8 @@ export async function getSecrets(guildId?: string): Promise<Record<string, strin
 /**
  * Get a single secret value
  */
-export async function getSecret(key: string): Promise<string | undefined> {
-  const secrets = await getSecrets();
+export async function getSecret(key: string, guildId?: string, userId?: string): Promise<string | undefined> {
+  const secrets = await getSecrets(guildId, userId);
   return secrets[key];
 }
 
@@ -64,8 +72,8 @@ export async function getSecret(key: string): Promise<string | undefined> {
  * Merge Firestore secrets with environment variables
  * Firestore takes precedence
  */
-export async function getConfig(guildId?: string): Promise<Record<string, string>> {
-  const firestoreSecrets = await getSecrets(guildId);
+export async function getConfig(guildId?: string, userId?: string): Promise<Record<string, string>> {
+  const firestoreSecrets = await getSecrets(guildId, userId);
   
   // Merge with env vars, Firestore takes precedence
   return {

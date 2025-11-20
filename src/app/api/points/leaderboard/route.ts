@@ -77,39 +77,51 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, username, channelId } = await request.json();
+    const { serverId, channelId } = await request.json();
     
-    if (!userId || !channelId) {
-      return NextResponse.json({ error: 'userId and channelId are required' }, { status: 400 });
+    if (!serverId || !channelId) {
+      return NextResponse.json({ error: 'serverId and channelId are required' }, { status: 400 });
+    }
+    
+    // Generate leaderboard screenshot
+    const dataUrl = await takeLeaderboardScreenshot(serverId);
+    
+    if (!dataUrl) {
+      return NextResponse.json({ error: 'Failed to generate leaderboard screenshot' }, { status: 500 });
     }
 
-    const serverId = process.env.HARDCODED_GUILD_ID || 'default';
-    
-    // Generate leaderboard GIF and post to Discord
-    const gifUrl = await generateLeaderboardGifFromPage(serverId);
-    
-    if (gifUrl) {
-      await sendDiscordMessage(channelId, { content: gifUrl });
-    }
-    
-    // Get user's personal stats for response
-    const userStats = username ? await getUserRank(serverId, username) : null;
-    
-    return NextResponse.json({ 
-      success: true,
-      gifUrl,
-      userStats: userStats ? (() => {
-        const points = typeof userStats === 'number' ? userStats : (userStats as any)?.points || 0;
-        const rank = typeof userStats === 'number' ? 0 : (userStats as any)?.rank || 0;
-        return {
-          points,
-          rank,
-          message: `You have ${points} points and are ranked #${rank}!`
-        };
-      })() : null
+    // Send image as plain attachment first
+    await sendDiscordMessage(channelId, {
+      files: [{
+        name: 'leaderboard.png',
+        data: dataUrl.split(',')[1],
+        contentType: 'image/png'
+      }]
     });
+
+    // Send second message with embed and button
+    await sendDiscordMessage(channelId, {
+      embeds: [{
+        title: '🏆 Space Mountain Leaderboard',
+        description: 'Current top performers on the server',
+        color: 0x8B5CF6,
+        timestamp: new Date().toISOString()
+      }],
+      components: [{
+        type: 1,
+        components: [{
+          type: 2,
+          style: 2,
+          label: 'Check My Rank',
+          custom_id: `leaderboard_rank_${serverId}`,
+          emoji: { name: '📊' }
+        }]
+      }]
+    });
+    
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[LeaderboardGif] Error:', error);
-    return NextResponse.json({ error: 'Failed to generate leaderboard' }, { status: 500 });
+    console.error('[LeaderboardPost] Error:', error);
+    return NextResponse.json({ error: 'Failed to post leaderboard' }, { status: 500 });
   }
 }

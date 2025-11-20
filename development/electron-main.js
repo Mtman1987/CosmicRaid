@@ -119,11 +119,13 @@ function createWindow() {
       <style>
         body { font-family: 'Courier New', monospace; background: #0f0f23; color: #00ff00; padding: 20px; }
         .header { color: #667eea; font-size: 18px; margin-bottom: 20px; }
-        .logs { background: #000; padding: 15px; border-radius: 8px; height: 600px; overflow-y: auto; }
-        .log-line { margin: 2px 0; }
+        .logs { background: #000; padding: 15px; border-radius: 8px; height: 600px; overflow-y: auto; font-size: 12px; line-height: 1.4; }
+        .log-line { margin: 1px 0; word-wrap: break-word; }
         .error { color: #ff6b6b; }
         .system { color: #ffd93d; }
         .output { color: #00ff00; }
+        .ngrok { color: #00bfff; }
+        .services { color: #98fb98; }
       </style>
     </head>
     <body>
@@ -133,7 +135,7 @@ function createWindow() {
         const { ipcRenderer } = require('electron');
         setInterval(() => {
           ipcRenderer.send('get-logs');
-        }, 1000);
+        }, 500); // Faster refresh for debugging
         
         ipcRenderer.on('logs-update', (event, logs) => {
           const logsDiv = document.getElementById('logs');
@@ -199,14 +201,19 @@ function startDevServer() {
   devServer.stdout.on('data', (data) => {
     const log = data.toString();
     
-    // Only store logs when dashboard is open
-    if (isLoggingEnabled) {
-      serverLogs.push(`[OUT] ${new Date().toLocaleTimeString()}: ${log}`);
-      if (serverLogs.length > 100) serverLogs.shift();
-    }
+    // Split multi-line logs and process each line
+    log.split('\n').forEach(line => {
+      if (line.trim()) {
+        // Only store logs when dashboard is open
+        if (isLoggingEnabled) {
+          serverLogs.push(`[OUT] ${new Date().toLocaleTimeString()}: ${line.trim()}`);
+          if (serverLogs.length > 200) serverLogs.shift(); // Keep more logs for debugging
+        }
+      }
+    });
     
     // Always check for ready status
-    if (log.includes('Ready') || log.includes('started server')) {
+    if (log.includes('Ready') || log.includes('started server') || log.includes('Local services running') || log.includes('Tunnel created')) {
       updateTrayStatus('ready');
     }
   });
@@ -214,11 +221,16 @@ function startDevServer() {
   devServer.stderr.on('data', (data) => {
     const log = data.toString();
     
-    // Only store logs when dashboard is open
-    if (isLoggingEnabled) {
-      serverLogs.push(`[ERR] ${new Date().toLocaleTimeString()}: ${log}`);
-      if (serverLogs.length > 100) serverLogs.shift();
-    }
+    // Split multi-line logs and process each line
+    log.split('\n').forEach(line => {
+      if (line.trim()) {
+        // Only store logs when dashboard is open
+        if (isLoggingEnabled) {
+          serverLogs.push(`[ERR] ${new Date().toLocaleTimeString()}: ${line.trim()}`);
+          if (serverLogs.length > 200) serverLogs.shift(); // Keep more logs for debugging
+        }
+      }
+    });
   });
   
   devServer.on('exit', (code) => {

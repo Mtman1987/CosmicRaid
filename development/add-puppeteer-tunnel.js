@@ -10,7 +10,7 @@ const admin = require('firebase-admin');
 const path = require('path');
 
 // Initialize Firebase Admin
-const serviceAccount = require('./studio-9468926194-e03ac-firebase-adminsdk-fbsvc-75298e056b.json');
+const serviceAccount = require('../studio-9468926194-e03ac-firebase-adminsdk-fbsvc-75298e056b.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
@@ -34,21 +34,21 @@ async function addPuppeteerTunnel() {
   const cleanUrl = ngrokUrl.replace(/\/$/, '');
 
   try {
-    console.log(`📝 Adding PUPPETEER_SERVICE_URL to server ${serverId} secrets...`);
+    console.log(`📝 Adding LOCAL_CONVERSION_SERVICE_URL to server ${serverId} secrets...`);
     console.log(`   URL: ${cleanUrl}`);
 
     // Add to both global secrets and server-specific secrets
-    await db.collection('secrets').doc('PUPPETEER_SERVICE_URL').set({
+    await db.collection('secrets').doc('LOCAL_CONVERSION_SERVICE_URL').set({
       value: cleanUrl,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       description: 'ngrok tunnel URL to access local Puppeteer/FFmpeg service from App Hosting'
     });
 
     await db.collection('servers').doc(serverId).collection('config').doc('secrets').set({
-      PUPPETEER_SERVICE_URL: cleanUrl
+      LOCAL_CONVERSION_SERVICE_URL: cleanUrl
     }, { merge: true });
 
-    console.log('✅ Successfully added PUPPETEER_SERVICE_URL!');
+    console.log('✅ Successfully added LOCAL_CONVERSION_SERVICE_URL!');
     console.log('\nYour App Hosting deployment will now use this URL to access your local Puppeteer service.');
     console.log('\n💡 Tips:');
     console.log('  - Keep your ngrok tunnel running while testing shoutouts');
@@ -69,13 +69,13 @@ if (process.argv[2] === 'REMOVE') {
   (async () => {
     const serverId = process.argv[3] || '1240832965865635881';
     try {
-      console.log(`🗑️  Removing PUPPETEER_SERVICE_URL from server ${serverId}...`);
-      await db.collection('secrets').doc('PUPPETEER_SERVICE_URL').delete();
+      console.log(`🗑️  Removing LOCAL_CONVERSION_SERVICE_URL from server ${serverId}...`);
+      await db.collection('secrets').doc('LOCAL_CONVERSION_SERVICE_URL').delete();
       await db.collection('servers').doc(serverId).collection('config').doc('secrets').update({
-        PUPPETEER_SERVICE_URL: admin.firestore.FieldValue.delete()
+        LOCAL_CONVERSION_SERVICE_URL: admin.firestore.FieldValue.delete()
       });
-      console.log('✅ Successfully removed PUPPETEER_SERVICE_URL');
-      console.log('   App Hosting will now skip Puppeteer and fall back to FreeConvert/storage GIFs');
+      console.log('✅ Successfully removed LOCAL_CONVERSION_SERVICE_URL');
+      console.log('   App Hosting will now skip local service and fall back to FreeConvert API');
       process.exit(0);
     } catch (error) {
       console.error('❌ Error removing PUPPETEER_SERVICE_URL:', error.message);

@@ -7,7 +7,7 @@
   "scripts": {
     "space-mountain-dock": "node scripts/space-mountain-client.js",
     "dev-with-dock": "concurrently -k \"npm:space-mountain-dock\" \"next dev --port 3001\"",
-    "dev": "concurrently -k \"npm:space-mountain-dock\" \"next dev --port 3001\"",
+    "dev": "electron development/electron-main.js",
     "dev:hosted": "node scripts/dev-hosted.js",
     "start:services": "node startup.js",
     "setup:scheduler": "node setup-cloud-scheduler.js",
@@ -82,7 +82,7 @@
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"
   },
-  "main": "electron-main.js",
+  "main": "development/electron-main.js",
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "18.3.26",

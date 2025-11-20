@@ -8,7 +8,7 @@ async function startServices() {
   console.log('🚀 Starting local services with ngrok tunnel...');
   
   // Start local services first
-  console.log('📡 Starting local services on port 3300...');
+  console.log('📡 Starting local services on port 5500...');
   localServer = spawn('node', ['local-services.js'], {
     stdio: 'inherit'
   });
@@ -19,7 +19,7 @@ async function startServices() {
   try {
     // Create ngrok tunnel
     console.log('🌐 Creating ngrok tunnel...');
-    tunnelUrl = await ngrok.connect(3300);
+    tunnelUrl = await ngrok.connect(5500);
     console.log(`✅ Tunnel created: ${tunnelUrl}`);
     
     // Update Firestore with tunnel URL
