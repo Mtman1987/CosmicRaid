@@ -69,8 +69,19 @@ app.post('/convert-gif', (req, res) => {
   });
 });
 
+// Heartbeat endpoint for cloud app to ping
+app.get('/heartbeat', (req, res) => {
+  console.log(`💓 Heartbeat received from cloud app: ${new Date().toLocaleTimeString()}`);
+  res.json({ 
+    status: 'alive',
+    timestamp: new Date().toISOString(),
+    message: 'Local services responding to cloud app heartbeat'
+  });
+});
+
 app.listen(port, () => {
   console.log(`🚀 Local services running on port ${port}`);
   console.log(`📸 Screenshot endpoint: http://localhost:${port}/api/screenshot`);
   console.log(`❤️  Health check: http://localhost:${port}/health`);
+  console.log(`💓 Heartbeat endpoint: http://localhost:${port}/heartbeat`);
 });
