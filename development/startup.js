@@ -1,266 +1,188 @@
 #!/usr/bin/env node
 /**
- * Startup script for Electron app that:
- * 1. Starts ngrok tunnel on port 3300
- * 2. Gets the public URL from ngrok
- * 3. Uploads it to Firestore as LOCAL_CONVERSION_SERVICE_URL
- * 4. Starts the dev:hosted server
- * 
- * This makes your local Puppeteer/FFmpeg service accessible from App Hosting
+ * Automated startup script for Cosmic Raid local services
+ * Handles ngrok tunnel, local server, and Firestore registration
  */
 
 const { spawn } = require('child_process');
-const http = require('http');
-const admin = require('firebase-admin');
+const { exec } = require('child_process');
+const path = require('path');
+const fs = require('fs');
 
-// Initialize Firebase Admin
-const serviceAccount = require('./studio-9468926194-e03ac-firebase-adminsdk-fbsvc-75298e056b.json');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+const NGROK_DOMAIN = 'unostensible-carola-preallied.ngrok-free.dev';
+const LOCAL_PORT = 5500;
+const SERVER_ID = '1240832965865635881';
 
-const db = admin.firestore();
-
+let localServer = null;
 let ngrokProcess = null;
-let devServerProcess = null;
-let ngrokUrl = null;
-let shoutoutInterval = null;
 
-const SHOUTOUT_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+async function checkNgrokInstalled() {
+  return new Promise((resolve) => {
+    exec('ngrok version', (error) => {
+      resolve(!error);
+    });
+  });
+}
 
-/**
- * Start ngrok tunnel
- */
-async function startNgrok() {
+async function startNgrokTunnel() {
+  console.log('🌐 Starting ngrok tunnel...');
+  
   return new Promise((resolve, reject) => {
-    console.log('[Startup] Starting ngrok tunnel on port 5500...');
-    
-    // Just use 'ngrok' - it's in PATH on Windows via WindowsApps
-    ngrokProcess = spawn('ngrok', ['http', '5500'], {
-      stdio: 'pipe',
-      windowsHide: true
+    ngrokProcess = spawn('ngrok', ['http', LOCAL_PORT, '--domain', NGROK_DOMAIN], {
+      stdio: 'pipe'
     });
 
+    let tunnelReady = false;
+    
     ngrokProcess.stdout.on('data', (data) => {
-      console.log(`[ngrok] ${data.toString().trim()}`);
+      const output = data.toString();
+      if (output.includes('started tunnel') || output.includes('Session Status')) {
+        if (!tunnelReady) {
+          tunnelReady = true;
+          console.log(`✅ Tunnel active: https://${NGROK_DOMAIN}`);
+          resolve(`https://${NGROK_DOMAIN}`);
+        }
+      }
     });
 
     ngrokProcess.stderr.on('data', (data) => {
-      console.error(`[ngrok] ${data.toString().trim()}`);
+      console.error('ngrok error:', data.toString());
     });
 
-    ngrokProcess.on('error', (error) => {
-      reject(new Error(`Failed to start ngrok: ${error.message}`));
+    ngrokProcess.on('close', (code) => {
+      if (code !== 0 && !tunnelReady) {
+        reject(new Error(`ngrok exited with code ${code}`));
+      }
     });
 
-    // Give ngrok a moment to start
-    setTimeout(() => resolve(), 3000);
+    // Timeout after 10 seconds
+    setTimeout(() => {
+      if (!tunnelReady) {
+        reject(new Error('ngrok tunnel timeout'));
+      }
+    }, 10000);
   });
 }
 
-/**
- * Get ngrok public URL from local API
- */
-async function getNgrokUrl() {
+async function startLocalServer() {
+  console.log('🚀 Starting local services...');
+  
   return new Promise((resolve, reject) => {
-    console.log('[Startup] Fetching ngrok public URL...');
-    
-    http.get('http://127.0.0.1:4040/api/tunnels', (res) => {
-      let data = '';
+    const serverPath = path.join(__dirname, 'local-services.js');
+    localServer = spawn('node', [serverPath], {
+      stdio: 'pipe',
+      env: { ...process.env, PORT: LOCAL_PORT }
+    });
+
+    let serverReady = false;
+
+    localServer.stdout.on('data', (data) => {
+      const output = data.toString();
+      console.log(output.trim());
       
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-      
-      res.on('end', () => {
-        try {
-          const json = JSON.parse(data);
-          const tunnel = json.tunnels.find(t => t.proto === 'https');
-          
-          if (!tunnel) {
-            reject(new Error('No HTTPS tunnel found'));
-            return;
-          }
-          
-          const url = tunnel.public_url;
-          console.log(`[Startup] ✅ ngrok URL: ${url}`);
-          resolve(url);
-        } catch (error) {
-          reject(new Error(`Failed to parse ngrok API response: ${error.message}`));
-        }
-      });
-    }).on('error', (error) => {
-      reject(new Error(`Failed to connect to ngrok API: ${error.message}`));
+      if (output.includes('Local services running') && !serverReady) {
+        serverReady = true;
+        resolve();
+      }
+    });
+
+    localServer.stderr.on('data', (data) => {
+      console.error('Server error:', data.toString());
+    });
+
+    localServer.on('close', (code) => {
+      if (code !== 0 && !serverReady) {
+        reject(new Error(`Local server exited with code ${code}`));
+      }
+    });
+
+    // Timeout after 5 seconds
+    setTimeout(() => {
+      if (!serverReady) {
+        reject(new Error('Local server startup timeout'));
+      }
+    }, 5000);
+  });
+}
+
+async function registerTunnel(tunnelUrl) {
+  console.log('📝 Registering tunnel with Firestore...');
+  
+  return new Promise((resolve, reject) => {
+    const registerScript = path.join(__dirname, 'add-puppeteer-tunnel.js');
+    const registerProcess = spawn('node', [registerScript, tunnelUrl, SERVER_ID], {
+      stdio: 'pipe'
+    });
+
+    registerProcess.stdout.on('data', (data) => {
+      console.log(data.toString().trim());
+    });
+
+    registerProcess.stderr.on('data', (data) => {
+      console.error(data.toString().trim());
+    });
+
+    registerProcess.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Registration failed with code ${code}`));
+      }
     });
   });
 }
 
-/**
- * Upload ngrok URL to Firestore
- */
-async function uploadToFirestore(url) {
-  try {
-    console.log('[Startup] Uploading LOCAL_CONVERSION_SERVICE_URL to Firestore...');
-    
-    // Store in the same location as other secrets: servers/{serverId}/config/secrets
-    const serverId = '1240832965865635881';
-    await db.collection('servers')
-      .doc(serverId)
-      .collection('config')
-      .doc('secrets')
-      .set({
-        LOCAL_CONVERSION_SERVICE_URL: url,
-        LOCAL_CONVERSION_SERVICE_UPDATED_AT: admin.firestore.FieldValue.serverTimestamp()
-      }, { merge: true }); // Use merge to not overwrite other secrets
-    
-    console.log('[Startup] ✅ Successfully uploaded to Firestore at servers/1240832965865635881/config/secrets');
-  } catch (error) {
-    console.error('[Startup] ❌ Failed to upload to Firestore:', error.message);
-    throw error;
-  }
-}
-
-/**
- * Start the dev:hosted server
- */
-function startDevServer() {
-  console.log('[Startup] Starting local services on port 5500...');
+async function cleanup() {
+  console.log('\n🛑 Shutting down services...');
   
-  devServerProcess = spawn('node', ['local-services.js'], {
-    stdio: 'inherit',
-    env: {
-      ...process.env,
-      PORT: '5500',
-      LOCAL_CONVERSION_SERVICE_URL: ngrokUrl
-    }
-  });
-  
-  devServerProcess.on('error', (error) => {
-    console.error('[Startup] ❌ Failed to start dev server:', error.message);
-  });
-}
-
-/**
- * Cleanup on exit
- */
-function cleanup() {
-  console.log('\n[Startup] Shutting down...');
-  
-  if (shoutoutInterval) {
-    clearInterval(shoutoutInterval);
+  if (localServer) {
+    localServer.kill();
+    console.log('✅ Local server stopped');
   }
   
   if (ngrokProcess) {
-    console.log('[Startup] Stopping ngrok...');
     ngrokProcess.kill();
+    console.log('✅ ngrok tunnel stopped');
   }
   
-  if (devServerProcess) {
-    console.log('[Startup] Stopping dev server...');
-    devServerProcess.kill();
-  }
-  
-  // Remove the URL from Firestore on shutdown
-  db.collection('servers').doc('1240832965865635881').collection('config').doc('secrets').update({
-    LOCAL_CONVERSION_SERVICE_URL: admin.firestore.FieldValue.delete()
-  })
-    .then(() => {
-      console.log('[Startup] ✅ Cleaned up Firestore');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('[Startup] ❌ Failed to cleanup Firestore:', error.message);
-      process.exit(1);
-    });
+  process.exit(0);
 }
 
+async function main() {
+  console.log('🎮 Cosmic Raid Local Services Startup');
+  console.log('=====================================\n');
+
+  try {
+    // Check ngrok installation
+    const ngrokInstalled = await checkNgrokInstalled();
+    if (!ngrokInstalled) {
+      throw new Error('ngrok not installed. Please install ngrok first.');
+    }
+
+    // Start local server
+    await startLocalServer();
+    
+    // Start ngrok tunnel
+    const tunnelUrl = await startNgrokTunnel();
+    
+    // Register tunnel with Firestore
+    await registerTunnel(tunnelUrl);
+    
+    console.log('\n🎉 All services started successfully!');
+    console.log(`📸 Screenshot service: ${tunnelUrl}/api/screenshot`);
+    console.log(`💓 Heartbeat endpoint: ${tunnelUrl}/heartbeat`);
+    console.log('\nPress Ctrl+C to stop all services\n');
+
+  } catch (error) {
+    console.error('❌ Startup failed:', error.message);
+    await cleanup();
+    process.exit(1);
+  }
+}
+
+// Handle graceful shutdown
 process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
-process.on('exit', cleanup);
 
-/**
- * Trigger automated shoutouts on App Hosting
- */
-async function triggerShoutouts() {
-  try {
-    const appHostingUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://cosmicraid--studio-5587063777-d2e6c.us-central1.hosted.app';
-    const serverId = '1240832965865635881'; // Your hardcoded server ID
-    
-    console.log('[Shoutouts] Triggering automated cycle...');
-    
-    const response = await fetch(`${appHostingUrl}/api/shoutouts/run-cycle`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ serverId })
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      console.log('[Shoutouts] ✅ Cycle completed:', data.message || 'Success');
-    } else {
-      console.error('[Shoutouts] ❌ Failed:', response.status, await response.text());
-    }
-  } catch (error) {
-    console.error('[Shoutouts] ❌ Error:', error.message);
-  }
-}
-
-/**
- * Start the shoutout automation timer
- * NOTE: This is optional if you have Cloud Scheduler set up
- * Cloud Scheduler is recommended for 24/7 operation
- */
-function startShoutoutTimer() {
-  // Check if we should enable local pinging (default: no, rely on Cloud Scheduler)
-  const enableLocalPinging = process.env.ENABLE_LOCAL_SHOUTOUT_PING === 'true';
-  
-  if (!enableLocalPinging) {
-    console.log('[Shoutouts] Local pinging disabled (Cloud Scheduler recommended)');
-    console.log('[Shoutouts] Set ENABLE_LOCAL_SHOUTOUT_PING=true to enable local pinging');
-    return;
-  }
-  
-  console.log('[Shoutouts] Starting 10-minute automation timer...');
-  
-  // Run immediately
-  triggerShoutouts();
-  
-  // Then every 10 minutes
-  shoutoutInterval = setInterval(triggerShoutouts, SHOUTOUT_INTERVAL_MS);
-}
-
-/**
- * Main startup sequence
- */
-async function main() {
-  try {
-    console.log('🚀 CosmicRaid Local Services - Starting up...\n');
-    
-    // Step 1: Start ngrok
-    await startNgrok();
-    
-    // Step 2: Get ngrok URL
-    ngrokUrl = await getNgrokUrl();
-    
-    // Step 3: Upload to Firestore
-    await uploadToFirestore(ngrokUrl);
-    
-    // Step 4: Start dev server
-    startDevServer();
-    
-    // Step 5: Start shoutout automation
-    startShoutoutTimer();
-    
-    console.log('\n✅ All services running!');
-    console.log(`📡 ngrok: ${ngrokUrl}`);
-    console.log('🎬 Puppeteer: http://localhost:5500');
-    console.log('🤖 Shoutouts: Every 10 minutes');
-    console.log('☁️  App Hosting can now access your local services\n');
-    
-  } catch (error) {
-    console.error('\n❌ Startup failed:', error.message);
-    cleanup();
-  }
-}
-
-main();
+// Start everything
+main().catch(console.error);

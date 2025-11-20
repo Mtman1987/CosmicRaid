@@ -16,6 +16,8 @@ import { replyToMessage } from '@/lib/reply-service'
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { Buffer } from 'node:buffer'
 import { checkRequiredSecrets } from '@/lib/required-secrets'
+import { setServerIdForUser } from './user-server-mapping'
+import { setGuildIdCookie } from './guild-session'
 
 // Reusable error handler
 function handleError(error: any, defaultMessage: string) {
@@ -31,6 +33,41 @@ function handleSuccess(message: string, path?: string) {
     revalidatePath(path)
   }
   return { status: 'success' as const, message }
+}
+
+/**
+ * Store login mapping and set the guild cookie for server-side API calls.
+ */
+export async function saveLoginCredentials(prevState: any, formData: FormData) {
+  try {
+    const serverId = (formData.get('serverId') as string | null)?.trim()
+    const userId = (formData.get('userId') as string | null)?.trim()
+    const twitchUsername = (formData.get('twitchUsername') as string | null)?.trim()
+    if (!serverId || !userId) {
+      throw new Error('Server ID and User ID are required.')
+    }
+
+    console.log('[Login] Saving credentials', { serverId, userId, twitchUsername })
+
+    await setServerIdForUser(userId, serverId)
+    try {
+      await setGuildIdCookie(serverId)
+    } catch (cookieError) {
+      console.warn('[Login] Failed to set guild cookie (non-fatal):', cookieError)
+    }
+
+    // Record last login for debugging
+    await db.collection('userServerMappings').doc(userId).set({
+      serverId,
+      twitchUsername: twitchUsername || null,
+      updatedAt: new Date(),
+      source: 'web-login',
+    }, { merge: true })
+
+    return { status: 'success' as const, message: 'Login saved' }
+  } catch (error) {
+    return handleError(error, 'Failed to save login credentials.')
+  }
 }
 
 /**

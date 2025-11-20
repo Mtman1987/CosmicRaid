@@ -21,12 +21,13 @@ export async function getSecrets(guildId?: string, userId?: string): Promise<Rec
     // Fallback: if no serverId but we have userId, look up from mapping
     if (!serverId && userId) {
       const { getServerIdForUser } = await import('./user-server-mapping');
-      serverId = await getServerIdForUser(userId);
+      serverId = await getServerIdForUser(userId) || undefined;
       console.log(`[Firestore Secrets] Resolved serverId from userId ${userId}: ${serverId}`);
     }
     
     if (!serverId) {
-      throw new Error('Server ID required - must come from user-server mapping');
+      console.warn('[Firestore Secrets] No serverId provided; skipping Firestore load and using cached/env defaults');
+      return cachedSecrets || {};
     }
     
     console.log(`[Firestore Secrets] Loading from path: servers/${serverId}/config/secrets`);
@@ -41,7 +42,7 @@ export async function getSecrets(guildId?: string, userId?: string): Promise<Rec
     if (!secretsDoc.exists) {
       console.error(`[Firestore Secrets] Document not found at servers/${serverId}/config/secrets`);
       console.error('[Firestore Secrets] Make sure this document exists in Firestore!');
-      return {};
+      return cachedSecrets || {};
     }
 
     const secrets = secretsDoc.data() || {};
@@ -64,6 +65,17 @@ export async function getSecrets(guildId?: string, userId?: string): Promise<Rec
  * Get a single secret value
  */
 export async function getSecret(key: string, guildId?: string, userId?: string): Promise<string | undefined> {
+  // Special-case global Discord bot token
+  if (key === 'DISCORD_BOT_TOKEN') {
+    try {
+      const { getDiscordBotToken } = await import('./discord-bot-token');
+      const token = await getDiscordBotToken();
+      if (token) return token;
+    } catch (err) {
+      console.warn('[Firestore Secrets] Failed to load global Discord bot token fallback:', err);
+    }
+  }
+
   const secrets = await getSecrets(guildId, userId);
   return secrets[key];
 }
@@ -74,12 +86,20 @@ export async function getSecret(key: string, guildId?: string, userId?: string):
  */
 export async function getConfig(guildId?: string, userId?: string): Promise<Record<string, string>> {
   const firestoreSecrets = await getSecrets(guildId, userId);
-  
-  // Merge with env vars, Firestore takes precedence
-  return {
+  const config: Record<string, string> = {
     ...process.env,
     ...firestoreSecrets,
-  } as Record<string, string>;
+  };
+
+  // Ensure Discord bot token is populated even when no serverId is available
+  if (!config.DISCORD_BOT_TOKEN) {
+    const token = await getSecret('DISCORD_BOT_TOKEN', guildId, userId);
+    if (token) {
+      config.DISCORD_BOT_TOKEN = token;
+    }
+  }
+
+  return config;
 }
 
 /**

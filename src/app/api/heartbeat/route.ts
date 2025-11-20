@@ -1,16 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerConfig } from '@/lib/config-service';
+import { getGuildIdFromRequest } from '@/lib/guild-session';
 
 export async function GET(request: NextRequest) {
-  const localServiceUrl = process.env.LOCAL_CONVERSION_SERVICE_URL;
-  
-  if (!localServiceUrl) {
-    return NextResponse.json({ 
-      connected: false, 
-      error: 'LOCAL_CONVERSION_SERVICE_URL not configured' 
-    });
+  let serverId: string | undefined;
+  try {
+    serverId = await getGuildIdFromRequest(request);
+  } catch {
+    serverId = undefined;
   }
 
+  const localServiceUrl =
+    (serverId ? await getServerConfig(serverId, 'LOCAL_CONVERSION_SERVICE_URL') : undefined) ||
+    process.env.LOCAL_CONVERSION_SERVICE_URL;
+
   try {
+    if (!localServiceUrl) {
+      return NextResponse.json({ 
+        connected: false, 
+        error: 'LOCAL_CONVERSION_SERVICE_URL not configured' 
+      });
+    }
+
     const response = await fetch(`${localServiceUrl}/heartbeat`, {
       method: 'GET',
       signal: AbortSignal.timeout(5000) // 5 second timeout

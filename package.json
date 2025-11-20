@@ -25,6 +25,8 @@
     "health-check": "node health-check.js",
     "tunnel:status": "node scripts/check-tunnel-status.js",
     "tunnel:start": "node start-tunnel.js",
+    "local:service": "node development/local-services.js",
+    "local:tunnel": "node development/start-local-with-tunnel.js",
     "service:start": "node simple-tunnel.js",
     "start:windows": "start-service.bat",
     "start:local": "start-local.bat",

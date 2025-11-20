@@ -37,12 +37,12 @@ const navItems: NavItem[] = [
     icon: <Trophy />,
   },
   {
-    title: 'Raid Pile',
+    title: 'Raid Pile (Coming Soon)',
     href: '/raid-pile',
     icon: <Mountain />,
   },
   {
-    title: 'Messages',
+    title: 'Messages (Coming Soon)',
     href: '/forwarding',
     icon: <MessageSquare />,
   },

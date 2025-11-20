@@ -10,7 +10,10 @@ export async function generateCalendarImage(
 ): Promise<string | null> {
   const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   const screenshotUrl = `${appUrl}/headless/calendar/${guildId?.replace(/[\r\n]/g, '')}?offset=${monthOffset}`;
-  const localServiceUrl = process.env.LOCAL_CONVERSION_SERVICE_URL;
+  const { getServerConfig } = await import('@/lib/config-service');
+  const localServiceUrl =
+    (await getServerConfig(guildId, 'LOCAL_CONVERSION_SERVICE_URL')) ||
+    process.env.LOCAL_CONVERSION_SERVICE_URL;
 
   // Try local service first if available
   if (localServiceUrl) {
@@ -65,7 +68,9 @@ export async function generateCalendarImage(
   }
 
   // Fallback to FreeConvert API
-  const apiKey = process.env.FREE_CONVERT_API_KEY;
+  const apiKey =
+    (await getServerConfig(guildId, 'FREE_CONVERT_API_KEY')) ||
+    process.env.FREE_CONVERT_API_KEY;
   if (!apiKey) {
     console.error('[FreeConvert] API key not found');
     return null;

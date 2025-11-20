@@ -1,13 +1,16 @@
 'use server';
 
 export async function generateLeaderboardForDiscord(serverId: string): Promise<string | null> {
-  const localServiceUrl = process.env.LOCAL_CONVERSION_SERVICE_URL;
-  
   try {
     console.log(`[LeaderboardDiscord] Generating leaderboard for ${serverId}`);
     
     const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
     const leaderboardUrl = `${appUrl}/headless/leaderboard/${serverId}`;
+
+    const { getServerConfig } = await import('./config-service');
+    const localServiceUrl =
+      (await getServerConfig(serverId, 'LOCAL_CONVERSION_SERVICE_URL')) ||
+      process.env.LOCAL_CONVERSION_SERVICE_URL;
 
     if (localServiceUrl) {
       const response = await fetch(`${localServiceUrl}/api/screenshot`, {
@@ -23,9 +26,9 @@ export async function generateLeaderboardForDiscord(serverId: string): Promise<s
       });
       
       if (response.ok) {
-        const { dataUrl } = await response.json();
+        const { dataUrl, imageUrl } = await response.json();
         console.log(`[LeaderboardDiscord] Generated leaderboard successfully`);
-        return dataUrl;
+        return imageUrl || dataUrl || null;
       }
     }
     

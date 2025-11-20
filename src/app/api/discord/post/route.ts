@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDiscordBotToken } from '@/lib/discord-bot-token';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,7 +9,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
     }
 
-    const botToken = process.env.DISCORD_BOT_TOKEN;
+    // Try Firestore globalConfig first, then env fallback
+    const botToken = await getDiscordBotToken();
     if (!botToken) {
       return NextResponse.json({ error: 'Bot token not configured' }, { status: 500 });
     }

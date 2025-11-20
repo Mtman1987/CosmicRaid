@@ -25,6 +25,11 @@ async function ensureBotToken(serverId?: string) {
 }
 
 async function uploadCalendarImage(serverId: string, calendarImage: string): Promise<string> {
+  // If the generator already returned a public URL (from the local service), skip re-uploading
+  if (calendarImage.startsWith('http://') || calendarImage.startsWith('https://')) {
+    return calendarImage;
+  }
+
   if (!STORAGE_BUCKET) {
     throw new Error('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET is not configured');
   }

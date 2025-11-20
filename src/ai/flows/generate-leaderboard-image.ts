@@ -12,7 +12,10 @@ export async function generateLeaderboardImage(
   const appUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
   const screenshotUrl = `${appUrl}/headless/leaderboard/${guildId}`;
   // Try local service first if available
-  const localServiceUrl = process.env.LOCAL_CONVERSION_SERVICE_URL;
+  const { getServerConfig } = await import('@/lib/config-service');
+  const localServiceUrl =
+    (await getServerConfig(guildId, 'LOCAL_CONVERSION_SERVICE_URL')) ||
+    process.env.LOCAL_CONVERSION_SERVICE_URL;
   if (localServiceUrl) {
     try {
       console.log('[LocalService] Taking leaderboard screenshot via local service...');
@@ -39,7 +42,9 @@ export async function generateLeaderboardImage(
   }
 
   // Fallback to FreeConvert API
-  const apiKey = process.env.FREE_CONVERT_API_KEY;
+  const apiKey =
+    (await getServerConfig(guildId, 'FREE_CONVERT_API_KEY')) ||
+    process.env.FREE_CONVERT_API_KEY;
   if (!apiKey) {
     console.error('[FreeConvert] API key not found');
     return null;

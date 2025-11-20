@@ -180,11 +180,12 @@ function startDevServer() {
     ELECTRON_MODE: '1'
   };
 
-  // Spawn concurrent startup script for minimal resource usage
+  // Use the startup script from same directory
+  const startupScript = path.join(__dirname, 'startup.js');
   const nodeCmd = process.platform === 'win32' ? 'node' : 'node';
   devServer = spawn(
     nodeCmd,
-    ['electron-startup.js'],
+    [startupScript],
     {
       cwd: __dirname,
       env: {
