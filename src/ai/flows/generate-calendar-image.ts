@@ -116,16 +116,16 @@ export async function generateCalendarImage(
 
     const jobData = await response.json();
     
-    // Poll for completion
-    for (let i = 0; i < 30; i++) {
+    // Poll for completion (increased to 120 iterations = 360 seconds total to handle jobs up to 60+ seconds)
+    for (let i = 0; i < 120; i++) {
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
       const statusResponse = await fetch(`https://api.freeconvert.com/v1/process/jobs/${jobData.id}`, {
         headers: { 'Authorization': `Bearer ${apiKey}` }
       });
-      
+
       const statusData = await statusResponse.json();
-      
+
       if (statusData.status === 'completed') {
         const exportTask = statusData.tasks['export-1'];
         if (exportTask?.result?.files?.[0]?.url) {
@@ -135,12 +135,12 @@ export async function generateCalendarImage(
           return `data:image/png;base64,${Buffer.from(imageBuffer).toString('base64')}`;
         }
       }
-      
+
       if (statusData.status === 'failed') {
         throw new Error('FreeConvert job failed');
       }
     }
-    
+
     throw new Error('FreeConvert job timeout');
   } catch (error) {
     console.error('[generateCalendarImage] Error:', error);

@@ -256,31 +256,31 @@ class GifConversionService {
     return null;
   }
 
-  private async waitForJobCompletion(jobId: string, serverId: string, maxAttempts: number = 40): Promise<any> {
+  private async waitForJobCompletion(jobId: string, serverId: string, maxAttempts: number = 60): Promise<any> {
     console.log('[FreeConvert] Waiting for job to complete:', jobId?.replace(/[\r\n]/g, ''));
-    
+
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const job = await this.makeApiCall(`/process/jobs/${jobId}`, serverId);
-      
+
       console.log('[FreeConvert] Job status:', jobId?.replace(/[\r\n]/g, ''), job.status, 'attempt:', attempt + 1 + '/' + maxAttempts);
-      
+
       if (job.status === 'completed') {
         console.log('[FreeConvert] Job completed successfully:', jobId?.replace(/[\r\n]/g, ''));
         return job;
       }
-      
+
       if (job.status === 'failed' || job.status === 'error') {
         const errorMsg = job.message || job.error || 'Unknown error';
         console.error('[FreeConvert] Job failed:', jobId?.replace(/[\r\n]/g, ''), errorMsg?.replace(/[\r\n]/g, ''));
         throw new Error(`FreeConvert job failed: ${errorMsg}`);
       }
 
-      // Progressive backoff: start with 2s, increase to 5s after 10 attempts
-      const delay = attempt < 10 ? 2000 : 5000;
+      // Progressive backoff: start with 3s, increase to 5s after 10 attempts
+      const delay = attempt < 10 ? 3000 : 5000;
       await new Promise(resolve => setTimeout(resolve, delay));
     }
 
-    throw new Error(`FreeConvert job ${jobId} timed out after ${maxAttempts * 3} seconds`);
+    throw new Error(`FreeConvert job ${jobId} timed out after ${maxAttempts * 4} seconds`);
   }
 
 

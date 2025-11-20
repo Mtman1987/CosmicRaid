@@ -343,14 +343,14 @@ class MediaFallbackService {
     return response.json();
   }
 
-  private async waitForJobCompletion(jobId: string, maxAttempts: number = 30): Promise<any> {
+  private async waitForJobCompletion(jobId: string, maxAttempts: number = 60): Promise<any> {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const job = await this.makeApiCall(`/process/${jobId}`);
-      
+
       if (job.status === 'completed') return job;
       if (job.status === 'failed') throw new Error(`Job ${jobId} failed`);
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
     throw new Error(`Job ${jobId} timed out`);
   }
