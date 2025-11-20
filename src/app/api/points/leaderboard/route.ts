@@ -7,6 +7,7 @@ import { getStorage } from 'firebase-admin/storage';
 import { app } from '@/firebase/server-init';
 import { getBaseUrl } from '@/lib/base-url';
 import { generateLeaderboardImage } from '@/ai/flows/generate-leaderboard-image';
+import { resolveServerIdFromRequest } from '@/lib/get-server-id';
 
 export async function GET(request: NextRequest) {
   try {
@@ -78,7 +79,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { serverId, channelId } = await request.json();
+    const { serverId: bodyServerId, channelId } = await request.json();
+    const serverId = bodyServerId || await resolveServerIdFromRequest(request);
     
     if (!serverId || !channelId) {
       return NextResponse.json({ error: 'serverId and channelId are required' }, { status: 400 });

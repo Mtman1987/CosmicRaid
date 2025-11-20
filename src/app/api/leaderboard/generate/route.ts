@@ -3,10 +3,15 @@ import { takeLeaderboardScreenshot } from '@/lib/leaderboard-screenshot-service'
 import { sendDiscordMessage } from '@/lib/discord-bot-service';
 import { db, app } from '@/firebase/server-init';
 import { getStorage } from 'firebase-admin/storage';
+import { resolveServerIdFromRequest } from '@/lib/get-server-id';
 
 export async function POST(request: NextRequest) {
   try {
-    const { serverId, channelId: rawChannelId } = await request.json();
+    const { serverId: bodyServerId, channelId: rawChannelId } = await request.json();
+    let serverId = bodyServerId;
+    if (!serverId) {
+      serverId = await resolveServerIdFromRequest(request) || undefined;
+    }
 
     if (!serverId) {
       return NextResponse.json({ error: 'serverId is required' }, { status: 400 });
