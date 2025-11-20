@@ -7,7 +7,7 @@ import { getStorage } from 'firebase-admin/storage';
 import { app } from '@/firebase/server-init';
 import { getBaseUrl } from '@/lib/base-url';
 import { generateLeaderboardImage } from '@/ai/flows/generate-leaderboard-image';
-import { resolveServerIdFromRequest } from '@/lib/get-server-id';
+import { resolveServerIdFromRequest } from '@/lib/get-server-id-server';
 
 export async function GET(request: NextRequest) {
   try {

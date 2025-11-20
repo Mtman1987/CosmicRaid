@@ -3,7 +3,7 @@ import { takeLeaderboardScreenshot } from '@/lib/leaderboard-screenshot-service'
 import { sendDiscordMessage } from '@/lib/discord-bot-service';
 import { db, app } from '@/firebase/server-init';
 import { getStorage } from 'firebase-admin/storage';
-import { resolveServerIdFromRequest } from '@/lib/get-server-id';
+import { resolveServerIdFromRequest } from '@/lib/get-server-id-server';
 
 export async function POST(request: NextRequest) {
   try {

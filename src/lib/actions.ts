@@ -699,3 +699,12 @@ export async function checkRequiredSecretsAction(prevState: any, formData: FormD
   return await checkRequiredSecrets(prevState, formData)
 }
 
+// Placeholder to satisfy imports; real implementation should post a new calendar to Discord
+export async function postNewCalendar(guildId: string, channelId: string, includeButtons = true) {
+  return { status: 'error' as const, message: 'postNewCalendar not implemented' };
+}
+
+// Placeholder reset calendar action
+export async function resetCalendarAction(prevState: any) {
+  return { status: 'error' as const, message: 'resetCalendarAction not implemented' };
+}
