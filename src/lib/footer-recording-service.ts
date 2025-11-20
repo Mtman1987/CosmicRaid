@@ -7,11 +7,17 @@ export async function recordFooterVideo(serverId: string): Promise<string | null
     
     if (!tunnelUrl) return null;
 
+    const HOSTED_BASE = 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app';
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+      HOSTED_BASE;
+
     const response = await fetch(`${tunnelUrl}/api/record`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/headless/footer/${serverId}`,
+        url: `${baseUrl}/headless/footer/${serverId}`,
         width: 1920,
         height: 200,
         duration: 60000,
@@ -37,11 +43,17 @@ export async function generateFooterGif(serverId: string): Promise<string | null
     
     if (!tunnelUrl) return null;
 
+    const HOSTED_BASE = 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app';
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+      HOSTED_BASE;
+
     const response = await fetch(`${tunnelUrl}/api/record`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/headless/footer/${serverId}`,
+        url: `${baseUrl}/headless/footer/${serverId}`,
         width: 1920,
         height: 200,
         duration: 10000,

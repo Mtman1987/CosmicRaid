@@ -241,7 +241,7 @@ class MediaFallbackService {
         screenshotUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/headless/calendar`;
         break;
       case 'leaderboard':
-        screenshotUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/headless/leaderboard`;
+        screenshotUrl = `${(process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app')).replace(/\/$/, '')}/headless/leaderboard`;
         break;
       default:
         screenshotUrl = `https://twitch.tv/${username}`;

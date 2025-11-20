@@ -24,7 +24,10 @@ export async function generateCommunityCard(
       live: streamData.isLive ? 'true' : 'false'
     });
 
-    const appUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const appUrl =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+      'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app';
     const cardUrl = `${appUrl}/headless/community-card/${serverId}?${params.toString()}`;
 
     // Try local service first (ngrok tunnel)

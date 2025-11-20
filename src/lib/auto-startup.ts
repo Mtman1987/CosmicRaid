@@ -14,7 +14,12 @@ export async function initializeServices() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/startup`, {
+    const appUrl =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+      'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app';
+
+    const response = await fetch(`${appUrl}/api/startup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal

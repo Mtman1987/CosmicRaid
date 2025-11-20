@@ -47,16 +47,9 @@ export default function RootLayout({
       <body
         className={cn(
           playfair.variable,
-          ptSans.variable
+          ptSans.variable,
+          'min-h-screen bg-[#0f0f23] text-white font-sans antialiased'
         )}
-        style={{
-          minHeight: '100vh',
-          backgroundColor: '#0f0f23',
-          color: '#ffffff',
-          fontFamily: 'var(--font-pt-sans), system-ui, -apple-system, sans-serif',
-          margin: 0,
-          padding: 0
-        }}
       >
         <ThemeProvider
             attribute="class"

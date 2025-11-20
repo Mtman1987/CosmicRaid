@@ -27,16 +27,17 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
     
     const fetchChannel = async () => {
       try {
-        // Try to read from servers/{serverId}/config/channels subcollection instead
-        const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
-        const snapshot = await getDoc(channelsRef);
-        
-        if (snapshot.exists()) {
-          const leaderboardChannel = snapshot.data()?.leaderboard;
+        // Read from dedicated channelMapping doc to keep channels clean
+        const mappingRef = doc(firestore, 'servers', serverId, 'config', 'channelMapping');
+        const mappingSnap = await getDoc(mappingRef);
+
+        if (mappingSnap.exists()) {
+          const leaderboardChannel = mappingSnap.data()?.leaderboard;
           if (typeof leaderboardChannel === 'string' && leaderboardChannel.trim().length > 0) {
             setChannelId(leaderboardChannel);
             setChannelInput(leaderboardChannel);
           }
+          return;
         }
       } catch (error) {
         // Silently handle permissions error - just means no channel configured yet
@@ -68,11 +69,12 @@ export function LeaderboardChannelConfig({ serverId }: LeaderboardChannelConfigP
     }
 
     try {
-      // Save to servers/{serverId}/config/channels subcollection
-      const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
+      // Save to dedicated channelMapping doc to avoid polluting channel list
+      const mappingRef = doc(firestore, 'servers', serverId, 'config', 'channelMapping');
       
-      await setDoc(channelsRef, {
-        leaderboard: trimmed
+      await setDoc(mappingRef, {
+        leaderboard: trimmed,
+        updatedAt: new Date()
       }, { merge: true });
       
       setChannelId(trimmed);

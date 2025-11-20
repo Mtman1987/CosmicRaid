@@ -17,7 +17,7 @@ export async function generateShoutoutCard(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/headless/shoutout-card/${serverId}?streamer=${cardData.streamerName}`,
+        url: `${(process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app')).replace(/\/$/, '')}/headless/shoutout-card/${serverId}?streamer=${cardData.streamerName}`,
         width: 960,
         height: 540,
         waitFor: 3000

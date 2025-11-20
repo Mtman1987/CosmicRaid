@@ -11,16 +11,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'serverId is required' }, { status: 400 });
     }
 
-    // Resolve channel from config if not provided
+    // Resolve channel from dedicated channelMapping doc (keeps channel list clean)
     let channelId = (rawChannelId ?? '').trim();
     if (!channelId) {
-      const channelDoc = await db
+      const mappingDoc = await db
         .collection('servers')
         .doc(serverId)
         .collection('config')
-        .doc('channels')
+        .doc('channelMapping')
         .get();
-      channelId = channelDoc.data()?.leaderboard || '';
+      channelId = mappingDoc.data()?.leaderboard || '';
     }
 
     if (!channelId) {
@@ -52,7 +52,8 @@ export async function POST(request: NextRequest) {
     console.log('[Leaderboard/Generate] Completed', { serverId, channelId, messageId });
     return NextResponse.json({ success: true, messageId });
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to generate/post leaderboard';
     console.error('[Leaderboard/Generate] Error:', error);
-    return NextResponse.json({ error: 'Failed to generate/post leaderboard' }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -7,11 +7,17 @@ export async function generateLeaderboardGif(serverId: string): Promise<string |
     
     if (!tunnelUrl) return null;
 
+    const HOSTED_BASE = 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app';
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+      HOSTED_BASE;
+
     const response = await fetch(`${tunnelUrl}/api/record`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/headless/leaderboard/${serverId}`,
+        url: `${baseUrl}/headless/leaderboard/${serverId}`,
         width: 600,
         height: 800,
         duration: 30000,

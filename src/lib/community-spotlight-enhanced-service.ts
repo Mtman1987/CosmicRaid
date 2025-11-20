@@ -6,7 +6,11 @@ export async function generateSpotlightVideo(serverId: string, userData: any): P
   try {
     console.log(`[SpotlightEnhanced] Generating video for ${userData.username}`);
     
-    const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+    const HOSTED_BASE = 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app';
+    const appUrl =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+      HOSTED_BASE;
     const spotlightUrl = `${appUrl}/headless/spotlight/${serverId}?user=${userData.username}`;
 
     if (localServiceUrl) {

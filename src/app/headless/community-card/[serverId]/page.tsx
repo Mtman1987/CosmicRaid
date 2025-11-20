@@ -1,5 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
-/* eslint-disable @next/next/no-img-element */
 import { FirebaseComponentsProvider } from "@/firebase";
 
 export const dynamic = 'force-dynamic';
