@@ -51,7 +51,7 @@ export function CommunitySpotlight() {
     if (!serverId) return;
     setIsLoading(true);
     loadSpotlight()
-      .catch((error) => console.error('Error loading community spotlight:', error?.message?.replace(/[\r\n]/g, '') || 'Unknown error'))
+      .catch((error) => console.error('Error loading community spotlight:', error instanceof Error ? error.message.replace(/[\r\n]/g, '') : 'Unknown error'))
       .finally(() => setIsLoading(false));
   }, [serverId, loadSpotlight]);
 
@@ -64,7 +64,7 @@ export function CommunitySpotlight() {
     try {
       await loadSpotlight();
     } catch (error) {
-      console.error('Failed to refresh spotlight:', error?.message?.replace(/[\r\n]/g, '') || 'Unknown error');
+      console.error('Failed to refresh spotlight:', error instanceof Error ? error.message.replace(/[\r\n]/g, '') : 'Unknown error');
     } finally {
       setIsRefreshing(false);
     }
@@ -96,7 +96,7 @@ export function CommunitySpotlight() {
         );
       }
     } catch (error) {
-      console.error('Failed to convert spotlight clip to GIF:', error?.message?.replace(/[\r\n]/g, '') || 'Unknown error');
+      console.error('Failed to convert spotlight clip to GIF:', error instanceof Error ? error.message.replace(/[\r\n]/g, '') : 'Unknown error');
     } finally {
       setIsConverting(false);
     }
@@ -117,7 +117,7 @@ export function CommunitySpotlight() {
         await handleRefresh();
       }
     } catch (error) {
-      console.error('Failed to delete GIF:', error?.message?.replace(/[\r\n]/g, '') || 'Unknown error');
+      console.error('Failed to delete GIF:', error instanceof Error ? error.message.replace(/[\r\n]/g, '') : 'Unknown error');
     } finally {
       setIsDeleting(false);
     }

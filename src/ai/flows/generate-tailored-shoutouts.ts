@@ -168,7 +168,7 @@ const generateTailoredShoutoutFlow = ai.defineFlow(
         prompt = communityShoutoutPrompt;
         break;
       case 'Train':
-        prompt = trainPrompt;
+        prompt = communityShoutoutPrompt; // Train deprecated, use community
         break;
       case 'Pile':
         prompt = pilePrompt;
@@ -177,10 +177,7 @@ const generateTailoredShoutoutFlow = ai.defineFlow(
         prompt = communityShoutoutPrompt;
     }
     
-    const { output } = await prompt({
-      ...input,
-      timestamp: new Date().toISOString()
-    });
+    const { output } = await prompt(input);
     if (output?.shoutoutEmbed) {
       return { shoutoutEmbed: output.shoutoutEmbed };
     }
@@ -241,14 +238,8 @@ const generateTailoredShoutoutFlow = ai.defineFlow(
           },
         ],
       },
-      'Raid Train': {
-        color: 0xff4500,
-        title: `🚂 🚀 SPACE MOUNTAIN RAID TRAIN DEPARTING!`,
-        description: `**ALL ABOARD THE COSMIC EXPRESS!** Next destination: Captain ${input.streamerName}'s vessel in the **${input.topic}** sector! Prepare for warp speed and maximum hype deployment! 🌌`,
-        thumbnail: { url: input.avatarUrl },
-        footer: { text: 'Space Mountain Raid Train Command' },
-      },
-      'Raid Pile': {
+      Train: {}, // Deprecated - fallback to community
+      Pile: {
         color: 0x5865f2,
         title: `🛸 SPACE MOUNTAIN FLEET CONVERGENCE!`,
         description: `**MASSIVE FLEET MANEUVER INITIATED!** All Space Mountain vessels converge on Captain ${input.streamerName}'s coordinates! They're exploring **${input.topic}** - let's show them the power of our cosmic community! 🌌🚀`,

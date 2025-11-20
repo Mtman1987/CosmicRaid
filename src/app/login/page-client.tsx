@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 
 // Hardcoded for testing - change these to secure the app later
 // Multi-tenant app - no hardcoded values
+const HARDCODED_SERVER_ID = '';
+const HARDCODED_USER_ID = '';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -86,7 +88,7 @@ export default function LoginPage() {
             color: '#888',
             marginBottom: '16px'
           }}>
-            "Ad astra per aspera"
+&quot;Ad astra per aspera&quot;
           </div>
           <div style={{
             fontSize: '48px',

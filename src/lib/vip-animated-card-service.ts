@@ -43,7 +43,7 @@ async function updateVipAnimatedCard(serverId: string, userId: string, userData:
     const stream = await getStreamByUserId(twitchUser.id);
     if (!stream) return;
 
-    const cardResult = await generateShoutoutCardGif({
+    const cardResult = await generateShoutoutCardGif(serverId, {
       streamerName,
       streamTitle: stream.title || 'Live Stream',
       gameName: stream.game_name || 'Just Chatting',
@@ -52,13 +52,13 @@ async function updateVipAnimatedCard(serverId: string, userId: string, userData:
       streamThumbnail: stream.thumbnail_url?.replace('{width}', '640').replace('{height}', '360') || '',
       isLive: true,
       isMature: Boolean(stream.is_mature)
-    }, serverId);
+    });
 
     if (cardResult) {
       await db.collection('servers').doc(serverId).collection('users').doc(userId).update({
         vipAnimatedCard: {
-          gifUrl: cardResult.gifUrl,
-          mp4Url: cardResult.mp4Url,
+          gifUrl: cardResult,
+          mp4Url: null,
           lastUpdated: new Date().toISOString()
         }
       });

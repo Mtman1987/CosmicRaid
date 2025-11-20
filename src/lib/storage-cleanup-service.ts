@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/firebase/server-init';
-import { firebaseStorage } from './firebase-storage-service';
+import { deleteStorageFile } from './firebase-storage-service';
 
 class StorageCleanupService {
   private readonly CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -36,7 +36,7 @@ class StorageCleanupService {
       // Delete expired files from Firebase Storage
       for (const fileName of expiredFiles) {
         try {
-          await firebaseStorage.deleteGif(fileName);
+          await deleteStorageFile(fileName);
           console.log(`Deleted expired GIF: ${fileName}`);
         } catch (error) {
           console.error(`Failed to delete GIF ${fileName}:`, error);

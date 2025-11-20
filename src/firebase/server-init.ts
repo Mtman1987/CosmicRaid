@@ -1,4 +1,4 @@
-import { applicationDefault, getApp, getApps, initializeApp, cert } from 'firebase-admin/app';
+import { applicationDefault, getApp, getApps, initializeApp, cert, type App } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { firebaseConfig } from './config';
 import path from 'path';
@@ -126,7 +126,7 @@ function resolveServiceAccount(): ServiceAccount | null {
   );
 }
 
-let adminApp;
+let adminApp: App;
 
 if (getApps().length === 0) {
   const projectId = firebaseConfig.projectId;

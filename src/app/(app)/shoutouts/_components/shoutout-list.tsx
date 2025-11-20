@@ -25,13 +25,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { Rocket, Users, Clock, Trophy, Send, Loader2, Save, Trash2 } from 'lucide-react';
-import { useFormStatus } from 'react-dom';
+
 import { useToast } from '@/hooks/use-toast';
 import { postShoutoutAction } from '@/lib/actions';
 import { deriveStreamStats, getMediaPreviewUrl } from '@/lib/shoutout-display';
 
-function PostShoutoutButton() {
-  const { pending } = useFormStatus();
+function PostShoutoutButton({ pending }: { pending: boolean }) {
   return (
     <Button type="submit" className="w-full" disabled={pending}>
       {pending ? (
@@ -182,7 +181,7 @@ function OnlineStreamerCard({
             <input type="hidden" name="channelId" value={channelId ?? ''} />
             <input type="hidden" name="streamerName" value={streamer.username} />
             <input type="hidden" name="payload" value={payload ?? ''} />
-            <PostShoutoutButton />
+            <PostShoutoutButton pending={state.status === 'pending'} />
           </form>
         ) : (
           <Button className="w-full" variant="outline" onClick={handleDisabledPost}>
@@ -272,7 +271,7 @@ export function ShoutoutList() {
     return collection(firestore, 'servers', serverId, 'users');
   }, [firestore, serverId]);
 
-  const { data: allUsers, isLoading: isLoadingUsers, error: usersError } =
+  const { data: allUsers, isLoading: isLoadingUsers } =
     useCollection<UserProfile>(usersCollectionRef);
 
   // Debug logging
@@ -280,11 +279,9 @@ export function ShoutoutList() {
     console.log('[ShoutoutList] Users data:', {
       count: allUsers?.length ?? 0,
       isLoading: isLoadingUsers,
-      hasError: !!usersError,
-      error: usersError?.message,
       serverId,
     });
-  }, [allUsers, isLoadingUsers, usersError, serverId]);
+  }, [allUsers, isLoadingUsers, serverId]);
 
   const { onlineUsers, offlineUsers } = React.useMemo(() => {
     return {

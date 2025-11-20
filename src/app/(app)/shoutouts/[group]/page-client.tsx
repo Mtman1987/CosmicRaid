@@ -34,7 +34,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+
 import { generateAllShoutoutsAction, postShoutoutAction, updateUserGroupAction, updateUsersByRoleAction, triggerVipShoutoutsAction, updateShoutoutChannelAction } from '@/lib/actions';
 import type { ShoutoutResult } from '@/lib/community-shoutout-service';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -61,28 +61,27 @@ import { deriveStreamStats, getMediaPreviewUrl } from '@/lib/shoutout-display';
 
 
 type PostShoutoutState = {
-  status: 'idle' | 'success' | 'error';
+  status: 'idle' | 'pending' | 'success' | 'error';
   message: string;
 };
 
 const initialPostState: PostShoutoutState = { status: 'idle', message: '' };
 
 type VipActionState = {
-  status: 'idle' | 'success' | 'error';
+  status: 'idle' | 'pending' | 'success' | 'error';
   message: string;
 };
 
 const initialVipActionState: VipActionState = { status: 'idle', message: '' };
 
 type ChannelActionState = {
-  status: 'idle' | 'success' | 'error';
+  status: 'idle' | 'pending' | 'success' | 'error';
   message?: string;
 };
 
 const initialChannelActionState: ChannelActionState = { status: 'idle', message: '' };
 
-function SendShoutoutButton({ idleLabel }: { idleLabel: string }) {
-  const { pending } = useFormStatus();
+function SendShoutoutButton({ idleLabel, pending }: { idleLabel: string; pending: boolean }) {
   return (
     <Button type="submit" className="w-full" disabled={pending}>
       {pending ? (
@@ -90,13 +89,12 @@ function SendShoutoutButton({ idleLabel }: { idleLabel: string }) {
       ) : (
         <Send className="mr-2 h-4 w-4" />
       )}
-      {pending ? 'PostingGÇª' : idleLabel}
+      {pending ? 'Posting…' : idleLabel}
     </Button>
   );
 }
 
-function VipTriggerButton({ idleLabel, disabled }: { idleLabel: string; disabled?: boolean }) {
-  const { pending } = useFormStatus();
+function VipTriggerButton({ idleLabel, disabled, pending }: { idleLabel: string; disabled?: boolean; pending: boolean }) {
   return (
     <Button type="submit" className="w-full" variant="secondary" disabled={pending || disabled}>
       {pending ? (
@@ -104,7 +102,7 @@ function VipTriggerButton({ idleLabel, disabled }: { idleLabel: string; disabled
       ) : (
         <Star className="mr-2 h-4 w-4" />
       )}
-      {pending ? 'DispatchingGÇª' : idleLabel}
+      {pending ? 'Dispatching…' : idleLabel}
     </Button>
   );
 }
@@ -160,8 +158,7 @@ function StreamerRow({
 
 // --- Components for the "Community" page layout ---
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending: boolean }) {
   return (
     <Button type="submit" disabled={pending} className="w-full md:w-auto">
       {pending ? (
@@ -310,7 +307,7 @@ function OnlineStreamerCard({
             <input type="hidden" name="streamerName" value={streamer.username} />
             <input type="hidden" name="payload" value={payload ?? ''} />
             <input type="hidden" name="currentPath" value={currentPath} />
-            <SendShoutoutButton idleLabel="Post Individual Shoutout" />
+            <SendShoutoutButton idleLabel="Post Individual Shoutout" pending={state.status === 'pending'} />
           </form>
         ) : (
           <Button type="button" variant="outline" className="w-full" onClick={handleDisabledPost}>
@@ -480,7 +477,7 @@ function VipMemberCard({
                             <input type="hidden" name="streamerName" value={streamer.username} />
                             <input type="hidden" name="payload" value={payload ?? ''} />
                             <input type="hidden" name="currentPath" value={currentPath} />
-                            <SendShoutoutButton idleLabel="Post VIP Shoutout" />
+                            <SendShoutoutButton idleLabel="Post VIP Shoutout" pending={state.status === 'pending'} />
                         </form>
                     ) : (
                         <Button type="button" variant="outline" className="w-full" onClick={handleDisabledPost}>
@@ -497,8 +494,7 @@ function VipMemberCard({
     )
 }
 
-function FormSubmitButton({ children, ...props }: React.ComponentProps<typeof Button>) {
-    const { pending } = useFormStatus();
+function FormSubmitButton({ children, pending, ...props }: React.ComponentProps<typeof Button> & { pending: boolean }) {
     return (
         <Button {...props} type="submit" disabled={pending}>
             {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : children}
@@ -578,7 +574,7 @@ function ManageMembersDialog({ groupName, communityMembers, allRoles, serverId, 
                             </Select>
                         </div>
                         <DialogFooter>
-                            <FormSubmitButton>Promote to {groupName}</FormSubmitButton>
+                            <FormSubmitButton pending={promoteState.status === 'pending'}>Promote to {groupName}</FormSubmitButton>
                         </DialogFooter>
                     </form>
                 )}
@@ -610,7 +606,7 @@ function ManageMembersDialog({ groupName, communityMembers, allRoles, serverId, 
                         </Select>
                     </div>
                     <DialogFooter>
-                        <FormSubmitButton>Assign by Role</FormSubmitButton>
+                        <FormSubmitButton pending={roleState.status === 'pending'}>Assign by Role</FormSubmitButton>
                     </DialogFooter>
                 </form>
 
@@ -665,6 +661,7 @@ export default function GroupDetailPage() {
   
   // Conditionally declare the hook only for the community page
   type ShoutoutActionState =
+    | { status: 'idle' | 'pending'; results: ShoutoutResult[]; error: undefined }
     | { status: 'success'; results: ShoutoutResult[]; error: undefined }
     | { status: 'error'; results: ShoutoutResult[]; error: string };
 
@@ -960,7 +957,7 @@ export default function GroupDetailPage() {
                 <form action={vipFormAction} className="w-full space-y-3">
                   {serverId && <input type="hidden" name="serverId" value={serverId} />}
                   <input type="hidden" name="currentPath" value={pathname} />
-                  <VipTriggerButton idleLabel="Sync & Post VIP Shoutouts" disabled={!serverId} />
+                  <VipTriggerButton idleLabel="Sync & Post VIP Shoutouts" disabled={!serverId} pending={vipActionState.status === 'pending'} />
                 </form>
                 {vipActionState.status === 'error' && (
                   <Alert variant="destructive">
@@ -1066,7 +1063,7 @@ export default function GroupDetailPage() {
             
            <form action={formAction} className="space-y-6">
             {serverId && <input type="hidden" name="serverId" value={serverId} />}
-            <SubmitButton />
+            <SubmitButton pending={generateState.status === 'pending'} />
 
             {generateState.status === 'error' && generateState.error && (
               <Alert variant="destructive">

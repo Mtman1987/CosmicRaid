@@ -62,14 +62,13 @@ export async function POST(req: NextRequest) {
 
     try {
       const pointsService = PointsService.getInstance();
-      const updatedUser = points > 0 
-        ? await pointsService.addPoints(userId, username, displayName || username, points)
-        : await pointsService.subtractPoints(userId, Math.abs(points));
+      await pointsService.addPoints(userId, username, displayName || username, points);
+      
+      const userPoints = 'updated';
       
       return jsonResponse({
         status: 'success',
-        user: updatedUser,
-        message: `${points > 0 ? 'Added' : 'Subtracted'} ${Math.abs(points)} points ${points > 0 ? 'to' : 'from'} ${displayName || username}. New total: ${updatedUser?.points || 'unknown'}`
+        message: `${points > 0 ? 'Added' : 'Subtracted'} ${Math.abs(points)} points ${points > 0 ? 'to' : 'from'} ${displayName || username}.`
       });
     } catch (error) {
       console.error('[points/update] Direct points update failed:', error);

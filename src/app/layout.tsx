@@ -42,8 +42,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#667eea" />
-        <link rel="icon" href="/cosmicraid.png" />
         <link rel="apple-touch-icon" href="/cosmicraid.png" />
       </head>
       <body

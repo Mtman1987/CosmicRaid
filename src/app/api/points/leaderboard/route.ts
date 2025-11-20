@@ -32,12 +32,16 @@ export async function GET(request: NextRequest) {
         });
       }
 
+      const points = typeof userPoints === 'number' ? userPoints : (userPoints as any)?.points || 0;
+      const username = typeof userPoints === 'object' && userPoints ? (userPoints as any)?.username : undefined;
+      const displayName = typeof userPoints === 'object' && userPoints ? (userPoints as any)?.displayName : undefined;
+      
       return NextResponse.json({
-        rank: userRank.rank,
-        points: userRank.points,
-        username: userPoints?.username,
-        displayName: userPoints?.displayName,
-        message: `${userPoints?.displayName || 'User'} is rank #${userRank.rank} with ${userRank.points.toLocaleString()} points!`
+        rank: userRank,
+        points,
+        username,
+        displayName,
+        message: `User is rank #${userRank} with ${points} points!`
       });
     }
     
@@ -94,11 +98,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true,
       gifUrl,
-      userStats: userStats ? {
-        points: userStats.points,
-        rank: userStats.rank,
-        message: `You have ${userStats.points} points and are ranked #${userStats.rank}!`
-      } : null
+      userStats: userStats ? (() => {
+        const points = typeof userStats === 'number' ? userStats : (userStats as any)?.points || 0;
+        const rank = typeof userStats === 'number' ? 0 : (userStats as any)?.rank || 0;
+        return {
+          points,
+          rank,
+          message: `You have ${points} points and are ranked #${rank}!`
+        };
+      })() : null
     });
   } catch (error) {
     console.error('[LeaderboardGif] Error:', error);

@@ -61,8 +61,8 @@ import { isCommunityGroupSync, isVipGroupSync } from "./group-utils";
 import { getUserGroupFromRoles } from "./group-utils-server";
 
 
-// Internal interface - not exported
-interface ShoutoutResult {
+// Exported interface for shoutout results
+export interface ShoutoutResult {
   streamerName: string
   success: boolean
   message: string
@@ -149,26 +149,11 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
         
         if (!cardUrl) {
           // VIPs always get individual GIF clips
-          const clipResult = await generateShoutoutCardGif({
-            streamerName,
-            streamTitle,
-            gameName: streamGame,
-            viewerCount,
-            avatarUrl: twitchAvatar,
-            streamThumbnail,
-            isLive,
-            isMature: isMatureStream
-          }, serverId)
+          const clipResult = await generateShoutoutCardGif(streamerName, serverId)
           
           if (clipResult) {
-            cardUrl = clipResult.gifUrl
+            cardUrl = clipResult
             console.log('[Shoutout] VIP individual GIF generated for:', streamerName?.replace(/[\r\n]/g, ''));
-            await addClipToPool(serverId, userLookup, {
-              gifUrl: clipResult.gifUrl,
-              mp4Url: clipResult.mp4Url,
-              streamTitle,
-              gameName: streamGame
-            });
           } else {
             console.log('[Shoutout] VIP GIF generation failed for:', streamerName?.replace(/[\r\n]/g, ''));
           }

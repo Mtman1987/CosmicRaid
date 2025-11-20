@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+
 import {
   Card,
   CardContent,
@@ -24,8 +24,7 @@ import { usePathname } from 'next/navigation';
 import { Save, Loader2, CheckCircle, XCircle, Twitch, MessageSquare, Shield } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending: boolean }) {
   return (
     <Button type="submit" disabled={pending} className="w-full">
       {pending ? (
@@ -166,7 +165,7 @@ export function PointsConfigCard({ serverId }: { serverId: string }) {
 
         </CardContent>
         <CardFooter>
-          <SubmitButton />
+          <SubmitButton pending={state.status === 'pending'} />
         </CardFooter>
       </form>
     </Card>

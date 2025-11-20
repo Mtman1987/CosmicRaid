@@ -1,7 +1,7 @@
 'use server';
 
 import { sendDiscordMessage } from './discord-bot-service';
-import { getCommunityStats, generateSpotlightHeaderImage, generateSpotlightFooterImage } from './community-spotlight-enhanced-service';
+
 import { getSecret } from './firestore-secrets';
 
 async function getDiscordInvite(): Promise<string | null> {
@@ -26,21 +26,7 @@ export async function postCommunitySpotlightFallback(serverId: string, channelId
   try {
     console.log(`[SpotlightFallback] Posting community spotlight fallback to channel ${channelId}`);
     
-    // Generate header and footer with current stats
-    const stats = await getCommunityStats(serverId);
-    
-    const [headerImageUrl, footerImageUrl] = await Promise.all([
-      generateSpotlightHeaderImage(serverId, stats),
-      generateSpotlightFooterImage(serverId, stats)
-    ]);
 
-    // Post header image
-    if (headerImageUrl) {
-      const headerMessage = { content: headerImageUrl };
-      const headerMessageId = await sendDiscordMessage(channelId, headerMessage);
-      if (headerMessageId && keepIds) keepIds.push(headerMessageId);
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
 
     // Post "no one live" message instead of GIF
     const noLiveMessage = {
@@ -50,13 +36,7 @@ export async function postCommunitySpotlightFallback(serverId: string, channelId
     if (noLiveMessageId && keepIds) keepIds.push(noLiveMessageId);
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Post footer image
-    if (footerImageUrl) {
-      const footerMessage = { content: footerImageUrl };
-      const footerMessageId = await sendDiscordMessage(channelId, footerMessage);
-      if (footerMessageId && keepIds) keepIds.push(footerMessageId);
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
+
 
     // Get Discord invite URL
     const inviteUrl = await getDiscordInvite();

@@ -1,0 +1,13 @@
+{
+  "html.validate.styles": false,
+  "css.validate": false,
+  "html.validate.scripts": false,
+  "typescript.preferences.quoteStyle": "single",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact",
+    "typescript": "typescriptreact"
+  }
+}

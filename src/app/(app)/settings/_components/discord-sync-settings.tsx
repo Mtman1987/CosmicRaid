@@ -19,7 +19,6 @@ export function DiscordSyncSettings() {
   const [channelMappings, setChannelMappings] = React.useState({
     vip: '',
     community: '',
-    train: '',
     pile: '',
   });
   const [roleMappings, setRoleMappings] = React.useState<Record<string, string>>({});
@@ -49,10 +48,15 @@ export function DiscordSyncSettings() {
   };
 
   const handleRoleMappingChange = (roleId: string, group: string) => {
-    setRoleMappings(prev => ({
-      ...prev,
-      [roleId]: group === 'none' ? undefined : group
-    }));
+    setRoleMappings(prev => {
+      const newMappings = { ...prev };
+      if (group === 'none') {
+        delete newMappings[roleId];
+      } else {
+        newMappings[roleId] = group;
+      }
+      return newMappings;
+    });
   };
 
   const saveRoleMappings = async () => {
@@ -199,24 +203,6 @@ export function DiscordSyncSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label>Train</Label>
-              <Select value={channelMappings.train} onValueChange={(value) => 
-                setChannelMappings(prev => ({ ...prev, train: value }))
-              }>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select channel" />
-                </SelectTrigger>
-                <SelectContent>
-                  {channels.map(channel => (
-                    <SelectItem key={channel.id} value={channel.id}>
-                      #{channel.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label>Pile</Label>
               <Select value={channelMappings.pile} onValueChange={(value) => 
                 setChannelMappings(prev => ({ ...prev, pile: value }))
@@ -265,7 +251,6 @@ export function DiscordSyncSettings() {
                     <SelectItem value="none">None</SelectItem>
                     <SelectItem value="VIP">VIP</SelectItem>
                     <SelectItem value="Community">Community</SelectItem>
-                    <SelectItem value="Train">Train</SelectItem>
                     <SelectItem value="Pile">Pile</SelectItem>
                   </SelectContent>
                 </Select>

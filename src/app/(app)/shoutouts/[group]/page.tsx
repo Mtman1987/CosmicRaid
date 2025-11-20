@@ -4,11 +4,12 @@ import ShoutoutGroupClientPage from './page-client';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default function ShoutoutGroupPage({
+export default async function ShoutoutGroupPage({
   params,
 }: {
-  params: { group: string };
+  params: Promise<{ group: string }>;
 }) {
   unstable_noStore();
-  return <ShoutoutGroupClientPage params={params} />;
+  const resolvedParams = await params;
+  return <ShoutoutGroupClientPage />;
 }

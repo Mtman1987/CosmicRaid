@@ -124,7 +124,7 @@ class DiscordSyncService {
     }
 
     await batch.commit();
-    console.log(`Synced ${channels.filter(c => c.type === 0).length} channels`);
+    console.log(`Synced ${channels.filter((c: any) => c.type === 0).length} channels`);
   }
 
   private async syncRoles(serverId: string): Promise<void> {

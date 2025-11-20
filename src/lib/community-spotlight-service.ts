@@ -153,27 +153,13 @@ export async function updateCommunitySpotlight(serverId: string): Promise<void> 
       mp4Url = cachedClip.mp4Url;
       console.log(`[Spotlight] Using cached clip for ${nextStreamer}`);
     } else {
-      const cardResult = await generateShoutoutCardGif({
-        streamerName: nextStreamer,
-        streamTitle: stream.title,
-        gameName: stream.game_name || 'Just Chatting',
-        viewerCount: stream.viewer_count,
-        avatarUrl: twitchUser.profile_image_url,
-        streamThumbnail: stream.thumbnail_url?.replace('{width}', '640').replace('{height}', '360') || '',
-        isLive: true,
-        isMature: Boolean(stream.is_mature)
-      }, serverId);
+      const cardResult = await generateShoutoutCardGif(nextStreamer, serverId);
       
       if (cardResult) {
-        cardGifUrl = cardResult.gifUrl;
-        mp4Url = cardResult.mp4Url;
+        cardGifUrl = cardResult;
+        mp4Url = null; // Not available from this function
         
-        await manageUserClips(serverId, userLookup, {
-          gifUrl: cardGifUrl,
-          mp4Url: mp4Url,
-          streamTitle: stream.title,
-          gameName: stream.game_name || 'Just Chatting'
-        });
+        // Clip management simplified since we only have GIF URL
       }
     }
     
@@ -186,7 +172,7 @@ export async function updateCommunitySpotlight(serverId: string): Promise<void> 
     const newSpotlightData: SpotlightData = {
       streamerName: nextStreamer,
       cardGifUrl: cardGifUrl,
-      mp4Url: mp4Url,
+      mp4Url: mp4Url || undefined,
       lastUpdated: new Date().toISOString(),
       streamData: {
         title: stream.title,

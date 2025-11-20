@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { useServerId } from '@/lib/get-server-id';
 import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
 import { PageHeader } from '@/components/page-header';
 import {
   Card,
@@ -25,10 +24,10 @@ import { CopyButton } from '@/components/copy-button';
 import { AdminRoleSettings } from './_components/admin-role-settings';
 import { TwitchPollingSettings } from './_components/twitch-polling-settings';
 import { ChannelSelectionSettings } from './_components/channel-selection-settings';
+import { DiscordSyncSettings } from './_components/discord-sync-settings';
 import { useToast } from '@/hooks/use-toast';
 
-function SyncButton() {
-    const { pending } = useFormStatus();
+function SyncButton({ pending }: { pending: boolean }) {
     return (
       <Button className="w-full" type="submit" disabled={pending}>
         {pending ? (
@@ -41,8 +40,7 @@ function SyncButton() {
     );
 }
 
-function TestButton() {
-    const { pending } = useFormStatus();
+function TestButton({ pending }: { pending: boolean }) {
     return (
         <Button className="w-full" variant="outline" type="submit" disabled={pending}>
             {pending ? (
@@ -55,8 +53,7 @@ function TestButton() {
     )
 }
 
-function ResetCalendarButton() {
-    const { pending } = useFormStatus();
+function ResetCalendarButton({ pending }: { pending: boolean }) {
     return (
         <Button className="w-full" variant="destructive" type="submit" disabled={pending}>
             {pending ? (
@@ -88,14 +85,18 @@ export default function SettingsPage() {
   // Remove localStorage loading
 
   const handleReset = () => {
-    // Only clear auth tokens, not configuration
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('discordServerId');
-      localStorage.removeItem('discordUserId');
-      localStorage.removeItem('twitchUsername');
+    try {
+      // Clear all localStorage data
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+      }
+      // Force redirect to login
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Reset failed:', error);
+      // Fallback: force page reload to login
+      window.location.reload();
     }
-    router.push('/login');
   };
 
   return (
@@ -177,7 +178,7 @@ export default function SettingsPage() {
                         )}
                     </CardContent>
                     <CardFooter>
-                        <SyncButton />
+                        <SyncButton pending={syncState.status === 'pending'} />
                     </CardFooter>
                 </form>
             </Card>
@@ -188,8 +189,8 @@ export default function SettingsPage() {
 
       </div>
       
-      <div className="grid gap-8 md:grid-cols-2">
-        {guildId && <AdminRoleSettings serverId={guildId} />}
+      <div className="grid gap-8 md:grid-cols-1">
+        {guildId && <DiscordSyncSettings />}
         
         <Card>
           <CardHeader>

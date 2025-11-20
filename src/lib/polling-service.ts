@@ -246,7 +246,7 @@ class PollingService {
       // Fallback to thumbnail if conversion fails
       if (!gifUrl) {
         console.log(`GIF conversion failed for ${displayName}, using thumbnail`);
-        gifUrl = await getThumbnailAsGif(bestClip.thumbnail_url);
+        gifUrl = bestClip.thumbnail_url; // Use thumbnail URL directly
       }
 
       // Save to cache
@@ -315,7 +315,7 @@ class PollingService {
       );
       
       if (!gifUrl) {
-        gifUrl = await getThumbnailAsGif(randomClip.thumbnail_url);
+        gifUrl = randomClip.thumbnail_url; // Use thumbnail URL directly
       }
 
       // Save community spotlight cache

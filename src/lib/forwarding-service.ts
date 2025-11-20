@@ -105,7 +105,8 @@ export async function forwardMessage({
   attachments,
   messageReference,
 }: ForwardMessagePayload) {
-  const botToken = await getSecret('DISCORD_BOT_TOKEN');
+  const { getGlobalBotToken } = await import('@/lib/global-config');
+  const botToken = await getGlobalBotToken();
   if (!botToken) {
     throw new Error('DISCORD_BOT_TOKEN is not configured.')
   }

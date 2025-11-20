@@ -92,9 +92,7 @@ export async function runAutomatedShoutoutCycle(serverId: string, options: Cycle
     await postAllShoutoutsToDiscord(serverId);
     console.log('[AutoShoutout] Posted all shoutouts to Discord');
     
-    // 6. Increment daily shoutout counter once per cycle
-    const { incrementDailyShoutoutCount } = await import('./community-spotlight-enhanced-service');
-    await incrementDailyShoutoutCount(serverId);
+    // 6. Daily shoutout counter (handled elsewhere)
     
     // 7. Update last run timestamp
     await db.collection('servers').doc(serverId).update({

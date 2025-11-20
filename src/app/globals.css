@@ -87,6 +87,19 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  
+  /* Fix webkit-text-size-adjust compatibility */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* Fix backdrop-filter compatibility for Safari */
+  .backdrop-blur,
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: blur(var(--tw-backdrop-blur));
+    backdrop-filter: blur(var(--tw-backdrop-blur));
+  }
 }
 
 /* Custom styles for the sidebar to ensure text is readable */

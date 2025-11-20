@@ -93,6 +93,9 @@ class TwitchApiService {
     this.tokenExpiry = Date.now() + (data.expires_in * 1000) - 60000; // 1 minute buffer
     console.log('[TwitchAPI] Access token acquired successfully');
 
+    if (!this.accessToken) {
+      throw new Error('Failed to acquire access token');
+    }
     return this.accessToken;
   }
 

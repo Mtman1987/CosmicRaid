@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
 import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { updateAdminRoles } from '@/lib/actions';
@@ -17,8 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { usePathname } from 'next/navigation';
 import type { DiscordServer } from '@/lib/types';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending: boolean }) {
   return (
     <Button type="submit" disabled={pending} className="w-full">
       {pending ? (
@@ -104,7 +102,7 @@ export function AdminRoleSettings({ serverId }: { serverId: string }) {
           )}
         </CardContent>
         <CardFooter>
-          <SubmitButton />
+          <SubmitButton pending={state.status === 'pending'} />
         </CardFooter>
       </form>
     </Card>

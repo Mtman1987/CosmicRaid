@@ -73,13 +73,13 @@ export async function syncDiscordDataForServer(guildId: string): Promise<void> {
   if (!channelsResponse.ok) throw new Error(`Failed to fetch channels: ${await channelsResponse.text()}`);
   const channelsData = await channelsResponse.json();
 
-  let allMembers = [];
-  let after = null;
+  let allMembers: any[] = [];
+  let after: string | null = null;
   do {
-    const url = `https://discord.com/api/v10/guilds/${guildId}/members?limit=1000${after ? `&after=${after}` : ''}`;
-    const membersResponse = await fetch(url, { headers });
+    const url: string = `https://discord.com/api/v10/guilds/${guildId}/members?limit=1000${after ? `&after=${after}` : ''}`;
+    const membersResponse: Response = await fetch(url, { headers });
     if (!membersResponse.ok) throw new Error(`Failed to fetch members: ${await membersResponse.text()}`);
-    const membersData = await membersResponse.json();
+    const membersData: any[] = await membersResponse.json();
     allMembers.push(...membersData);
     after = membersData.length === 1000 ? membersData[membersData.length - 1].user.id : null;
   } while (after);
