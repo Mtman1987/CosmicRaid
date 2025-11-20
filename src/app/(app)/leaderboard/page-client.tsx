@@ -97,172 +97,118 @@ export default function LeaderboardPage() {
   const finalIsLoading = isLoading || isLoadingLeaderboard;
 
   return (
-    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="container mx-auto p-5 flex flex-col gap-8">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 style={{
-            fontSize: '32px',
-            fontWeight: 'bold',
-            margin: '0 0 8px 0',
-            background: 'linear-gradient(45deg, #667eea, #764ba2)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}>
-            🏆 Community Leaderboard
+          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent">
+            Leaderboard
           </h1>
-          <p style={{ color: '#888', margin: 0 }}>
-            A real-time view of the top contributors in your community.
-          </p>
+          <p className="text-gray-400">Top performers on the server</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="flex gap-2">
           <button
             onClick={downloadLeaderboardImage}
-            style={{
-              padding: '12px 20px',
-              backgroundColor: 'transparent',
-              color: '#667eea',
-              border: '1px solid #667eea',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
+            className="px-5 py-3 bg-transparent text-purple-500 border border-purple-500 rounded-lg text-sm font-semibold cursor-pointer flex items-center gap-2 hover:bg-purple-500/10"
           >
-            📥 Download Image
+            <Download className="w-4 h-4" />
+            Download
           </button>
-
           <button
             onClick={refreshLeaderboard}
             disabled={finalIsLoading}
-            style={{
-              padding: '12px 20px',
-              backgroundColor: '#667eea',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: finalIsLoading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              opacity: finalIsLoading ? 0.6 : 1
-            }}
+            className="px-5 py-3 bg-purple-500 text-white border-none rounded-lg text-sm font-semibold cursor-pointer flex items-center gap-2 hover:bg-purple-600 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            🔄 Refresh
+            {finalIsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            Refresh
           </button>
         </div>
       </div>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
-        <div style={{
-          backgroundColor: '#1a1a2e',
-          border: '1px solid #333',
-          borderRadius: '12px',
-          padding: '24px'
-        }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Top Contributors</h2>
-          <p style={{ color: '#888', margin: '0 0 24px 0', fontSize: '14px' }}>
-            This table updates to reflect the latest point totals.
-          </p>
-          
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-2">Rankings</h2>
+          <p className="text-gray-400 text-sm mb-6">See who&apos;s leading the pack</p>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
               <thead>
-                <tr style={{ borderBottom: '1px solid #333' }}>
-                  <th style={{ padding: '12px', textAlign: 'left', width: '80px' }}>Rank</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>User</th>
-                  <th style={{ padding: '12px', textAlign: 'right' }}>Points</th>
+                <tr className="border-b border-gray-800">
+                  <th className="p-3 text-left w-20">Rank</th>
+                  <th className="p-3 text-left">User</th>
+                  <th className="p-3 text-right">Points</th>
                 </tr>
               </thead>
               <tbody>
-                {finalIsLoading && Array.from({length: 5}).map((_, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #333' }}>
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ width: '32px', height: '32px', backgroundColor: '#333', borderRadius: '4px' }}></div>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '40px', height: '40px', backgroundColor: '#333', borderRadius: '50%' }}></div>
-                        <div>
-                          <div style={{ width: '128px', height: '16px', backgroundColor: '#333', borderRadius: '4px', marginBottom: '4px' }}></div>
-                          <div style={{ width: '96px', height: '12px', backgroundColor: '#333', borderRadius: '4px' }}></div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'right' }}>
-                      <div style={{ width: '64px', height: '24px', backgroundColor: '#333', borderRadius: '4px', marginLeft: 'auto' }}></div>
-                    </td>
-                  </tr>
-                ))}
-                {!finalIsLoading && leaderboardData.map((entry) => (
-                  <tr key={entry.id} style={{ borderBottom: '1px solid #333' }}>
-                    <td style={{ padding: '12px', textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}>
-                      {entry.rank === 1 && <span style={{ fontSize: '24px' }}>🥇</span>}
-                      {entry.rank === 2 && <span style={{ fontSize: '24px' }}>🥈</span>}
-                      {entry.rank === 3 && <span style={{ fontSize: '24px' }}>🥉</span>}
-                      {entry.rank > 3 && entry.rank}
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        {entry.user?.avatarUrl ? (
-                          <Image 
-                            src={entry.user.avatarUrl} 
-                            alt={entry.user.username || 'Leaderboard avatar'}
-                            width={40}
-                            height={40}
-                            unoptimized
-                            style={{
-                              width: '40px',
-                              height: '40px',
-                              borderRadius: '50%',
-                              objectFit: 'cover'
-                            }}
-                          />
-                        ) : (
-                          <div style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '50%',
-                            backgroundColor: '#667eea',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '16px',
-                            fontWeight: 'bold'
-                          }}>
-                            {entry.user?.username?.charAt(0) ?? '?'}
+                {finalIsLoading ? (
+                  Array.from({ length: 10 }).map((_, i) => (
+                    <tr key={i} className="border-b border-gray-800">
+                      <td className="p-3 text-center">
+                        <div className="w-8 h-8 bg-gray-800 rounded mx-auto animate-pulse" />
+                      </td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 bg-gray-800 rounded-full animate-pulse" />
+                          <div>
+                            <div className="w-32 h-4 bg-gray-800 rounded mb-1 animate-pulse" />
+                            <div className="w-24 h-3 bg-gray-800 rounded animate-pulse" />
                           </div>
-                        )}
-                        <div>
-                          <p style={{ margin: 0, fontWeight: '500' }}>{entry.user?.username ?? 'Unknown User'}</p>
-                          <p style={{ margin: 0, fontSize: '12px', color: '#888' }}>ID: {entry.userProfileId}</p>
                         </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'right', fontFamily: 'monospace', fontSize: '18px' }}>
-                      {entry.points.toLocaleString()}
+                      </td>
+                      <td className="p-3 text-right">
+                        <div className="w-16 h-6 bg-gray-800 rounded ml-auto animate-pulse" />
+                      </td>
+                    </tr>
+                  ))
+                ) : leaderboardData.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="text-center text-gray-400 py-12">
+                      No leaderboard entries yet
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  leaderboardData.map((entry) => (
+                    <tr key={entry.userProfileId} className="border-b border-gray-800 hover:bg-gray-800/50">
+                      <td className="p-3 text-center text-lg font-bold">
+                        {entry.rank === 1 && <span className="text-2xl">🥇</span>}
+                        {entry.rank === 2 && <span className="text-2xl">🥈</span>}
+                        {entry.rank === 3 && <span className="text-2xl">🥉</span>}
+                        {entry.rank > 3 && <span>#{entry.rank}</span>}
+                      </td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-4">
+                          {entry.user?.avatarUrl ? (
+                            <Image
+                              src={entry.user.avatarUrl}
+                              alt={entry.user.username || 'User'}
+                              width={40}
+                              height={40}
+                              className="rounded-full"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-base font-bold">
+                              {entry.user?.username?.charAt(0).toUpperCase() || '?'}
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-medium">{entry.user?.username || 'Unknown User'}</p>
+                            <p className="text-xs text-gray-400">{entry.userProfileId}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-3 text-right font-mono text-lg">
+                        {entry.points.toLocaleString()}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
-            {!finalIsLoading && leaderboardData.length === 0 && (
-              <p style={{ textAlign: 'center', color: '#888', padding: '48px 0' }}>No leaderboard data found.</p>
-            )}
           </div>
         </div>
-        
-        <div>
-          {serverId && (
-            <>
-              <LeaderboardChannelConfig serverId={serverId} />
-              <PointsConfigCard serverId={serverId} />
-            </>
-          )}
+
+        <div className="flex flex-col gap-8">
+          <PointsConfigCard serverId={serverId} />
+          <LeaderboardChannelConfig serverId={serverId} />
         </div>
       </div>
     </div>

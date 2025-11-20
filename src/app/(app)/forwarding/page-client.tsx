@@ -168,7 +168,7 @@ function ParsedMessageContent({ content, userMap }: { content: string, userMap: 
             ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=300`
             : url;
           elements.push(
-            <a key={`img-${match.index}`} href={url} target="_blank" rel="noopener noreferrer" className="mt-2 block">
+            <a key={`img-${match.index}`} href={url} target="_blank" rel="noopener noreferrer" className="mt-2 block" title="View image">
               <Image
                 src={optimizedUrl}
                 alt="Embedded content"
@@ -181,7 +181,7 @@ function ParsedMessageContent({ content, userMap }: { content: string, userMap: 
           );
         } else if (/tenor\.com\/view/.test(url)) {
           elements.push(
-            <a key={`tenor-${match.index}`} href={url} target="_blank" rel="noopener noreferrer" className="mt-2 block">
+            <a key={`tenor-${match.index}`} href={url} target="_blank" rel="noopener noreferrer" className="mt-2 block" title="View Tenor GIF">
               <Image
                 src={`${url}.gif`}
                 alt="Tenor GIF"
