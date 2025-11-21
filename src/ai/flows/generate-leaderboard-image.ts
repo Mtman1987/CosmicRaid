@@ -129,7 +129,10 @@ export async function generateLeaderboardImage(
       }
     }
     
-    throw new Error('FreeConvert job timeout');
+    // Fallback: construct predictable URL even if polling failed
+    const fallbackUrl = `https://s120-grog.freeconvert.com/task/${jobData.tasks['export-1'].id}/cosmicraid--studio-9468926194-e03ac_us-central1_hosted_app__headless_leaderboard_${guildId}.png`;
+    console.log('[FreeConvert] Polling timeout, trying fallback URL:', fallbackUrl);
+    return fallbackUrl;
   } catch (error) {
     console.error('[generateLeaderboardImage] Both local service and FreeConvert failed:', error);
     return null;

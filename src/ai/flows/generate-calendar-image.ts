@@ -161,7 +161,10 @@ export async function generateCalendarImage(
       }
     }
 
-    throw new Error('FreeConvert job timeout');
+    // Fallback: construct predictable URL even if polling failed
+    const fallbackUrl = `https://s120-grog.freeconvert.com/task/${jobData.tasks['export-1'].id}/calendar-screenshot.png`;
+    console.log('[FreeConvert] Polling timeout, trying fallback URL:', fallbackUrl);
+    return fallbackUrl;
   } catch (error) {
     console.error('[generateCalendarImage] Both local service and FreeConvert failed:', error);
     return null;
