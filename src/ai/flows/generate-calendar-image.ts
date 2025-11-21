@@ -117,11 +117,12 @@ export async function generateCalendarImage(
       })
     });
 
-    if (!response.ok) {
+    const jobData = await response.json();
+    
+    // Handle 402 errors but continue if we got a job ID
+    if (!response.ok && !jobData.id) {
       throw new Error(`Job creation failed: ${response.status}`);
     }
-
-    const jobData = await response.json();
     
     // Poll for completion (30 iterations = 30 seconds total, since jobs average 5 seconds)
     for (let i = 0; i < 30; i++) {

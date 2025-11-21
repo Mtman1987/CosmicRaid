@@ -84,11 +84,12 @@ export async function generateLeaderboardImage(
       })
     });
 
-    if (!response.ok) {
+    const jobData = await response.json();
+    
+    // Handle 402 errors but continue if we got a job ID
+    if (!response.ok && !jobData.id) {
       throw new Error(`Job creation failed: ${response.status}`);
     }
-
-    const jobData = await response.json();
     
     // Poll for completion
     for (let i = 0; i < 60; i++) {
