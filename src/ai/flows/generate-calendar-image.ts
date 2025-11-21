@@ -117,11 +117,20 @@ export async function generateCalendarImage(
       })
     });
 
-    const jobData = await response.json();
+    let jobData;
+    try {
+      jobData = await response.json();
+    } catch (parseError) {
+      throw new Error(`Job creation failed: ${response.status} - Invalid response`);
+    }
     
     // Handle 402 errors but continue if we got a job ID
-    if (!response.ok && !jobData.id) {
+    if (!response.ok && !jobData?.id) {
       throw new Error(`Job creation failed: ${response.status}`);
+    }
+    
+    if (!jobData?.id) {
+      throw new Error('No job ID received from FreeConvert');
     }
     
     // Poll for completion (30 iterations = 30 seconds total, since jobs average 5 seconds)
