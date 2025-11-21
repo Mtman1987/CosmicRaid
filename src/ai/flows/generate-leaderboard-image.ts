@@ -91,25 +91,23 @@ export async function generateLeaderboardImage(
     const jobData = await response.json();
     
     // Poll for completion
-    for (let i = 0; i < 30; i++) {
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
+    for (let i = 0; i < 60; i++) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
       const statusResponse = await fetch(`https://api.freeconvert.com/v1/process/jobs/${jobData.id}`, {
         headers: { 'Authorization': `Bearer ${apiKey}` }
       });
-      
+
       const statusData = await statusResponse.json();
-      
+
       if (statusData.status === 'completed') {
         const exportTask = statusData.tasks['export-1'];
         if (exportTask?.result?.files?.[0]?.url) {
-          const imageResponse = await fetch(exportTask.result.files[0].url);
-          const imageBuffer = await imageResponse.arrayBuffer();
           console.log('[FreeConvert] Leaderboard screenshot completed.');
-          return `data:image/png;base64,${Buffer.from(imageBuffer).toString('base64')}`;
+          return exportTask.result.files[0].url;
         }
       }
-      
+
       if (statusData.status === 'failed') {
         throw new Error('FreeConvert job failed');
       }
