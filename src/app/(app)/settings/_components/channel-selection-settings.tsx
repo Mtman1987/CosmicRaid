@@ -39,13 +39,13 @@ export function ChannelSelectionSettings() {
   // Update local state when persistent data loads
   React.useEffect(() => {
     if (!isPersistentLoading && persistentChannelSettings) {
-      setChannelSettings(prev => ({
-        calendar: persistentChannelSettings.calendar || prev.calendar,
-        vipShoutouts: persistentChannelSettings.vipShoutouts || prev.vipShoutouts,
-        mountaineerShoutouts: persistentChannelSettings.mountaineerShoutouts || prev.mountaineerShoutouts,
-        trainShoutouts: persistentChannelSettings.trainShoutouts || prev.trainShoutouts,
-        pileShoutouts: persistentChannelSettings.pileShoutouts || prev.pileShoutouts,
-      }));
+      setChannelSettings({
+        calendar: persistentChannelSettings.calendar || '',
+        vipShoutouts: persistentChannelSettings.vipShoutouts || '',
+        mountaineerShoutouts: persistentChannelSettings.mountaineerShoutouts || '',
+        trainShoutouts: persistentChannelSettings.trainShoutouts || '',
+        pileShoutouts: persistentChannelSettings.pileShoutouts || '',
+      });
     }
   }, [isPersistentLoading, persistentChannelSettings]);
 
@@ -59,25 +59,8 @@ export function ChannelSelectionSettings() {
   };
 
   const loadChannelSettings = async (id: string) => {
-    if (!firestore) return;
-    
-    try {
-      const channelsRef = doc(firestore, 'servers', id, 'config', 'channels');
-      const snapshot = await getDoc(channelsRef);
-      
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        setChannelSettings({
-          calendar: data.calendar || '',
-          vipShoutouts: data.vipShoutouts || '',
-          mountaineerShoutouts: data.mountaineerShoutouts || '',
-          trainShoutouts: data.trainShoutouts || '',
-          pileShoutouts: data.pileShoutouts || '',
-        });
-      }
-    } catch (error) {
-      console.error('Error loading channel settings:', error);
-    }
+    // Skip manual loading since we're using persistent data hook
+    return;
   };
 
   const saveChannelSettings = async () => {
