@@ -83,7 +83,7 @@ export async function generateLeaderboardImage(
           }
         },
         "webhook": {
-          "url": `${await getBaseUrl(guildId)}/api/discord/freeconvert-webhook`,
+          "url": "https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/api/discord/freeconvert-webhook",
           "secret": "4c4808c4-f90b-4c8a-ae48-ce6818a3045e"
         }
       })
