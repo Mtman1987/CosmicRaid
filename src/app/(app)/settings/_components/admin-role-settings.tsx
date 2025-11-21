@@ -15,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { usePathname } from 'next/navigation';
 import type { DiscordServer } from '@/lib/types';
+import { useAdminRolesPersistence } from '@/hooks/use-persistent-data';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -46,15 +47,20 @@ export function AdminRoleSettings({ serverId }: { serverId: string }) {
   const { data: rolesData, isLoading: isLoadingRoles } = useDoc<{ list: string[] }>(rolesConfigRef);
   const allRoles = rolesData?.list || [];
 
+  // Use persistent data hook to ensure admin roles are loaded correctly
+  const { adminRoles: persistentAdminRoles, isLoading: isPersistentLoading } = useAdminRolesPersistence();
+  
   // Fetch the current server config to know which roles are already admins
   const serverConfigRef = React.useMemo(() => {
     if (!firestore || !serverId) return null;
     return doc(firestore, 'servers', serverId, 'config', 'settings');
   }, [firestore, serverId]);
   const { data: serverConfig, isLoading: isLoadingServerConfig } = useDoc<{ adminRoles?: string[] }>(serverConfigRef);
-  const adminRoles = serverConfig?.adminRoles || [];
+  
+  // Use persistent data first, fallback to direct fetch
+  const adminRoles = persistentAdminRoles.length > 0 ? persistentAdminRoles : (serverConfig?.adminRoles || []);
 
-  const isLoading = isLoadingRoles || isLoadingServerConfig;
+  const isLoading = isLoadingRoles || isLoadingServerConfig || isPersistentLoading;
 
   return (
     <Card>

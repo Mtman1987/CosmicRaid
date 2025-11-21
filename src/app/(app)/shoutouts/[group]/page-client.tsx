@@ -58,6 +58,8 @@ import {
 } from '@/components/ui/select';
 import { matchesGroup, slugToCanonicalGroup } from '@/lib/group-utils-client';
 import { deriveStreamStats, getMediaPreviewUrl } from '@/lib/shoutout-display';
+import { DataLoader } from '@/components/data-loader';
+import { useVipListPersistence } from '@/hooks/use-persistent-data';
 
 
 type PostShoutoutState = {
@@ -627,6 +629,7 @@ export default function GroupDetailPage() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const serverId = useServerId();
+  const { vipRoles, vipChannelId: persistentVipChannelId, isLoading: isVipDataLoading } = useVipListPersistence();
 
   const group = Array.isArray(params.group) ? params.group[0] : params.group;
   const groupName = React.useMemo(() => {
@@ -872,11 +875,12 @@ export default function GroupDetailPage() {
   };
 
   return (
-    <div className="space-y-8">
-      <PageHeader
-        title={`${groupName} Group`}
-        description={`Manage the members and shoutouts for the ${groupName} group.`}
-      >
+    <DataLoader>
+      <div className="space-y-8">
+        <PageHeader
+          title={`${groupName} Group`}
+          description={`Manage the members and shoutouts for the ${groupName} group.`}
+        >
         {serverId && <ManageMembersDialog groupName={groupName} communityMembers={communityMembers} allRoles={allRoles} serverId={serverId} currentPath={pathname} />}
         <Button asChild variant="outline">
           <Link href="/shoutouts">
@@ -1245,7 +1249,8 @@ export default function GroupDetailPage() {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+      </div>
+    </DataLoader>
   );
 }
 

@@ -123,8 +123,8 @@ export async function generateCalendarImage(
 
     const jobData = await response.json();
     
-    // Poll for completion (10 iterations = 10 seconds total, since jobs average 3-4 seconds)
-    for (let i = 0; i < 10; i++) {
+    // Poll for completion (30 iterations = 30 seconds total, since jobs average 5 seconds)
+    for (let i = 0; i < 30; i++) {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const statusResponse = await fetch(`https://api.freeconvert.com/v1/process/jobs/${jobData.id}`, {
@@ -132,13 +132,16 @@ export async function generateCalendarImage(
       });
 
       const statusData = await statusResponse.json();
-      console.log(`[FreeConvert] Job status: ${statusData.status} (attempt ${i + 1}/10)`);
+      console.log(`[FreeConvert] Job status: ${statusData.status} (attempt ${i + 1}/30)`);
 
       if (statusData.status === 'completed') {
+        console.log('[FreeConvert] Job completed, checking for URL:', JSON.stringify(statusData.tasks['export-1'], null, 2));
         const exportTask = statusData.tasks['export-1'];
         if (exportTask?.result?.files?.[0]?.url) {
           console.log('[FreeConvert] Calendar screenshot completed.');
           return exportTask.result.files[0].url;
+        } else {
+          console.error('[FreeConvert] No URL found in completed job:', exportTask);
         }
       }
 
@@ -148,6 +151,7 @@ export async function generateCalendarImage(
       }
     }
 
+    console.error('[FreeConvert] Job timeout - final status:', statusData?.status);
     throw new Error('FreeConvert job timeout');
   } catch (error) {
     console.error('[generateCalendarImage] Error:', error);

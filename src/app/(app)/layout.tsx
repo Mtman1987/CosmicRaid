@@ -17,6 +17,7 @@ import { UserNav } from './_components/user-nav';
 import { FirebaseComponentsProvider } from '@/firebase';
 import { AuthGuard } from '@/components/auth-guard';
 import { LocalServiceStatus } from '@/components/local-service-status';
+import { AppInitializer } from '@/components/app-initializer';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -57,7 +58,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <LocalServiceStatus />
             </header>
             <main className="flex-1 overflow-y-auto p-4 md:p-8">
-              {children}
+              <AppInitializer>
+                {children}
+              </AppInitializer>
             </main>
           </div>
         </div>

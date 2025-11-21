@@ -3,6 +3,7 @@ import { UpcomingEvents } from "./_components/upcoming-events";
 import { LeaderboardSnapshot } from "./_components/leaderboard-snapshot";
 import { RecentShoutouts } from "./_components/recent-shoutouts";
 import { DatabaseTest } from "./_components/database-test";
+import { PersistenceTest } from "@/components/persistence-test";
 
 export default function DashboardPage() {
   return (
@@ -29,6 +30,9 @@ export default function DashboardPage() {
       }}>
         <div style={{ gridColumn: 'span 2' }}>
           <DatabaseTest />
+        </div>
+        <div style={{ gridColumn: 'span 2' }}>
+          <PersistenceTest />
         </div>
         <div style={{ gridColumn: 'span 2' }}>
            <RecentShoutouts />

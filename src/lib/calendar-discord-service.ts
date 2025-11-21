@@ -25,8 +25,14 @@ async function ensureBotToken(serverId?: string) {
 }
 
 async function uploadCalendarImage(serverId: string, calendarImage: string): Promise<string> {
-  // If the generator already returned a public URL (from the local service), skip re-uploading
-  if (calendarImage.startsWith('http://') || calendarImage.startsWith('https://')) {
+  // FreeConvert URLs are valid for 4 hours - use directly for immediate posting
+  if (calendarImage.startsWith('https://') && calendarImage.includes('freeconvert')) {
+    console.log('[Upload] Using FreeConvert URL directly (valid for 4 hours)');
+    return calendarImage;
+  }
+  
+  // If the generator already returned a Firebase Storage URL, skip re-uploading
+  if (calendarImage.startsWith('https://storage.googleapis.com/')) {
     return calendarImage;
   }
 
@@ -272,18 +278,21 @@ export async function generateCalendarEmbeds(serverId: string, imageUrl: string)
 }
 
 export async function uploadCalendarImageFromGenerator(serverId: string, monthOffset = 0) {
+  console.log(`[CalendarUpload] Starting image generation for server ${serverId}, offset ${monthOffset}`);
+  
   const calendarImage = await generateCalendarImage(serverId, monthOffset);
   if (!calendarImage) {
+    console.error('[CalendarUpload] Image generation returned null');
     throw new Error('Failed to generate calendar image.');
   }
   
-  // If it's already a Firebase Storage URL, return as is
-  if (calendarImage.startsWith('https://storage.googleapis.com/')) {
-    return calendarImage;
-  }
+  console.log(`[CalendarUpload] Generated image type: ${calendarImage.startsWith('data:') ? 'base64' : 'URL'}`);
   
-  // Otherwise upload base64 to Firebase Storage
-  return uploadCalendarImage(serverId, calendarImage);
+  // Upload to Firebase Storage for permanent URL
+  const permanentUrl = await uploadCalendarImage(serverId, calendarImage);
+  console.log(`[CalendarUpload] Final image URL: ${permanentUrl}`);
+  
+  return permanentUrl;
 }
 
 export async function shiftCalendarMonth(serverId: string, delta: number) {

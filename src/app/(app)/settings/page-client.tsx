@@ -26,6 +26,7 @@ import { TwitchPollingSettings } from './_components/twitch-polling-settings';
 import { ChannelSelectionSettings } from './_components/channel-selection-settings';
 import { DiscordSyncSettings } from './_components/discord-sync-settings';
 import { useToast } from '@/hooks/use-toast';
+import { DataLoader } from '@/components/data-loader';
 
 function SyncButton({ pending }: { pending: boolean }) {
     return (
@@ -100,11 +101,12 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-8">
-      <PageHeader
-        title="Settings"
-        description="Configure your application and integrations."
-      />
+    <DataLoader>
+      <div className="space-y-8">
+        <PageHeader
+          title="Settings"
+          description="Configure your application and integrations."
+        />
       <div className="grid gap-8 md:grid-cols-2">
         <div className="space-y-8">
           <Card>
@@ -230,6 +232,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </DataLoader>
   );
 }

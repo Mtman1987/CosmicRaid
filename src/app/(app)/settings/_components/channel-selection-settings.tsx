@@ -9,6 +9,10 @@ import { Label } from '@/components/ui/label';
 import { Hash, Send, Calendar, Users, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getChannels } from '@/lib/discord-sync-service';
+import { useServerConfig } from '@/lib/use-server-config';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { useChannelMappingsPersistence } from '@/hooks/use-persistent-data';
 
 export function ChannelSelectionSettings() {
   const [channels, setChannels] = React.useState<any[]>([]);
@@ -21,8 +25,9 @@ export function ChannelSelectionSettings() {
     pileShoutouts: '',
   });
   const { toast } = useToast();
-
+  const firestore = useFirestore();
   const serverId = useServerId();
+  const { channelSettings: persistentChannelSettings, isLoading: isPersistentLoading } = useChannelMappingsPersistence();
   
   React.useEffect(() => {
     if (serverId) {
@@ -30,6 +35,19 @@ export function ChannelSelectionSettings() {
       loadChannelSettings(serverId);
     }
   }, [serverId]);
+  
+  // Update local state when persistent data loads
+  React.useEffect(() => {
+    if (!isPersistentLoading && persistentChannelSettings) {
+      setChannelSettings(prev => ({
+        calendar: persistentChannelSettings.calendar || prev.calendar,
+        vipShoutouts: persistentChannelSettings.vipShoutouts || prev.vipShoutouts,
+        mountaineerShoutouts: persistentChannelSettings.mountaineerShoutouts || prev.mountaineerShoutouts,
+        trainShoutouts: persistentChannelSettings.trainShoutouts || prev.trainShoutouts,
+        pileShoutouts: persistentChannelSettings.pileShoutouts || prev.pileShoutouts,
+      }));
+    }
+  }, [isPersistentLoading, persistentChannelSettings]);
 
   const loadChannels = async (id: string) => {
     try {
@@ -41,11 +59,21 @@ export function ChannelSelectionSettings() {
   };
 
   const loadChannelSettings = async (id: string) => {
+    if (!firestore) return;
+    
     try {
-      const response = await fetch(`/api/settings/channels?serverId=${id}`);
-      if (response.ok) {
-        const settings = await response.json();
-        setChannelSettings(prev => ({ ...prev, ...settings }));
+      const channelsRef = doc(firestore, 'servers', id, 'config', 'channels');
+      const snapshot = await getDoc(channelsRef);
+      
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        setChannelSettings({
+          calendar: data.calendar || '',
+          vipShoutouts: data.vipShoutouts || '',
+          mountaineerShoutouts: data.mountaineerShoutouts || '',
+          trainShoutouts: data.trainShoutouts || '',
+          pileShoutouts: data.pileShoutouts || '',
+        });
       }
     } catch (error) {
       console.error('Error loading channel settings:', error);
@@ -53,17 +81,12 @@ export function ChannelSelectionSettings() {
   };
 
   const saveChannelSettings = async () => {
-    if (!serverId) return;
+    if (!serverId || !firestore) return;
     
     setIsLoading(true);
     try {
-      const response = await fetch('/api/settings/channels', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ serverId, channelSettings }),
-      });
-      
-      if (!response.ok) throw new Error('Failed to save');
+      const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
+      await setDoc(channelsRef, channelSettings, { merge: true });
       
       toast({
         title: 'Success',

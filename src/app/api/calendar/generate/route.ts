@@ -15,7 +15,14 @@ export async function POST(request: NextRequest) {
     }
 
     const monthOffset = 0;
+    console.log(`[CalendarAPI] Generating calendar for server ${serverId}, channel ${channelId}`);
+    
     const imageUrl = await uploadCalendarImageFromGenerator(serverId, monthOffset);
+    if (!imageUrl) {
+      throw new Error('Failed to generate or upload calendar image');
+    }
+    
+    console.log(`[CalendarAPI] Image ready: ${imageUrl}`);
     const { missionEmbed, calendarEmbed } = await generateCalendarEmbeds(serverId, imageUrl);
 
     // If not posting to Discord, just return the generated data
@@ -38,6 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://localhost:3000' : 'http://localhost:3000');
+    console.log(`[CalendarAPI] Posting to Discord channel ${channelId}`);
     const discordResponse = await fetch(`${baseUrl}/api/discord/post`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -49,8 +57,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!discordResponse.ok) {
-      throw new Error('Failed to post to Discord');
+      const errorText = await discordResponse.text();
+      console.error(`[CalendarAPI] Discord post failed: ${discordResponse.status} - ${errorText}`);
+      throw new Error(`Failed to post to Discord: ${discordResponse.status}`);
     }
+    
+    console.log('[CalendarAPI] Successfully posted to Discord');
 
     const result = await discordResponse.json();
 
