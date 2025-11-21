@@ -37,8 +37,9 @@ export async function generateLeaderboardImage(
           return result.dataUrl;
         }
       }
+      console.log('[LocalService] Screenshot failed, falling back to FreeConvert');
     } catch (error) {
-      console.error('[LocalService] Failed, falling back to FreeConvert:', error);
+      console.log('[LocalService] Not available, falling back to FreeConvert');
     }
   }
 
@@ -80,6 +81,10 @@ export async function generateLeaderboardImage(
             "operation": "export/url",
             "input": ["convert-1"]
           }
+        },
+        "webhook": {
+          "url": `${await getBaseUrl(guildId)}/api/discord/freeconvert-webhook`,
+          "secret": "4c4808c4-f90b-4c8a-ae48-ce6818a3045e"
         }
       })
     });
@@ -87,45 +92,40 @@ export async function generateLeaderboardImage(
     let jobData;
     try {
       jobData = await response.json();
+      console.log('[FreeConvert] Response:', response.status, JSON.stringify(jobData, null, 2));
     } catch (parseError) {
+      console.error('[FreeConvert] Failed to parse response:', response.status, await response.text());
       throw new Error(`Job creation failed: ${response.status} - Invalid response`);
     }
     
-    // Handle 402 errors but continue if we got a job ID
-    if (!response.ok && !jobData?.id) {
-      throw new Error(`Job creation failed: ${response.status}`);
-    }
-    
     if (!jobData?.id) {
-      throw new Error('No job ID received from FreeConvert');
+      throw new Error(`No job ID received from FreeConvert: ${response.status}`);
     }
     
-    // Poll for completion
-    for (let i = 0; i < 60; i++) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+    // Wait for webhook completion (shorter timeout since webhook is faster)
+    for (let i = 0; i < 30; i++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const statusResponse = await fetch(`https://api.freeconvert.com/v1/process/jobs/${jobData.id}`, {
-        headers: { 'Authorization': `Bearer ${apiKey}` }
-      });
+      const jobDoc = await (await import('@/firebase/server-init')).db
+        .collection('freeconvert-jobs')
+        .doc(jobData.id)
+        .get();
 
-      const statusData = await statusResponse.json();
-
-      if (statusData.status === 'completed') {
-        const exportTask = statusData.tasks['export-1'];
-        if (exportTask?.result?.files?.[0]?.url) {
-          console.log('[FreeConvert] Leaderboard screenshot completed.');
-          return exportTask.result.files[0].url;
+      if (jobDoc.exists) {
+        const data = jobDoc.data();
+        if (data?.status === 'completed' && data?.imageUrl) {
+          console.log('[FreeConvert] Leaderboard screenshot completed via webhook.');
+          return data.imageUrl;
+        }
+        if (data?.status === 'failed') {
+          throw new Error(`FreeConvert job failed: ${data.error}`);
         }
       }
-
-      if (statusData.status === 'failed') {
-        throw new Error('FreeConvert job failed');
-      }
     }
     
-    throw new Error('FreeConvert job timeout');
+    throw new Error('FreeConvert webhook timeout');
   } catch (error) {
-    console.error('[generateLeaderboardImage] Error:', error);
+    console.error('[generateLeaderboardImage] Both local service and FreeConvert failed:', error);
     return null;
   }
 }

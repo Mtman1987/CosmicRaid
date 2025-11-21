@@ -60,11 +60,10 @@ export async function generateCalendarImage(
           console.log('[LocalService] Using base64 fallback');
           return result.dataUrl;
         }
-      } else {
-        console.error('[LocalService] Screenshot failed:', response.status, await response.text());
       }
+      console.log('[LocalService] Screenshot failed, falling back to FreeConvert');
     } catch (error) {
-      console.error('[LocalService] Failed, falling back to FreeConvert:', error);
+      console.log('[LocalService] Not available, falling back to FreeConvert');
     }
   }
 
@@ -79,6 +78,7 @@ export async function generateCalendarImage(
 
   try {
     console.log('[FreeConvert] Taking calendar screenshot...');
+    console.log('[FreeConvert] Target URL:', screenshotUrl);
     const response = await fetch('https://api.freeconvert.com/v1/process/jobs', {
       method: 'POST',
       headers: {
@@ -113,6 +113,10 @@ export async function generateCalendarImage(
             "input": ["convert-1"],
             "filename": "calendar-screenshot.png"
           }
+        },
+        "webhook": {
+          "url": `${await getBaseUrl(guildId)}/api/discord/freeconvert-webhook`,
+          "secret": "4c4808c4-f90b-4c8a-ae48-ce6818a3045e"
         }
       })
     });
@@ -120,51 +124,44 @@ export async function generateCalendarImage(
     let jobData;
     try {
       jobData = await response.json();
+      console.log('[FreeConvert] Response:', response.status, JSON.stringify(jobData, null, 2));
     } catch (parseError) {
+      console.error('[FreeConvert] Failed to parse response:', response.status, await response.text());
       throw new Error(`Job creation failed: ${response.status} - Invalid response`);
     }
     
-    // Handle 402 errors but continue if we got a job ID
-    if (!response.ok && !jobData?.id) {
-      throw new Error(`Job creation failed: ${response.status}`);
-    }
-    
     if (!jobData?.id) {
-      throw new Error('No job ID received from FreeConvert');
+      throw new Error(`No job ID received from FreeConvert: ${response.status}`);
     }
     
-    // Poll for completion (30 iterations = 30 seconds total, since jobs average 5 seconds)
+    // Wait for webhook completion
     for (let i = 0; i < 30; i++) {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const statusResponse = await fetch(`https://api.freeconvert.com/v1/process/jobs/${jobData.id}`, {
-        headers: { 'Authorization': `Bearer ${apiKey}` }
-      });
+      const jobDoc = await (await import('@/firebase/server-init')).db
+        .collection('freeconvert-jobs')
+        .doc(jobData.id)
+        .get();
 
-      const statusData = await statusResponse.json();
-      console.log(`[FreeConvert] Job status: ${statusData.status} (attempt ${i + 1}/30)`);
-
-      if (statusData.status === 'completed') {
-        console.log('[FreeConvert] Job completed, checking for URL:', JSON.stringify(statusData.tasks['export-1'], null, 2));
-        const exportTask = statusData.tasks['export-1'];
-        if (exportTask?.result?.files?.[0]?.url) {
-          console.log('[FreeConvert] Calendar screenshot completed.');
-          return exportTask.result.files[0].url;
-        } else {
-          console.error('[FreeConvert] No URL found in completed job:', exportTask);
+      if (jobDoc.exists) {
+        const data = jobDoc.data();
+        console.log(`[FreeConvert] Webhook status: ${data?.status} (attempt ${i + 1}/30)`);
+        
+        if (data?.status === 'completed' && data?.imageUrl) {
+          console.log('[FreeConvert] Calendar screenshot completed via webhook.');
+          return data.imageUrl;
         }
-      }
-
-      if (statusData.status === 'failed') {
-        console.error('[FreeConvert] Job failed:', statusData);
-        throw new Error('FreeConvert job failed');
+        if (data?.status === 'failed') {
+          console.error('[FreeConvert] Job failed via webhook:', data.error);
+          throw new Error(`FreeConvert job failed: ${data.error}`);
+        }
       }
     }
 
-    console.error('[FreeConvert] Job timeout - final status:', statusData?.status);
-    throw new Error('FreeConvert job timeout');
+    console.error('[FreeConvert] Webhook timeout');
+    throw new Error('FreeConvert webhook timeout');
   } catch (error) {
-    console.error('[generateCalendarImage] Error:', error);
+    console.error('[generateCalendarImage] Both local service and FreeConvert failed:', error);
     return null;
   }
 }

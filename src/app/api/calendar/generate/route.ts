@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     
     const imageUrl = await uploadCalendarImageFromGenerator(serverId, monthOffset);
     if (!imageUrl) {
-      throw new Error('Failed to generate or upload calendar image');
+      throw new Error('Failed to generate calendar image. Please check that the calendar page is accessible.');
     }
     
     console.log(`[CalendarAPI] Image ready: ${imageUrl}`);

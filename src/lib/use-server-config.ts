@@ -131,10 +131,10 @@ export function useShoutoutChannel(groupKey: string) {
         
         if (snapshot.exists()) {
           const channels = snapshot.data();
-          setChannelId(channels?.[groupKey] || '');
+          const channelKey = groupKey === 'vip' ? 'vipShoutouts' : `${groupKey}Shoutouts`;
+          setChannelId(channels?.[channelKey] || '');
         }
       } catch (error) {
-        // Silent - just means document doesn't exist yet
         console.log('[useShoutoutChannel] No config found yet (normal on first use)');
       } finally {
         setIsLoading(false);
@@ -150,9 +150,10 @@ export function useShoutoutChannel(groupKey: string) {
 
       try {
         const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
+        const channelKey = groupKey === 'vip' ? 'vipShoutouts' : `${groupKey}Shoutouts`;
         
         await setDoc(channelsRef, {
-          [groupKey]: newChannelId,
+          [channelKey]: newChannelId,
         }, { merge: true });
         
         setChannelId(newChannelId);
@@ -185,15 +186,14 @@ export function useCalendarChannel() {
 
     const loadChannel = async () => {
       try {
-        const configRef = doc(firestore, 'servers', serverId, 'config', 'settings');
-        const snapshot = await getDoc(configRef);
+        const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
+        const snapshot = await getDoc(channelsRef);
         
         if (snapshot.exists()) {
           const data = snapshot.data();
-          setChannelId(data?.calendarChannelId || '');
+          setChannelId(data?.calendar || '');
         }
       } catch (error) {
-        // Silent - just means document doesn't exist yet
         console.log('[useCalendarChannel] No config found yet (normal on first use)');
       }
     };
@@ -206,8 +206,8 @@ export function useCalendarChannel() {
       if (!firestore || !serverId) return;
 
       try {
-        const configRef = doc(firestore, 'servers', serverId, 'config', 'settings');
-        await setDoc(configRef, { calendarChannelId: newChannelId }, { merge: true });
+        const channelsRef = doc(firestore, 'servers', serverId, 'config', 'channels');
+        await setDoc(channelsRef, { calendar: newChannelId }, { merge: true });
         setChannelId(newChannelId);
       } catch (error) {
         console.error('[useCalendarChannel] Failed to save:', error);
