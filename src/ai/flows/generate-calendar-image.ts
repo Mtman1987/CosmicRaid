@@ -150,9 +150,16 @@ export async function generateCalendarImage(
       console.log(`[FreeConvert] convert-1 status: ${convertTask?.status}`);
       console.log(`[FreeConvert] export-1 status: ${exportTask?.status}`);
       
-      if (exportTask?.status === 'completed' && exportTask?.result?.files?.[0]?.url) {
-        console.log('[FreeConvert] Calendar screenshot completed:', exportTask.result.files[0].url);
-        return exportTask.result.files[0].url;
+      if (exportTask?.status === 'completed') {
+        console.log('[FreeConvert] Export task completed, checking for URL...');
+        console.log('[FreeConvert] Export task result:', JSON.stringify(exportTask.result, null, 2));
+        if (exportTask?.result?.files?.[0]?.url) {
+          console.log('[FreeConvert] Calendar screenshot completed:', exportTask.result.files[0].url);
+          return exportTask.result.files[0].url;
+        } else if (exportTask?.result?.url) {
+          console.log('[FreeConvert] Calendar screenshot completed (direct URL):', exportTask.result.url);
+          return exportTask.result.url;
+        }
       }
 
       if (statusData.status === 'failed' || exportTask?.status === 'failed') {
