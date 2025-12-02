@@ -120,29 +120,35 @@ export async function generateCalendarImage(
     let jobData;
     try {
       jobData = await response.json();
-      console.log('[FreeConvert] Response:', response.status, JSON.stringify(jobData, null, 2));
+      console.log('[FreeConvert] Job created:', jobData.id);
     } catch (parseError) {
-      console.error('[FreeConvert] Failed to parse response:', response.status, await response.text());
-      throw new Error(`Job creation failed: ${response.status} - Invalid response`);
+      throw new Error(`Job creation failed: ${response.status}`);
     }
     
     if (!jobData?.id) {
       throw new Error(`No job ID received from FreeConvert: ${response.status}`);
     }
     
-    // Wait 10 seconds for job completion (FreeConvert takes ~6 seconds)
-    console.log('[FreeConvert] Waiting 10 seconds for job completion...');
+    // Wait 10 seconds then get the final result
+    console.log('[FreeConvert] Waiting 10 seconds for completion...');
     await new Promise(resolve => setTimeout(resolve, 10000));
     
-    // Use predictable URL pattern
-    const exportTaskId = jobData.tasks.find((task: any) => task.name === 'export-1')?.id;
-    if (exportTaskId) {
-      const predictableUrl = `https://s120-grog.freeconvert.com/task/${exportTaskId}/calendar-screenshot.png`;
-      console.log('[FreeConvert] Using predictable URL:', predictableUrl);
-      return predictableUrl;
+    // Get the completed job with results
+    const finalResponse = await fetch(`https://api.freeconvert.com/v1/process/jobs/${jobData.id}`, {
+      headers: { 'Authorization': `Bearer ${apiKey}` }
+    });
+    
+    const finalData = await finalResponse.json();
+    console.log('[FreeConvert] Final job data:', JSON.stringify(finalData, null, 2));
+    
+    // Find export task and get URL from result
+    const exportTask = Object.values(finalData.tasks || {}).find((task: any) => task.name === 'export-1');
+    if (exportTask?.result?.url) {
+      console.log('[FreeConvert] Found URL in result:', exportTask.result.url);
+      return exportTask.result.url;
     }
     
-    throw new Error('No export task ID found');
+    throw new Error('No URL found in export task result');
   } catch (error) {
     console.error('[generateCalendarImage] Both local service and FreeConvert failed:', error);
     return null;
