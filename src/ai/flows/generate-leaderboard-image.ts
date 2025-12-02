@@ -98,48 +98,19 @@ export async function generateLeaderboardImage(
       throw new Error(`No job ID received from FreeConvert: ${response.status}`);
     }
     
-    // Poll for completion
-    for (let i = 0; i < 30; i++) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const statusResponse = await fetch(`https://api.freeconvert.com/v1/process/jobs/${jobData.id}`, {
-        headers: { 'Authorization': `Bearer ${apiKey}` }
-      });
-
-      const statusData = await statusResponse.json();
-      console.log(`[FreeConvert] Job status: ${statusData.status} (attempt ${i + 1}/30)`);
-      
-      // Log all task statuses
-      const importTask = statusData.tasks['import-1'];
-      const convertTask = statusData.tasks['convert-1'];
-      const exportTask = statusData.tasks['export-1'];
-      
-      console.log(`[FreeConvert] import-1 status: ${importTask?.status}`);
-      console.log(`[FreeConvert] convert-1 status: ${convertTask?.status}`);
-      console.log(`[FreeConvert] export-1 status: ${exportTask?.status}`);
-      
-      if (exportTask?.status === 'completed') {
-        console.log('[FreeConvert] Export task completed, checking for URL...');
-        console.log('[FreeConvert] Export task result:', JSON.stringify(exportTask.result, null, 2));
-        if (exportTask?.result?.files?.[0]?.url) {
-          console.log('[FreeConvert] Leaderboard screenshot completed:', exportTask.result.files[0].url);
-          return exportTask.result.files[0].url;
-        } else if (exportTask?.result?.url) {
-          console.log('[FreeConvert] Leaderboard screenshot completed (direct URL):', exportTask.result.url);
-          return exportTask.result.url;
-        }
-      }
-
-      if (statusData.status === 'failed' || exportTask?.status === 'failed') {
-        console.error('[FreeConvert] Job or export task failed:', JSON.stringify(statusData, null, 2));
-        throw new Error('FreeConvert job failed');
-      }
+    // Wait 10 seconds for job completion (FreeConvert takes ~6 seconds)
+    console.log('[FreeConvert] Waiting 10 seconds for job completion...');
+    await new Promise(resolve => setTimeout(resolve, 10000));
+    
+    // Use predictable URL pattern
+    const exportTaskId = jobData.tasks.find((task: any) => task.name === 'export-1')?.id;
+    if (exportTaskId) {
+      const predictableUrl = `https://s120-grog.freeconvert.com/task/${exportTaskId}/cosmicraid--studio-9468926194-e03ac_us-central1_hosted_app__headless_leaderboard_${guildId}.png`;
+      console.log('[FreeConvert] Using predictable URL:', predictableUrl);
+      return predictableUrl;
     }
     
-    // Fallback: construct predictable URL even if polling failed
-    const fallbackUrl = `https://s120-grog.freeconvert.com/task/${jobData.tasks['export-1'].id}/cosmicraid--studio-9468926194-e03ac_us-central1_hosted_app__headless_leaderboard_${guildId}.png`;
-    console.log('[FreeConvert] Polling timeout, trying fallback URL:', fallbackUrl);
-    return fallbackUrl;
+    throw new Error('No export task ID found');
   } catch (error) {
     console.error('[generateLeaderboardImage] Both local service and FreeConvert failed:', error);
     return null;
