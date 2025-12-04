@@ -86,12 +86,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'serverId and channelId are required' }, { status: 400 });
     }
     
+    console.log('[LeaderboardPost] Attempting to generate leaderboard screenshot...');
     let dataUrl = await takeLeaderboardScreenshot(serverId);
+    console.log('[LeaderboardPost] Local screenshot result:', dataUrl ? 'success' : 'failed');
+    
     if (!dataUrl) {
+      console.log('[LeaderboardPost] Trying FreeConvert fallback...');
       dataUrl = await generateLeaderboardImage(serverId);
+      console.log('[LeaderboardPost] FreeConvert result:', dataUrl ? 'success' : 'failed');
     }
+    
     if (!dataUrl) {
-      return NextResponse.json({ error: 'Failed to generate leaderboard screenshot' }, { status: 500 });
+      console.error('[LeaderboardPost] Both local service and FreeConvert failed');
+      return NextResponse.json({ 
+        error: 'Failed to generate leaderboard screenshot. Both local service and FreeConvert are unavailable.' 
+      }, { status: 500 });
     }
 
     let imageUrl: string | null = null;
