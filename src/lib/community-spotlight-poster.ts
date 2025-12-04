@@ -120,14 +120,14 @@ export async function postCommunitySpotlight(serverId: string): Promise<void> {
             style: 5,
             label: `Watch ${spotlight.streamerName}`,
             url: `https://twitch.tv/${spotlight.streamerName}`,
-            emoji: { name: '🎮' }
+
           },
           ...(discordInvite ? [{
             type: 2,
             style: 5,
             label: 'Join Community',
             url: discordInvite,
-            emoji: { name: '🎆' }
+
           }] : [])
         ]
       }]

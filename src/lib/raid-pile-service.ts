@@ -304,21 +304,21 @@ export class RaidPileService {
             style: 1,
             label: 'Join Pile',
             custom_id: 'raid_pile_join',
-            emoji: { name: '🏔️' }
+
           },
           {
             type: 2,
             style: 4,
             label: 'Leave Pile',
             custom_id: 'raid_pile_leave',
-            emoji: { name: '❌' }
+
           },
           {
             type: 2,
             style: 2,
             label: 'Next Target',
             custom_id: 'raid_pile_next',
-            emoji: { name: '🎯' }
+
           }
         ]
       }]

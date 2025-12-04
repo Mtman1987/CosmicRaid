@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
           style: 2,
           label: 'Check My Rank',
           custom_id: `leaderboard_rank_${serverId}`,
-          emoji: { name: 'dY\"S' }
+
         }]
       }]
     };
