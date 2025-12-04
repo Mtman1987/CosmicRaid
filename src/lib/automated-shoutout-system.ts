@@ -261,8 +261,7 @@ async function postOrUpdateShoutout(channelId: string, user: any, serverId: stri
           type: 2,
           style: 5, // Link button
           label: 'Join Stream',
-          url: `https://twitch.tv/${user.username}`,
-          emoji: { name: '🎮' }
+          url: `https://twitch.tv/${user.username}`
         }]
       }]
     });
@@ -314,8 +313,7 @@ export async function postShoutoutToDiscord(serverId: string, channelId: string,
           type: 2,
           style: 5, // Link button
           label: 'Join Stream',
-          url: `https://twitch.tv/${streamerName}`,
-          emoji: { name: '🎮' }
+          url: `https://twitch.tv/${streamerName}`
         }]
       }]
     });

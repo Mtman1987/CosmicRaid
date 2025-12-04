@@ -168,7 +168,8 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
         } else {
           // Community members get static images only
           try {
-            cardUrl = await generateCommunityCard(serverId, streamerName, {
+            const { generateCommunityCardImage } = await import('@/ai/flows/generate-community-card-image');
+            cardUrl = await generateCommunityCardImage(serverId, streamerName, {
               title: desiredTitle,
               game: desiredGame,
               viewers: viewerCount,

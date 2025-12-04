@@ -172,13 +172,13 @@ export function buildCalendarButtons(serverId: string) {
         {
           type: 2,
           style: 1,
-          label: "📘 Captain's Log",
+          label: "Captain's Log",
           custom_id: `calendar_captain_log_${serverId}`,
         },
         {
           type: 2,
           style: 1,
-          label: '🚀 Add Mission',
+          label: 'Add Mission',
           custom_id: `calendar_add_mission_${serverId}`,
         },
       ],
@@ -189,13 +189,13 @@ export function buildCalendarButtons(serverId: string) {
         {
           type: 2,
           style: 2,
-          label: '⟵ Prev Month',
+          label: 'Prev Month',
           custom_id: `calendar_prev_month_${serverId}`,
         },
         {
           type: 2,
           style: 2,
-          label: 'Next Month ⟶',
+          label: 'Next Month',
           custom_id: `calendar_next_month_${serverId}`,
         },
       ],
