@@ -232,23 +232,9 @@ export async function refreshCalendarMessage(serverId: string) {
 
   const botToken = await ensureBotToken(serverId);
 
-  // Send new image first
-  const imageResponse = await fetch(`https://discord.com/api/v10/channels/${meta.channelId}/messages`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bot ${botToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ content: imageUrl }),
-  });
-
-  if (!imageResponse.ok) {
-    const errorText = await imageResponse.text();
-    console.error('[CalendarRefresh] Discord image error:', imageResponse.status, errorText);
-    return { success: false, message: 'Failed to post updated image' };
-  }
-
-  // Update existing embed message
+  // Update existing message with new image in embed
+  calendarEmbed.image = { url: imageUrl };
+  
   const payload: any = {
     embeds: [missionEmbed, calendarEmbed],
   };

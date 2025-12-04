@@ -19,6 +19,7 @@
   - **NOTE**: Discord buttons will send HTTP POST requests to this endpoint
   - **SECURITY**: Ed25519 signature verification now implemented
 - [x] Fix calendar background (applied same gradient as leaderboard)
+- [x] Fix calendar message tracking (now updates existing message instead of creating new ones)
 - [ ] Test calendar styling in FreeConvert screenshots
 - [ ] Test Discord button interactions end-to-end
 - [ ] Verify calendar refresh triggers properly
