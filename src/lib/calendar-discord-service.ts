@@ -172,16 +172,14 @@ export function buildCalendarButtons(serverId: string) {
         {
           type: 2,
           style: 1,
-          label: "Captain's Log",
+          label: "📘 Captain's Log",
           custom_id: `calendar_captain_log_${serverId}`,
-          emoji: '📘',
         },
         {
           type: 2,
           style: 1,
-          label: 'Add Mission',
+          label: '🚀 Add Mission',
           custom_id: `calendar_add_mission_${serverId}`,
-          emoji: '🚀',
         },
       ],
     },

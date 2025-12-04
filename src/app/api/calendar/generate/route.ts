@@ -36,45 +36,43 @@ export async function POST(request: NextRequest) {
     }
 
     // Post to Discord
-    const messagePayload: any = {
-      embeds: [missionEmbed, calendarEmbed],
-    };
-
-    if (includeButtons) {
-      messagePayload.components = buildCalendarButtons(serverId);
+    console.log(`[CalendarAPI] Posting to Discord channel ${channelId}`);
+    
+    const { sendDiscordMessage } = await import('@/lib/discord-bot-service');
+    
+    // Send image first (without embed to prevent shrinking)
+    const imageMessageId = await sendDiscordMessage(channelId, {
+      content: imageUrl
+    }, serverId);
+    
+    if (!imageMessageId) {
+      throw new Error('Failed to post calendar image to Discord');
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://localhost:3000' : 'http://localhost:3000');
-    console.log(`[CalendarAPI] Posting to Discord channel ${channelId}`);
-    const discordResponse = await fetch(`${baseUrl}/api/discord/post`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        channelId,
-        embeds: [missionEmbed, calendarEmbed],
-        components: includeButtons ? buildCalendarButtons(serverId) : undefined,
-      }),
-    });
+    // Then send embeds with buttons (without image)
+    const embedPayload: any = {
+      embeds: [missionEmbed, calendarEmbed],
+    };
+    if (includeButtons) {
+      embedPayload.components = buildCalendarButtons(serverId);
+    }
 
-    if (!discordResponse.ok) {
-      const errorText = await discordResponse.text();
-      console.error(`[CalendarAPI] Discord post failed: ${discordResponse.status} - ${errorText}`);
-      throw new Error(`Failed to post to Discord: ${discordResponse.status}`);
+    const messageId = await sendDiscordMessage(channelId, embedPayload, serverId);
+    if (!messageId) {
+      throw new Error('Failed to post calendar embed to Discord');
     }
     
     console.log('[CalendarAPI] Successfully posted to Discord');
 
-    const result = await discordResponse.json();
-
     await storeCalendarMessageMeta(serverId, {
       channelId,
-      messageId: result.id,
+      messageId,
       includeButtons,
       lastImageUrl: imageUrl,
       monthOffset,
     });
 
-    return NextResponse.json({ success: true, messageId: result.id });
+    return NextResponse.json({ success: true, messageId, imageMessageId });
   } catch (error) {
     console.error('Calendar generation error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
