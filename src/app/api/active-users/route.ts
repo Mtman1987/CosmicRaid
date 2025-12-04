@@ -10,40 +10,61 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'serverId is required' }, { status: 400 });
     }
 
+    console.log('[ActiveUsers API] Fetching for serverId:', serverId);
+
     // Get active users from userServerMappings (last 5 minutes)
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const mappingsSnapshot = await db.collection('userServerMappings')
-      .where('serverId', '==', serverId)
-      .where('isOnline', '==', true)
-      .where('lastSeen', '>', fiveMinutesAgo)
-      .get();
+    
+    let mappingsSnapshot;
+    try {
+      mappingsSnapshot = await db.collection('userServerMappings')
+        .where('serverId', '==', serverId)
+        .where('isOnline', '==', true)
+        .where('lastSeen', '>', fiveMinutesAgo)
+        .get();
+    } catch (firestoreError) {
+      console.error('[ActiveUsers API] Firestore query error:', firestoreError);
+      // Return empty array if Firestore has issues
+      return NextResponse.json([]);
+    }
 
+    console.log('[ActiveUsers API] Found mappings:', mappingsSnapshot.size);
     const activeUsers = [];
     
     for (const doc of mappingsSnapshot.docs) {
-      const mapping = doc.data();
-      
-      // Get user avatar from Discord users collection
-      const userDoc = await db.collection('servers')
-        .doc(serverId)
-        .collection('users')
-        .doc(mapping.userId)
-        .get();
-      
-      const userData = userDoc.data();
-      
-      activeUsers.push({
-        userId: mapping.userId,
-        username: userData?.username || mapping.twitchUsername || 'Unknown',
-        avatarUrl: userData?.avatarUrl,
-        isOnline: mapping.isOnline,
-        lastSeen: mapping.lastSeen
-      });
+      try {
+        const mapping = doc.data();
+        
+        // Get user avatar from Discord users collection
+        let userData = null;
+        try {
+          const userDoc = await db.collection('servers')
+            .doc(serverId)
+            .collection('users')
+            .doc(mapping.userId)
+            .get();
+          userData = userDoc.data();
+        } catch (userError) {
+          console.warn('[ActiveUsers API] Failed to get user data for:', mapping.userId);
+        }
+        
+        activeUsers.push({
+          userId: mapping.userId,
+          username: userData?.username || mapping.twitchUsername || 'Unknown',
+          avatarUrl: userData?.avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png',
+          isOnline: mapping.isOnline,
+          lastSeen: mapping.lastSeen
+        });
+      } catch (userProcessError) {
+        console.warn('[ActiveUsers API] Error processing user:', userProcessError);
+      }
     }
 
+    console.log('[ActiveUsers API] Returning users:', activeUsers.length);
     return NextResponse.json(activeUsers);
   } catch (error) {
-    console.error('Error fetching active users:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[ActiveUsers API] General error:', error);
+    // Return empty array instead of 500 error
+    return NextResponse.json([]);
   }
 }

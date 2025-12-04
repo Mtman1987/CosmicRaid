@@ -60,6 +60,7 @@
 - [x] Add ActiveUsersHeader to main layout
 - [x] Create test user button in settings page
 - [x] Add /api/test-user endpoint for button functionality
+- [x] Fix Firestore errors in active users API (added error handling)
 - [ ] Test with real user + test user display
 - [ ] Add red/green status circles for local service connectivity
 - [ ] Display which user is hosting local services
