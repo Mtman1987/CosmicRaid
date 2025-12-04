@@ -36,33 +36,27 @@ export default async function LeaderboardPage({
           avatarUrl: data.lastEventMetadata?.avatarUrl
         };
       });
+      console.log('[HeadlessLeaderboard] Loaded leaderboard entries:', leaderboard.length);
+    } else {
+      console.log('[HeadlessLeaderboard] No leaderboard data found');
     }
-    
-    // Fallback to sample data if no leaderboard exists
-    if (leaderboard.length === 0) {
-      console.log('[HeadlessLeaderboard] No leaderboard data found, using sample data');
-      leaderboard = [{
-        username: 'TestUser',
-        points: 400,
-        rank: 1,
-        avatarUrl: undefined
-      }];
-    }
-    
-    console.log('[HeadlessLeaderboard] Formatted leaderboard data:', leaderboard);
   } catch (error) {
     console.error('[HeadlessLeaderboard] Error fetching leaderboard:', error);
-    // Fallback to sample data on error
-    leaderboard = [{
-      username: 'TestUser',
-      points: 400,
-      rank: 1,
-      avatarUrl: undefined
-    }];
+  }
+  
+  // Always ensure we have at least sample data for screenshots
+  if (leaderboard.length === 0) {
+    console.log('[HeadlessLeaderboard] Using fallback sample data');
+    leaderboard = [
+      { username: 'TestUser1', points: 1500, rank: 1, avatarUrl: undefined },
+      { username: 'TestUser2', points: 1200, rank: 2, avatarUrl: undefined },
+      { username: 'TestUser3', points: 900, rank: 3, avatarUrl: undefined }
+    ];
   }
 
   return (
-    <div className="leaderboard min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
+    <div className="w-[960px] h-[540px] overflow-hidden">
+      <div className="leaderboard w-full h-full bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 opacity-60" style={{
@@ -94,7 +88,7 @@ export default async function LeaderboardPage({
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-3xl mx-auto max-h-[350px] overflow-y-auto">
           {leaderboard.map((entry, index) => (
             <div
               key={entry.username}
@@ -155,8 +149,7 @@ export default async function LeaderboardPage({
           </div>
         </div>
       </div>
-
-
+      </div>
     </div>
   );
 }

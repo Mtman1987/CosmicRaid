@@ -23,7 +23,11 @@ export async function generateLeaderboardImage(
       const response = await fetch(`${localServiceUrl}/api/screenshot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: screenshotUrl, selector: 'div.w-\\[600px\\]' })
+        body: JSON.stringify({ 
+          url: screenshotUrl, 
+          selector: 'div.w-\\[960px\\]',
+          waitTime: 4000
+        })
       });
       
       if (response.ok) {
@@ -72,9 +76,9 @@ export async function generateLeaderboardImage(
             "input_format": "webpage",
             "output_format": "png",
             "options": {
-              "viewport_width": 600,
-              "viewport_height": 800,
-              "delay": 3000
+              "viewport_width": 960,
+              "viewport_height": 540,
+              "delay": 4000
             }
           },
           "export-1": {

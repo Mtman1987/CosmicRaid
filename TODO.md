@@ -26,13 +26,15 @@
 - [x] Verify calendar refresh triggers properly
 
 ### Leaderboard & Points System
-- [ ] Fix leaderboard generation and display issues
+- [x] Fix leaderboard generation and display issues (applied calendar-style container fixes)
+- [x] Fix leaderboard screenshot dimensions and timing (updated to 960x540 with 4s wait)
 - [ ] Verify points calculation and attribution
 - [x] Add "Check Rank" button functionality to leaderboard posts (fixed custom_id mismatch)
 - [ ] Test leaderboard screenshot generation with local services
 
 ### Shoutout Systems
-- [ ] Fix and test community shoutouts
+- [x] Fix community shoutout card container sizing (applied calendar-style fixes)
+- [x] Fix shoutout card screenshot service (updated selector and timing)
 - [ ] Fix and test VIP shoutouts  
 - [ ] Build out raid pile shoutouts functionality
 - [ ] Verify automated shoutout cycles work correctly

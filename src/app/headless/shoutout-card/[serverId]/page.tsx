@@ -26,7 +26,8 @@ export default async function HeadlessShoutoutCardPage({
 
   return (
     <FirebaseComponentsProvider>
-      <main className="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 w-[960px] h-[540px] flex flex-col">
+      <div className="w-[960px] h-[540px] overflow-hidden">
+        <main className="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 w-full h-full flex flex-col">
         {/* Header */}
         <div className="w-full h-[60px] bg-black/60 border-b border-white/10 px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -160,6 +161,7 @@ export default async function HeadlessShoutoutCardPage({
         </div>
 
       </main>
+      </div>
     </FirebaseComponentsProvider>
   );
 }

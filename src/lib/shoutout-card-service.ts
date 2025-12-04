@@ -18,9 +18,8 @@ export async function generateShoutoutCard(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         url: `${(process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app')).replace(/\/$/, '')}/headless/shoutout-card/${serverId}?streamer=${cardData.streamerName}`,
-        width: 960,
-        height: 540,
-        waitFor: 3000
+        selector: 'div.w-\\[960px\\]',
+        waitTime: 4000
       }),
       signal: AbortSignal.timeout(10000)
     });
@@ -51,6 +50,7 @@ export async function generateShoutoutCardGif(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         url: `${process.env.NEXT_PUBLIC_BASE_URL}/headless/shoutout-card/${serverId}?streamer=${cardData.streamerName}`,
+        selector: 'div.w-\\[960px\\]',
         width: 960,
         height: 540,
         duration: 5000,
