@@ -36,8 +36,9 @@ export async function generateCalendarImage(
           width: 1280,
           height: 660,
           deviceScaleFactor: 1.5,
-          waitFor: 2000,
-          selector: 'main'
+          waitFor: 4000,
+          selector: 'main',
+          waitForSelector: '[class*="rounded-3xl"][class*="bg-gradient-to-br"]'
         }),
         signal: AbortSignal.timeout(10000)
       });
@@ -102,7 +103,7 @@ export async function generateCalendarImage(
               "margin": "0px",
               "viewport_width": 1280,
               "viewport_height": 660,
-              "initial_delay": "1",
+              "initial_delay": "3",
               "hide_cookie": true,
               "use_print_stylesheet": false,
               "png_compression_level": "light"

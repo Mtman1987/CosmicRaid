@@ -21,14 +21,14 @@
 - [x] Fix calendar background (applied same gradient as leaderboard)
 - [x] Fix calendar message tracking (now updates existing message instead of creating new ones)
 - [x] Fix Discord button interaction responses (now responds immediately and updates asynchronously)
-- [ ] Test calendar styling in FreeConvert screenshots
+- [x] Fix calendar screenshot timing (increased wait time from 2s to 4s and added component selector)
 - [x] Test Discord button interactions end-to-end
 - [x] Verify calendar refresh triggers properly
 
 ### Leaderboard & Points System
 - [ ] Fix leaderboard generation and display issues
 - [ ] Verify points calculation and attribution
-- [ ] Add "Check Rank" button functionality to leaderboard posts
+- [x] Add "Check Rank" button functionality to leaderboard posts (fixed custom_id mismatch)
 - [ ] Test leaderboard screenshot generation with local services
 
 ### Shoutout Systems
