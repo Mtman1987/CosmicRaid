@@ -163,9 +163,9 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
           
           if (clipResult) {
             cardUrl = clipResult
-            console.log('[Shoutout] VIP individual GIF generated for:', streamerName?.replace(/[\r\n]/g, ''));
+            console.log('[Shoutout] VIP individual GIF generated for:', streamerName?.replace(/[\r\n]/g, ''), 'URL:', clipResult);
           } else {
-            console.log('[Shoutout] VIP GIF generation failed for:', streamerName?.replace(/[\r\n]/g, ''));
+            console.log('[Shoutout] VIP GIF generation failed for:', streamerName?.replace(/[\r\n]/g, ''), '- will use fallback embed');
           }
         }
       } else if (isCommunity) {
@@ -188,9 +188,10 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
               isLive,
               group: 'community'
             })
-            console.log('[Shoutout] Static community card generated for:', streamerName?.replace(/[\r\n]/g, ''));
+            console.log('[Shoutout] Static community card generated for:', streamerName?.replace(/[\r\n]/g, ''), 'URL:', cardUrl);
           } catch (cardError) {
             console.error('[Shoutout] Community card failed for:', streamerName?.replace(/[\r\n]/g, ''), cardError instanceof Error ? cardError.message?.replace(/[\r\n]/g, '') : 'Unknown error');
+            console.error('[Shoutout] Community card error details:', cardError);
             cardUrl = null;
           }
         }
@@ -205,7 +206,7 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
       if (isCommunity) {
 
         if (cardUrl) {
-
+          console.log('[Shoutout] Community user', streamerName?.replace(/[\r\n]/g, ''), 'using card URL:', cardUrl);
           shoutoutData = {
             content: cardUrl,
             components: await buildActionButtons(streamerName, {
@@ -216,7 +217,7 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
           };
 
         } else {
-
+          console.log('[Shoutout] Community user', streamerName?.replace(/[\r\n]/g, ''), 'falling back to embed (no card URL)');
           const communityDescription = isLive
 
             ? `Space Cadet ${streamerName} is live with "${streamTitle}" in ${streamGame}. ${viewerCount > 0 ? `Currently holding ${viewerCount} viewers.` : 'Be the first to reinforce their mission crew.'}`
@@ -298,7 +299,7 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
       } else if (isVip) {
 
         if (cardUrl) {
-
+          console.log('[Shoutout] VIP user', streamerName?.replace(/[\r\n]/g, ''), 'using GIF URL:', cardUrl);
           shoutoutData = {
             content: cardUrl,
             components: await buildActionButtons(streamerName, {
@@ -309,7 +310,7 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
           };
 
         } else {
-
+          console.log('[Shoutout] VIP user', streamerName?.replace(/[\r\n]/g, ''), 'falling back to embed (no GIF URL)');
           const vipDescription = isLive
 
             ? `Captain ${streamerName} is broadcasting "${streamTitle}" in ${streamGame}. ${viewerCount > 0 ? `Leading ${viewerCount} viewers through the mission.` : 'They could use reinforcements.'}`
