@@ -35,6 +35,7 @@
 ### Shoutout Systems
 - [x] Fix community shoutout card container sizing (applied calendar-style fixes)
 - [x] Fix shoutout card screenshot service (updated selector and timing)
+- [x] Fix Discord config mismatch in community spotlight (channel field name)
 - [ ] Fix and test VIP shoutouts  
 - [ ] Build out raid pile shoutouts functionality
 - [ ] Verify automated shoutout cycles work correctly
