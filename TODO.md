@@ -36,9 +36,16 @@
 - [x] Fix community shoutout card container sizing (applied calendar-style fixes)
 - [x] Fix shoutout card screenshot service (updated selector and timing)
 - [x] Fix Discord config mismatch in community spotlight (channel field name)
-- [ ] Fix and test VIP shoutouts  
+- [x] Fix VIP animated GIF generation (integrated with local services /convert-gif endpoint)
+- [x] Fix GIF data structure and parameter passing for shoutout cards
+- [x] Fix Discord posting to handle GIF URLs from VIP shoutouts
+- [x] Fix channel configuration field names (vip/community instead of vipShoutouts/mountaineerShoutouts)
+- [x] Verify cron endpoint integration (/api/cron/shoutouts working with unified cron service)
+- [x] Fix stale user online status (force update all users in cron, added /api/force-update-users)
+- [x] Add manual update buttons to shoutout pages (Update Users & Post to Discord)
+- [x] Fix VIP user persistence issues (fixed user ID handling in ManageMembersDialog)
 - [ ] Build out raid pile shoutouts functionality
-- [ ] Verify automated shoutout cycles work correctly
+- [ ] Test complete VIP GIF workflow end-to-end
 - [ ] Test shoutout posting to correct Discord channels
 
 ### Raid Pile Functionality

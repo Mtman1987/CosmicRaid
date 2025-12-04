@@ -149,7 +149,16 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
         
         if (!cardUrl) {
           // VIPs always get individual GIF clips
-          const clipResult = await generateShoutoutCardGif(streamerName, serverId)
+          const clipResult = await generateShoutoutCardGif(serverId, {
+            streamerName,
+            streamTitle,
+            gameName: streamGame,
+            viewerCount,
+            avatarUrl: twitchAvatar,
+            streamThumbnail,
+            isLive,
+            isMature: isMatureStream
+          })
           
           if (clipResult) {
             cardUrl = clipResult

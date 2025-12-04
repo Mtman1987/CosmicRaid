@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { UserProfile } from '@/lib/types';
-import { Pencil, Trash2, ArrowLeft, Loader2, Rocket, Users, Clock, Trophy, Send, WandSparkles, XCircle, CheckCircle, PlayCircle, Star, PlusCircle, UserPlus, Layers, Save } from 'lucide-react';
+import { Pencil, Trash2, ArrowLeft, Loader2, Rocket, Users, Clock, Trophy, Send, WandSparkles, XCircle, CheckCircle, PlayCircle, Star, PlusCircle, UserPlus, Layers, Save, RefreshCw, Zap } from 'lucide-react';
 import Link from 'next/link';
 import {
   Dialog,
@@ -568,8 +568,8 @@ function ManageMembersDialog({ groupName, communityMembers, allRoles, serverId, 
                                 <SelectContent>
                                     {communityMembers.length > 0 ? (
                                         communityMembers.map(member => (
-                                            <SelectItem key={member.discordUserId} value={member.id}>
-                                                {member.username}
+                                            <SelectItem key={member.discordUserId || member.id} value={member.id || member.discordUserId}>
+                                                {member.username} ({member.id ? 'ID: ' + member.id.slice(0, 8) + '...' : 'No ID'})
                                             </SelectItem>
                                         ))
                                     ) : (
@@ -624,6 +624,8 @@ function ManageMembersDialog({ groupName, communityMembers, allRoles, serverId, 
 
 // Main component that renders different layouts based on group
 export default function GroupDetailPage() {
+  const [isUpdatingUsers, setIsUpdatingUsers] = React.useState(false);
+  const [isPostingDiscord, setIsPostingDiscord] = React.useState(false);
   const params = useParams();
   const pathname = usePathname();
   const { toast } = useToast();
@@ -742,6 +744,64 @@ export default function GroupDetailPage() {
       });
     }
   }, [channelInput, toast, serverId, channelGroupKey, pathname, channelFormAction, saveChannel]);
+
+  const handleForceUpdateUsers = React.useCallback(async () => {
+    setIsUpdatingUsers(true);
+    try {
+      const response = await fetch('/api/force-update-users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        toast({
+          title: 'Users Updated',
+          description: result.message
+        });
+      } else {
+        throw new Error('Update failed');
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Update Failed',
+        description: 'Could not update user statuses'
+      });
+    } finally {
+      setIsUpdatingUsers(false);
+    }
+  }, [toast]);
+
+  const handleForceDiscordPost = React.useCallback(async () => {
+    if (!serverId) return;
+    
+    setIsPostingDiscord(true);
+    try {
+      const response = await fetch('/api/force-discord-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serverId })
+      });
+      
+      if (response.ok) {
+        toast({
+          title: 'Posted to Discord',
+          description: 'Shoutouts posted successfully'
+        });
+      } else {
+        throw new Error('Discord posting failed');
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Discord Post Failed',
+        description: 'Could not post shoutouts to Discord'
+      });
+    } finally {
+      setIsPostingDiscord(false);
+    }
+  }, [serverId, toast]);
 
   const handleChannelClear = React.useCallback(async () => {
     try {
@@ -881,13 +941,23 @@ export default function GroupDetailPage() {
           title={`${groupName} Group`}
           description={`Manage the members and shoutouts for the ${groupName} group.`}
         >
-        {serverId && <ManageMembersDialog groupName={groupName} communityMembers={communityMembers} allRoles={allRoles} serverId={serverId} currentPath={pathname} />}
-        <Button asChild variant="outline">
-          <Link href="/shoutouts">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Shoutouts Hub
-          </Link>
-        </Button>
+        <div className="flex gap-2 flex-wrap">
+          {serverId && <ManageMembersDialog groupName={groupName} communityMembers={communityMembers} allRoles={allRoles} serverId={serverId} currentPath={pathname} />}
+          <Button onClick={handleForceUpdateUsers} disabled={isUpdatingUsers} variant="secondary">
+            {isUpdatingUsers ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+            Update Users
+          </Button>
+          <Button onClick={handleForceDiscordPost} disabled={isPostingDiscord || !serverId} variant="secondary">
+            {isPostingDiscord ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Zap className="mr-2 h-4 w-4" />}
+            Post to Discord
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/shoutouts">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Shoutouts Hub
+            </Link>
+          </Button>
+        </div>
       </PageHeader>
 
       <div className="rounded-lg border border-dashed border-secondary/50 bg-secondary/10 p-4 space-y-3">

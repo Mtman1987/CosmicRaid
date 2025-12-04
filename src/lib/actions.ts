@@ -585,19 +585,35 @@ export async function updateUserGroupAction(prevState: any, formData: FormData) 
     const serverId = formData.get('serverId') as string;
     const currentPath = formData.get('currentPath') as string;
     
+    console.log('[UpdateUserGroup] Received data:', { currentUserId, targetUserId, newGroup, serverId });
+    
     if (!currentUserId || !targetUserId || !newGroup || !serverId) {
         return { status: 'error' as const, message: 'Current user ID, target user ID, group, and server ID are required.' };
     }
 
     try {
-        await db.collection('servers').doc(serverId).collection('users').doc(targetUserId).update({
+        // Check if user document exists first
+        const userRef = db.collection('servers').doc(serverId).collection('users').doc(targetUserId);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) {
+            console.error('[UpdateUserGroup] User document not found:', targetUserId);
+            return { status: 'error' as const, message: `User document not found: ${targetUserId}` };
+        }
+        
+        const userData = userDoc.data();
+        console.log('[UpdateUserGroup] Current user data:', { username: userData?.username, currentGroup: userData?.group });
+        
+        await userRef.update({
             group: newGroup,
             groupUpdatedAt: new Date(),
             groupUpdatedBy: 'manual'
         });
         
-        return handleSuccess(`User group updated to ${newGroup}.`, currentPath);
+        console.log('[UpdateUserGroup] Successfully updated user group to:', newGroup);
+        return handleSuccess(`User ${userData?.username || targetUserId} group updated to ${newGroup}.`, currentPath);
     } catch (error) {
+        console.error('[UpdateUserGroup] Error:', error);
         return handleError(error, 'Failed to update user group.');
     }
 }

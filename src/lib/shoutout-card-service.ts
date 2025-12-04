@@ -45,26 +45,42 @@ export async function generateShoutoutCardGif(
     
     if (!tunnelUrl) return null;
 
-    const response = await fetch(`${tunnelUrl}/api/record`, {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+       'https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app');
+    
+    const shoutoutUrl = `${baseUrl.replace(/\/$/, '')}/headless/shoutout-card/${serverId}?` + 
+      new URLSearchParams({
+        streamer: cardData.streamerName || cardData.username,
+        title: cardData.streamTitle || cardData.title || 'Live Stream',
+        game: cardData.gameName || cardData.game || 'Just Chatting',
+        viewers: (cardData.viewerCount || cardData.viewers || 0).toString(),
+        avatar: cardData.avatarUrl || '',
+        thumbnail: cardData.streamThumbnail || cardData.thumbnailUrl || '',
+        live: (cardData.isLive !== undefined ? cardData.isLive : true).toString(),
+        mature: (cardData.isMature || false).toString()
+      }).toString();
+
+    const response = await fetch(`${tunnelUrl}/convert-gif`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/headless/shoutout-card/${serverId}?streamer=${cardData.streamerName}`,
-        selector: 'div.w-\\[960px\\]',
-        width: 960,
-        height: 540,
+        url: shoutoutUrl,
         duration: 5000,
-        format: 'gif'
+        fps: 10,
+        width: 960,
+        height: 540
       }),
-      signal: AbortSignal.timeout(15000)
+      signal: AbortSignal.timeout(20000)
     });
     
     if (response.ok) {
-      const { gifUrl } = await response.json();
-      return gifUrl;
+      const result = await response.json();
+      return result.imageUrl || result.dataUrl;
     }
     return null;
   } catch (error) {
+    console.error('[ShoutoutCardGif] Error:', error);
     return null;
   }
 }

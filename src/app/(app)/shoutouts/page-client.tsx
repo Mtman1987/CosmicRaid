@@ -15,7 +15,7 @@ import {
 import type { UserProfile } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Users, ArrowRight } from 'lucide-react';
+import { Users, ArrowRight, RefreshCw, Zap, Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { matchesGroup } from '@/lib/group-utils-client';
 
@@ -68,6 +68,8 @@ function GroupCard({ groupName, description, href, users, isLoading }: GroupCard
 export default function ShoutoutsPage() {
     const firestore = useFirestore();
     const serverId = useServerId();
+    const [isUpdatingUsers, setIsUpdatingUsers] = React.useState(false);
+    const [isPostingDiscord, setIsPostingDiscord] = React.useState(false);
 
     const usersCollectionRef = React.useMemo(() => {
         if (!firestore || !serverId) return null;
@@ -76,13 +78,64 @@ export default function ShoutoutsPage() {
 
     const { data: allUsers, isLoading: isLoadingUsers } = useCollection<UserProfile>(usersCollectionRef);
 
+    const handleForceUpdateUsers = React.useCallback(async () => {
+        setIsUpdatingUsers(true);
+        try {
+            const response = await fetch('/api/force-update-users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Users updated:', result.message);
+            }
+        } catch (error) {
+            console.error('Failed to update users:', error);
+        } finally {
+            setIsUpdatingUsers(false);
+        }
+    }, []);
+
+    const handleForceDiscordPost = React.useCallback(async () => {
+        if (!serverId) return;
+        
+        setIsPostingDiscord(true);
+        try {
+            const response = await fetch('/api/force-discord-post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ serverId })
+            });
+            
+            if (response.ok) {
+                console.log('Posted to Discord successfully');
+            }
+        } catch (error) {
+            console.error('Failed to post to Discord:', error);
+        } finally {
+            setIsPostingDiscord(false);
+        }
+    }, [serverId]);
+
 
   return (
     <div className="space-y-8">
       <PageHeader
         title="AI Shoutout Center"
         description="Manage your shoutout groups and generate AI-powered messages."
-      />
+      >
+        <div className="flex gap-2">
+          <Button onClick={handleForceUpdateUsers} disabled={isUpdatingUsers} variant="secondary" size="sm">
+            {isUpdatingUsers ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+            Update Users
+          </Button>
+          <Button onClick={handleForceDiscordPost} disabled={isPostingDiscord || !serverId} variant="secondary" size="sm">
+            {isPostingDiscord ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Zap className="mr-2 h-4 w-4" />}
+            Post to Discord
+          </Button>
+        </div>
+      </PageHeader>
 
       <div className="space-y-4">
         <h2 className="text-2xl font-headline text-primary">Group Management</h2>

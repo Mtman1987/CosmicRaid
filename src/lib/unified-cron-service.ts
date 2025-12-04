@@ -155,13 +155,20 @@ async function updateServerWithStatus(
       onlineUsers.push(user.username);
     }
     
+    // Force update all users to ensure status is current
+    const userRef = db.collection('servers').doc(serverId).collection('users').doc(user.id);
+    batch.update(userRef, {
+      isOnline,
+      lastStatusUpdate: new Date(),
+      lastTwitchData: {
+        isLive: isOnline,
+        updatedAt: new Date()
+      }
+    });
+    updatedCount++;
+    
     if (user.data.isOnline !== isOnline) {
-      const userRef = db.collection('servers').doc(serverId).collection('users').doc(user.id);
-      batch.update(userRef, {
-        isOnline,
-        lastStatusUpdate: new Date(),
-      });
-      updatedCount++;
+      console.log(`[UnifiedCron] Status changed for ${user.username}: ${user.data.isOnline} -> ${isOnline}`);
     }
   }
 

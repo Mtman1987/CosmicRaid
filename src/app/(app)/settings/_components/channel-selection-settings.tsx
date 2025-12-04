@@ -19,8 +19,8 @@ export function ChannelSelectionSettings() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [channelSettings, setChannelSettings] = React.useState({
     calendar: '',
-    vipShoutouts: '',
-    mountaineerShoutouts: '',
+    vip: '',
+    community: '',
     trainShoutouts: '',
     pileShoutouts: '',
   });
@@ -41,8 +41,8 @@ export function ChannelSelectionSettings() {
     if (!isPersistentLoading && persistentChannelSettings) {
       setChannelSettings({
         calendar: persistentChannelSettings.calendar || '',
-        vipShoutouts: persistentChannelSettings.vipShoutouts || '',
-        mountaineerShoutouts: persistentChannelSettings.mountaineerShoutouts || '',
+        vip: persistentChannelSettings.vip || persistentChannelSettings.vipShoutouts || '',
+        community: persistentChannelSettings.community || persistentChannelSettings.mountaineerShoutouts || '',
         trainShoutouts: persistentChannelSettings.trainShoutouts || '',
         pileShoutouts: persistentChannelSettings.pileShoutouts || '',
       });
@@ -160,8 +160,8 @@ export function ChannelSelectionSettings() {
             <div className="space-y-2">
               <Label>VIP Shoutouts</Label>
               <Select 
-                value={channelSettings.vipShoutouts} 
-                onValueChange={(value) => setChannelSettings(prev => ({ ...prev, vipShoutouts: value }))}
+                value={channelSettings.vip} 
+                onValueChange={(value) => setChannelSettings(prev => ({ ...prev, vip: value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select channel" />
@@ -177,10 +177,10 @@ export function ChannelSelectionSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label>Mountaineer Shoutouts</Label>
+              <Label>Community Shoutouts</Label>
               <Select 
-                value={channelSettings.mountaineerShoutouts} 
-                onValueChange={(value) => setChannelSettings(prev => ({ ...prev, mountaineerShoutouts: value }))}
+                value={channelSettings.community} 
+                onValueChange={(value) => setChannelSettings(prev => ({ ...prev, community: value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select channel" />

@@ -237,7 +237,9 @@ async function postOrUpdateShoutout(channelId: string, user: any, serverId: stri
       : user.dailyShoutout?.description || 'Come check out the stream!';
     
     const isVip = await isVipGroup(user.group, serverId);
-    const mediaUrl = isVip ? user.dailyShoutout?.gifUrl : user.dailyShoutout?.imageUrl;
+    const mediaUrl = isVip ? 
+      (user.dailyShoutout?.content || user.dailyShoutout?.gifUrl) : 
+      (user.dailyShoutout?.content || user.dailyShoutout?.imageUrl);
     
     // Send image/gif first if available
     if (mediaUrl) {
@@ -291,7 +293,7 @@ export async function postShoutoutToDiscord(serverId: string, channelId: string,
       : shoutoutData?.description || `Come check out ${streamerName}'s stream!`;
     
     // Send image/gif first if available
-    const mediaUrl = shoutoutData?.gifUrl || shoutoutData?.imageUrl;
+    const mediaUrl = shoutoutData?.content || shoutoutData?.gifUrl || shoutoutData?.imageUrl;
     if (mediaUrl) {
       await sendDiscordMessage(channelId, {
         content: mediaUrl
