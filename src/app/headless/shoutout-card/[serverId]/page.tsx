@@ -18,10 +18,13 @@ export default async function HeadlessShoutoutCardPage({
     avatar,
     thumbnail,
     live,
-    mature
+    mature,
+    group
   } = await searchParams;
 
   const isLive = live === 'true';
+  const isVip = group === 'vip';
+  const isCommunity = group === 'community';
   const isMatureStream = mature === 'true';
 
   return (
@@ -48,7 +51,11 @@ export default async function HeadlessShoutoutCardPage({
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg px-4 py-2 border border-purple-400/30">
+          <div className={`rounded-lg px-4 py-2 ${
+            isVip 
+              ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-400/30'
+              : 'bg-gradient-to-r from-blue-500/20 to-green-500/20 border border-blue-400/30'
+          }`}>
             <div className="text-sm font-bold text-purple-300">�-? HONORED CREW VIP</div>
           </div>
         </div>
@@ -100,7 +107,11 @@ export default async function HeadlessShoutoutCardPage({
           </div>
           <div className="w-[320px] h-[360px] bg-black/60 border-l border-white/10 flex flex-col gap-4 p-4">
             <div>
-              <p className="text-2xl text-purple-300 font-semibold">Space Mountain VIP Fleet</p>
+              <p className={`text-2xl font-semibold ${
+                isVip ? 'text-purple-300' : 'text-blue-300'
+              }`}>
+                {isVip ? 'Space Mountain VIP Fleet' : 'Space Mountain Community'}
+              </p>
               <p className="text-white text-xl leading-relaxed">
                 Space Mountain is a coalition of streamers uplifting each other through raids, shoutouts, and mission briefs.
                 Honored Captains like {streamer} lead the crew every day.
@@ -123,7 +134,10 @@ export default async function HeadlessShoutoutCardPage({
             <div className="rounded-md bg-black/40 p-6 border border-white/5">
               <p className="text-xl text-purple-300 font-semibold mb-2">Mission Log</p>
               <p className="text-xl text-white leading-relaxed">
-                "Captain {streamer} is blazing through {game} with stellar skill! Join this epic space adventure and reinforce their crew."
+                {isVip 
+                  ? `"Captain ${streamer} is blazing through ${game} with stellar skill! Join this epic space adventure and reinforce their crew."`
+                  : `"Community member ${streamer} is exploring ${game} with determination! Join their mission and help expand our galactic reach."`
+                }
               </p>
             </div>
           </div>
@@ -136,7 +150,10 @@ export default async function HeadlessShoutoutCardPage({
             <div className="border-b border-white/10 pb-4 mb-4">
               <div className="text-lg text-purple-300 mb-2 font-semibold">dYZ_ Strategic Mission Analysis:</div>
               <div className="text-white text-lg leading-relaxed">
-                "Commander {streamer} has been specially selected by Space Mountain Command for this critical deep-space reconnaissance operation. Their proven expertise in {game} combat systems and stellar navigation makes them the ideal candidate to explore these uncharted digital frontiers. This mission represents a significant opportunity for scientific discovery and territorial expansion. All Space Mountain personnel are strongly encouraged to provide tactical support and witness this historic expedition as it unfolds in real-time."
+                {isVip 
+                  ? `"Commander ${streamer} has been specially selected by Space Mountain Command for this critical deep-space reconnaissance operation. Their proven expertise in ${game} combat systems and stellar navigation makes them the ideal candidate to explore these uncharted digital frontiers. This mission represents a significant opportunity for scientific discovery and territorial expansion. All Space Mountain personnel are strongly encouraged to provide tactical support and witness this historic expedition as it unfolds in real-time."`
+                  : `"Space Mountain Community member ${streamer} has launched an exciting exploration mission in ${game}. Their enthusiasm and dedication to the community make this an excellent opportunity for collaborative discovery. All community members are invited to join this adventure and contribute to our shared galactic knowledge base. Together we explore new worlds and build lasting friendships across the digital cosmos."`
+                }
               </div>
             </div>
 
@@ -144,7 +161,10 @@ export default async function HeadlessShoutoutCardPage({
             <div className="pb-4 mb-4">
               <div className="text-lg text-purple-300 mb-2 font-semibold">dYs? Enlistment Opportunity - Join the Mission:</div>
               <div className="text-white text-lg leading-relaxed">
-                "Attention all potential Space Mountain recruits! This is your exclusive opportunity to join Commander {streamer}'s elite expedition team. Navigate directly to their command bridge and experience the unparalleled excitement of deep-space exploration. Become an integral part of the legendary Space Mountain community where every mission matters and every cadet contributes to our collective success. The cosmos awaits brave souls ready to push beyond the known universe - will you accept this call to adventure and claim your place among the stars?"
+                {isVip 
+                  ? `"Attention all potential Space Mountain recruits! This is your exclusive opportunity to join Commander ${streamer}'s elite expedition team. Navigate directly to their command bridge and experience the unparalleled excitement of deep-space exploration. Become an integral part of the legendary Space Mountain community where every mission matters and every cadet contributes to our collective success. The cosmos awaits brave souls ready to push beyond the known universe - will you accept this call to adventure and claim your place among the stars?"`
+                  : `"Calling all space explorers! Join community member ${streamer} on their current adventure and become part of the Space Mountain family. Experience the joy of collaborative exploration where every viewer adds to the fun and excitement. Our community thrives on friendship, support, and shared discoveries. Come aboard and help us build the most welcoming corner of the digital galaxy - your adventure starts now!"`
+                }
               </div>
             </div>
 

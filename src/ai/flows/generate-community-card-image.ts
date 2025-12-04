@@ -33,12 +33,13 @@ export async function generateCommunityCardImage(
       viewers: streamData.viewers?.toString() || '0',
       avatar: streamData.avatarUrl || '',
       thumbnail: streamData.thumbnailUrl || '',
-      live: streamData.isLive ? 'true' : 'false'
+      live: streamData.isLive ? 'true' : 'false',
+      group: streamData.group || 'community'
     });
 
     const { getBaseUrl } = await import('@/lib/base-url');
     const appUrl = await getBaseUrl(serverId);
-    const cardUrl = `${appUrl}/headless/community-card/${serverId}?${params.toString()}`;
+    const cardUrl = `${appUrl}/headless/shoutout-card/${serverId}?${params.toString()}`;
 
     console.log(`[FreeConvert] Target URL: ${cardUrl}`);
     console.log(`[FreeConvert] Taking community card screenshot...`);

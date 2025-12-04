@@ -51,7 +51,8 @@ async function updateVipAnimatedCard(serverId: string, userId: string, userData:
       avatarUrl: twitchUser.profile_image_url || '',
       streamThumbnail: stream.thumbnail_url?.replace('{width}', '640').replace('{height}', '360') || '',
       isLive: true,
-      isMature: Boolean(stream.is_mature)
+      isMature: Boolean(stream.is_mature),
+      group: 'vip'
     });
 
     if (cardResult) {

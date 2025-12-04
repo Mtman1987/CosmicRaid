@@ -58,7 +58,8 @@ export async function generateShoutoutCardGif(
         avatar: cardData.avatarUrl || '',
         thumbnail: cardData.streamThumbnail || cardData.thumbnailUrl || '',
         live: (cardData.isLive !== undefined ? cardData.isLive : true).toString(),
-        mature: (cardData.isMature || false).toString()
+        mature: (cardData.isMature || false).toString(),
+        group: cardData.group || 'vip'
       }).toString();
 
     const response = await fetch(`${tunnelUrl}/convert-gif`, {

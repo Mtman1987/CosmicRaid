@@ -21,12 +21,13 @@ export async function takeCommunityCardScreenshot(
       viewers: streamData.viewers?.toString() || '0',
       avatar: streamData.avatarUrl || '',
       thumbnail: streamData.thumbnailUrl || '',
-      live: streamData.isLive ? 'true' : 'false'
+      live: streamData.isLive ? 'true' : 'false',
+      group: streamData.group || 'community'
     });
 
     const { getBaseUrl } = await import('./base-url');
     const appUrl = await getBaseUrl(serverId);
-    const cardUrl = `${appUrl}/headless/community-card/${serverId}?${params.toString()}`;
+    const cardUrl = `${appUrl}/headless/shoutout-card/${serverId}?${params.toString()}`;
 
     console.log(`[CommunityCardScreenshot] Taking screenshot for ${streamerName}`);
 

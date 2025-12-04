@@ -157,7 +157,8 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
             avatarUrl: twitchAvatar,
             streamThumbnail,
             isLive,
-            isMature: isMatureStream
+            isMature: isMatureStream,
+            group: 'vip'
           })
           
           if (clipResult) {
@@ -184,7 +185,8 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
               viewers: viewerCount,
               avatarUrl: twitchAvatar,
               thumbnailUrl: streamThumbnail,
-              isLive
+              isLive,
+              group: 'community'
             })
             console.log('[Shoutout] Static community card generated for:', streamerName?.replace(/[\r\n]/g, ''));
           } catch (cardError) {

@@ -153,7 +153,17 @@ export async function updateCommunitySpotlight(serverId: string): Promise<void> 
       mp4Url = cachedClip.mp4Url;
       console.log(`[Spotlight] Using cached clip for ${nextStreamer}`);
     } else {
-      const cardResult = await generateShoutoutCardGif(nextStreamer, serverId);
+      const cardResult = await generateShoutoutCardGif(serverId, {
+        streamerName: nextStreamer,
+        streamTitle: stream.title,
+        gameName: stream.game_name || 'Just Chatting',
+        viewerCount: stream.viewer_count,
+        avatarUrl: twitchUser.profile_image_url,
+        streamThumbnail: stream.thumbnail_url?.replace('{width}', '640').replace('{height}', '360') || '',
+        isLive: true,
+        isMature: Boolean(stream.is_mature),
+        group: 'community'
+      });
       
       if (cardResult) {
         cardGifUrl = cardResult;
