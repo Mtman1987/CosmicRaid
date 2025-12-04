@@ -35,7 +35,7 @@ export async function generateCalendarImage(
         body: JSON.stringify({
           url: screenshotUrl,
           width: 1280,
-          height: 660,
+          height: 800,
           deviceScaleFactor: 1.5,
           waitFor: 4000,
           selector: 'main',
@@ -103,7 +103,7 @@ export async function generateCalendarImage(
               "page_orientation": "landscape",
               "margin": "0px",
               "viewport_width": 1280,
-              "viewport_height": 660,
+              "viewport_height": 800,
               "initial_delay": "3",
               "hide_cookie": true,
               "use_print_stylesheet": false,

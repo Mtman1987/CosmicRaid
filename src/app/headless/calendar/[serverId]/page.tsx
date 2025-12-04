@@ -107,32 +107,23 @@ export default async function HeadlessCalendarPage({
 
     monthCaptains = Object.values(captainCounts).sort((a, b) => b.count - a.count);
 
+    // Find today's captain (actual today, regardless of viewed month)
+    const actualToday = new Date();
     todaysCaptain =
       allEvents.find(
         (event) =>
           event.type === 'captains-log' &&
           event.eventDateTime &&
-          isSameDay(event.eventDateTime, today)
+          isSameDay(event.eventDateTime, actualToday)
       ) || null;
 
     missionEvents = allEvents.filter((event) => event.type !== 'captains-log');
-    const todayStart = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    );
-    missionEvents = missionEvents.filter((event) => {
-      if (!event.eventDateTime) return true;
-      const eventDate = new Date(event.eventDateTime);
-      eventDate.setHours(0, 0, 0, 0);
-      return eventDate >= todayStart;
-    });
   } catch (error) {
     console.error('[HeadlessCalendar] Failed to load events:', error);
   }
 
   return (
-    <main className="w-[1280px] h-[660px] bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white rounded-3xl shadow-xl overflow-visible p-2.5">
+    <main className="w-[1280px] h-[800px] bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white rounded-3xl shadow-xl overflow-visible p-2.5">
       <div className="w-[1300px] h-full bg-gradient-to-br from-purple-900/80 via-blue-900/80 to-indigo-900/80 rounded-2xl p-2.5">
         <div className="flex h-full">
         <div className="w-[620px] h-full flex flex-col">
