@@ -132,8 +132,8 @@ export default async function HeadlessCalendarPage({
   }
 
   return (
-    <main className="w-[1280px] h-[660px] bg-blue-900 text-white rounded-3xl shadow-xl overflow-visible p-2.5">
-      <div className="w-[1300px] h-full bg-gradient-to-br from-[#0d1c4d] via-[#0f245f] to-[#070c1f] rounded-2xl p-2.5">
+    <main className="w-[1280px] h-[660px] bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white rounded-3xl shadow-xl overflow-visible p-2.5">
+      <div className="w-[1300px] h-full bg-gradient-to-br from-purple-900/80 via-blue-900/80 to-indigo-900/80 rounded-2xl p-2.5">
         <div className="flex h-full">
         <div className="w-[620px] h-full flex flex-col">
           <MissionCalendarCard

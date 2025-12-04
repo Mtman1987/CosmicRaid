@@ -18,6 +18,7 @@
     - URL: `https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/api/discord/interactions`
   - **NOTE**: Discord buttons will send HTTP POST requests to this endpoint
   - **LATER**: Add signature verification back for production security
+- [x] Fix calendar background (applied same gradient as leaderboard)
 - [ ] Test calendar styling in FreeConvert screenshots
 - [ ] Test Discord button interactions end-to-end
 - [ ] Verify calendar refresh triggers properly
@@ -61,6 +62,7 @@
 - [x] Create test user button in settings page
 - [x] Add /api/test-user endpoint for button functionality
 - [x] Fix Firestore errors in active users API (added error handling)
+- [x] Fix Firestore composite index error (simplified query to avoid index requirement)
 - [ ] Test with real user + test user display
 - [ ] Add red/green status circles for local service connectivity
 - [ ] Display which user is hosting local services

@@ -17,9 +17,9 @@ export async function GET(request: NextRequest) {
     
     let mappingsSnapshot;
     try {
+      // Simplified query to avoid composite index requirement
       mappingsSnapshot = await db.collection('userServerMappings')
         .where('serverId', '==', serverId)
-        .where('isOnline', '==', true)
         .where('lastSeen', '>', fiveMinutesAgo)
         .get();
     } catch (firestoreError) {
@@ -34,6 +34,9 @@ export async function GET(request: NextRequest) {
     for (const doc of mappingsSnapshot.docs) {
       try {
         const mapping = doc.data();
+        
+        // Filter for online users in memory
+        if (!mapping.isOnline) continue;
         
         // Get user avatar from Discord users collection
         let userData = null;
