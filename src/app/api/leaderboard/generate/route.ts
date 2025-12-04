@@ -66,38 +66,37 @@ export async function POST(request: NextRequest) {
       fileBase64 = null;
     }
 
-    const basePayload: any = {
-      content: '**🚀 Space Mountain Leaderboard**',
-    };
-
-    basePayload.embeds = [{
-      title: 'Space Mountain Leaderboard',
-      image: { url: imageUrl },
-      timestamp: new Date().toISOString(),
-    }];
-    // Optional attachment for clients that prefer files (Discord will still need multipart to truly attach)
-    if (fileBase64) {
-      basePayload.files = [{
-        name: 'leaderboard.png',
-        data: fileBase64,
-        contentType: 'image/png',
-      }];
+    // Send image first (without embed to prevent shrinking)
+    const imageMessageId = await sendDiscordMessage(channelId, {
+      content: imageUrl
+    }, serverId);
+    
+    if (!imageMessageId) {
+      throw new Error('Failed to send leaderboard image to Discord');
     }
 
+    // Then send embed separately
+    const embedPayload: any = {
+      content: '**🚀 Space Mountain Leaderboard**',
+      embeds: [{
+        title: 'Space Mountain Leaderboard',
+        timestamp: new Date().toISOString(),
+      }]
+    };
+
     console.log('[Leaderboard/Generate] Discord payload summary', {
-      hasFile: !!fileBase64,
-      hasEmbed: !!basePayload.embeds,
+      hasEmbed: !!embedPayload.embeds,
       imageUrl,
     });
 
-    const messageId = await sendDiscordMessage(channelId, basePayload, serverId);
+    const messageId = await sendDiscordMessage(channelId, embedPayload, serverId);
 
     if (!messageId) {
-      throw new Error('Failed to send leaderboard to Discord');
+      throw new Error('Failed to send leaderboard embed to Discord');
     }
 
-    console.log('[Leaderboard/Generate] Completed', { serverId, channelId, messageId });
-    return NextResponse.json({ success: true, messageId });
+    console.log('[Leaderboard/Generate] Completed', { serverId, channelId, messageId, imageMessageId });
+    return NextResponse.json({ success: true, messageId, imageMessageId });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to generate/post leaderboard';
     console.error('[Leaderboard/Generate] Error:', error);

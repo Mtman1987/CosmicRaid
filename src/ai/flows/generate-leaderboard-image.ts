@@ -112,7 +112,7 @@ export async function generateLeaderboardImage(
         console.log('[FreeConvert] Job completed!');
         // Find export task and get URL from result
         // Note: API returns tasks with numeric names "0", "1", "2" not "import-1", "convert-1", "export-1"
-        const exportTask = Object.values(statusData.tasks || {}).find((task: any) => task.operation === 'export/url');
+        const exportTask = Object.values(statusData.tasks || {}).find((task: any) => task.operation === 'export/url') as any;
         if (exportTask?.result?.url) {
           console.log('[FreeConvert] Found URL in result:', exportTask.result.url);
           return exportTask.result.url;

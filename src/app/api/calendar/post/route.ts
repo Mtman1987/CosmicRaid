@@ -38,16 +38,26 @@ export async function POST(request: NextRequest) {
     const imageUrl = await uploadCalendarImageFromGenerator(serverId, monthOffset);
     const { missionEmbed, calendarEmbed } = await generateCalendarEmbeds(serverId, imageUrl);
 
-    const payload: any = {
+    // Send image first (without embed to prevent shrinking)
+    const imageMessageId = await sendDiscordMessage(channelId, {
+      content: imageUrl
+    }, serverId);
+    
+    if (!imageMessageId) {
+      throw new Error('Failed to post calendar image to Discord');
+    }
+
+    // Then send embeds with buttons (without image)
+    const embedPayload: any = {
       embeds: [missionEmbed, calendarEmbed],
     };
     if (includeButtons) {
-      payload.components = buildCalendarButtons(serverId);
+      embedPayload.components = buildCalendarButtons(serverId);
     }
 
-    const messageId = await sendDiscordMessage(channelId, payload, serverId);
+    const messageId = await sendDiscordMessage(channelId, embedPayload, serverId);
     if (!messageId) {
-      throw new Error('Failed to post calendar to Discord');
+      throw new Error('Failed to post calendar embed to Discord');
     }
 
     await storeCalendarMessageMeta(serverId, {
@@ -60,7 +70,7 @@ export async function POST(request: NextRequest) {
 
     console.log('[Calendar/Post] Completed', { serverId, channelId, messageId });
 
-    return NextResponse.json({ success: true, imageUrl, messageId });
+    return NextResponse.json({ success: true, imageUrl, messageId, imageMessageId });
   } catch (error) {
     console.error('[Calendar/Post] Error:', error);
     return NextResponse.json({ error: 'Failed to generate/post calendar' }, { status: 500 });

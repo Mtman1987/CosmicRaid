@@ -153,7 +153,6 @@ export function buildCalendarEmbed(imageUrl: string, todaysCaptain?: CaptainHigh
   const embed: Record<string, any> = {
     title,
     description,
-    image: { url: imageUrl },
     color: 0x7C3AED,
     timestamp: new Date().toISOString(),
   };
@@ -175,14 +174,14 @@ export function buildCalendarButtons(serverId: string) {
           style: 1,
           label: "Captain's Log",
           custom_id: `calendar_captain_log_${serverId}`,
-          emoji: { name: '📘' },
+          emoji: '📘',
         },
         {
           type: 2,
           style: 1,
           label: 'Add Mission',
           custom_id: `calendar_add_mission_${serverId}`,
-          emoji: { name: '🚀' },
+          emoji: '🚀',
         },
       ],
     },
@@ -233,6 +232,25 @@ export async function refreshCalendarMessage(serverId: string) {
   const imageUrl = await uploadCalendarImage(serverId, calendarImage);
   const { missionEmbed, calendarEmbed } = await generateCalendarEmbeds(serverId, imageUrl);
 
+  const botToken = await ensureBotToken(serverId);
+
+  // Send new image first
+  const imageResponse = await fetch(`https://discord.com/api/v10/channels/${meta.channelId}/messages`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bot ${botToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content: imageUrl }),
+  });
+
+  if (!imageResponse.ok) {
+    const errorText = await imageResponse.text();
+    console.error('[CalendarRefresh] Discord image error:', imageResponse.status, errorText);
+    return { success: false, message: 'Failed to post updated image' };
+  }
+
+  // Update existing embed message
   const payload: any = {
     embeds: [missionEmbed, calendarEmbed],
   };
@@ -240,8 +258,6 @@ export async function refreshCalendarMessage(serverId: string) {
   if (meta.includeButtons ?? true) {
     payload.components = buildCalendarButtons(serverId);
   }
-
-  const botToken = await ensureBotToken(serverId);
 
   const response = await fetch(
     `https://discord.com/api/v10/channels/${meta.channelId}/messages/${meta.messageId}`,
