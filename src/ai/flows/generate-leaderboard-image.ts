@@ -97,26 +97,38 @@ export async function generateLeaderboardImage(
       throw new Error(`No job ID received from FreeConvert: ${response.status}`);
     }
     
-    // Wait 10 seconds then get the final result
-    console.log('[FreeConvert] Waiting 10 seconds for completion...');
-    await new Promise(resolve => setTimeout(resolve, 10000));
-    
-    // Get the completed job with results
-    const finalResponse = await fetch(`https://api.freeconvert.com/v1/process/jobs/${jobData.id}`, {
-      headers: { 'Authorization': `Bearer ${apiKey}` }
-    });
-    
-    const finalData = await finalResponse.json();
-    console.log('[FreeConvert] Final job data:', JSON.stringify(finalData, null, 2));
-    
-    // Find export task and get URL from result
-    const exportTask = Object.values(finalData.tasks || {}).find((task: any) => task.name === 'export-1');
-    if (exportTask?.result?.url) {
-      console.log('[FreeConvert] Found URL in result:', exportTask.result.url);
-      return exportTask.result.url;
+    // Poll for completion (up to 60 seconds like community-card-service)
+    console.log('[FreeConvert] Polling for completion...');
+    for (let i = 0; i < 20; i++) {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      const statusResponse = await fetch(`https://api.freeconvert.com/v1/process/jobs/${jobData.id}`, {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      });
+
+      const statusData = await statusResponse.json();
+
+      if (statusData.status === 'completed') {
+        console.log('[FreeConvert] Job completed!');
+        // Find export task and get URL from result
+        // Note: API returns tasks with numeric names "0", "1", "2" not "import-1", "convert-1", "export-1"
+        const exportTask = Object.values(statusData.tasks || {}).find((task: any) => task.operation === 'export/url');
+        if (exportTask?.result?.url) {
+          console.log('[FreeConvert] Found URL in result:', exportTask.result.url);
+          return exportTask.result.url;
+        }
+        throw new Error('No URL found in completed job export task');
+      }
+
+      if (statusData.status === 'failed') {
+        console.log('[FreeConvert] Job failed:', JSON.stringify(statusData, null, 2));
+        throw new Error('FreeConvert job failed');
+      }
+
+      console.log(`[FreeConvert] Status: ${statusData.status} (${i + 1}/20)`);
     }
-    
-    throw new Error('No URL found in export task result');
+
+    throw new Error('FreeConvert job timed out after 60 seconds');
   } catch (error) {
     console.error('[generateLeaderboardImage] Both local service and FreeConvert failed:', error);
     return null;
