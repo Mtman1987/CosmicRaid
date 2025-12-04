@@ -11,13 +11,13 @@
 - [x] Discord button modal functionality (already implemented in interactions route)
 - [x] Auto-refresh calendar screenshot after data updates (refreshCalendarMessage)
 - [x] Calendar embed updates when new events are added (submitCaptainLog/submitMission)
-- [ ] **URGENT: Configure Discord Interactions Endpoint URL**
-  - Simplified interactions endpoint (removed signature verification for testing)
-  - **STEP 1**: Deploy updated code
+- [x] **URGENT: Configure Discord Interactions Endpoint URL**
+  - [x] Added Discord signature verification for security compliance
+  - **STEP 1**: Deploy updated code with signature verification
   - **STEP 2**: Set Interactions Endpoint URL in Discord Developer Portal
     - URL: `https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/api/discord/interactions`
   - **NOTE**: Discord buttons will send HTTP POST requests to this endpoint
-  - **LATER**: Add signature verification back for production security
+  - **SECURITY**: Ed25519 signature verification now implemented
 - [x] Fix calendar background (applied same gradient as leaderboard)
 - [ ] Test calendar styling in FreeConvert screenshots
 - [ ] Test Discord button interactions end-to-end

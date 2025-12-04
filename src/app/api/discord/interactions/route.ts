@@ -2,6 +2,36 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/firebase/server-init';
 import { submitCaptainLog, submitMission } from '@/lib/calendar-admin-actions';
 import { shiftCalendarMonth } from '@/lib/calendar-discord-service';
+import { webcrypto } from 'crypto';
+
+const DISCORD_PUBLIC_KEY = '6a903d0ec86d3d1556aeb2a7ec1dd585ab35e9129d040a8149cdfb8ad4154561';
+
+async function verifyDiscordSignature(request: NextRequest, body: string): Promise<boolean> {
+  const signature = request.headers.get('x-signature-ed25519');
+  const timestamp = request.headers.get('x-signature-timestamp');
+  
+  if (!signature || !timestamp) {
+    return false;
+  }
+  
+  try {
+    const key = await webcrypto.subtle.importKey(
+      'raw',
+      Buffer.from(DISCORD_PUBLIC_KEY, 'hex'),
+      { name: 'Ed25519', namedCurve: 'Ed25519' },
+      false,
+      ['verify']
+    );
+    
+    const message = new TextEncoder().encode(timestamp + body);
+    const sig = Buffer.from(signature, 'hex');
+    
+    return await webcrypto.subtle.verify('Ed25519', key, sig, message);
+  } catch (error) {
+    console.error('Signature verification error:', error);
+    return false;
+  }
+}
 
 
 function extractValues(components: any[] = []) {
@@ -23,7 +53,16 @@ function ephemeral(content: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const rawBody = await request.text();
+    
+    // Verify Discord signature
+    const isValid = await verifyDiscordSignature(request, rawBody);
+    if (!isValid) {
+      console.log('[Discord Interactions] Invalid signature');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    }
+    
+    const body = JSON.parse(rawBody);
     console.log('[Discord Interactions] Received request:', body.type, body.data?.custom_id);
 
     // Discord verification challenge (PING)
