@@ -2,6 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/firebase/server-init';
 import { submitCaptainLog, submitMission } from '@/lib/calendar-admin-actions';
 import { shiftCalendarMonth } from '@/lib/calendar-discord-service';
+import { createHash, createHmac } from 'crypto';
+
+function verifyDiscordSignature(body: string, signature: string, timestamp: string, publicKey: string): boolean {
+  try {
+    const ed25519 = require('tweetnacl');
+    const timestampedBody = timestamp + body;
+    const signatureBuffer = Buffer.from(signature, 'hex');
+    const publicKeyBuffer = Buffer.from(publicKey, 'hex');
+    return ed25519.sign.detached.verify(
+      Buffer.from(timestampedBody),
+      signatureBuffer,
+      publicKeyBuffer
+    );
+  } catch {
+    return false;
+  }
+}
 
 function extractValues(components: any[] = []) {
   const values: Record<string, string> = {};
@@ -22,8 +39,34 @@ function ephemeral(content: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    console.log('[Discord Interactions] Received:', body.type, body.data?.custom_id);
+    const rawBody = await request.text();
+    const signature = request.headers.get('x-signature-ed25519');
+    const timestamp = request.headers.get('x-signature-timestamp');
+    
+    // Get public key from Firestore
+    let publicKey = process.env.DISCORD_PUBLIC_KEY;
+    if (!publicKey) {
+      try {
+        const globalConfigDoc = await db.collection('globalConfig').doc('discordBot').get();
+        publicKey = globalConfigDoc.data()?.DISCORD_PUBLIC_KEY;
+      } catch (error) {
+        console.error('[Discord Interactions] Failed to get public key from Firestore:', error);
+      }
+    }
+    
+    // Verify Discord signature
+    if (!signature || !timestamp || !publicKey) {
+      console.log('[Discord Interactions] Missing signature headers');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    if (!verifyDiscordSignature(rawBody, signature, timestamp, publicKey)) {
+      console.log('[Discord Interactions] Invalid signature');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    }
+    
+    const body = JSON.parse(rawBody);
+    console.log('[Discord Interactions] Verified request:', body.type, body.data?.custom_id);
 
     // Discord verification challenge
     if (body.type === 1) {

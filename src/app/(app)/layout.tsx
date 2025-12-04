@@ -22,10 +22,23 @@ import { ActiveUsersHeader } from '@/components/active-users-header';
 import { useActivityTracker } from '@/hooks/use-activity-tracker';
 import { useEffect, useState } from 'react';
 
+function ActivityTracker() {
+  const [userId, setUserId] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const discordUserId = localStorage.getItem('discordUserId');
+    setUserId(discordUserId);
+  }, []);
+  
+  useActivityTracker(userId || '');
+  return null;
+}
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <FirebaseComponentsProvider>
       <AuthGuard>
+        <ActivityTracker />
       <SidebarProvider collapsible="icon">
         <div className="flex min-h-screen">
           <Sidebar className="border-r">

@@ -26,6 +26,7 @@ import { TwitchPollingSettings } from './_components/twitch-polling-settings';
 import { ChannelSelectionSettings } from './_components/channel-selection-settings';
 import { DiscordSyncSettings } from './_components/discord-sync-settings';
 import { TestUserButton } from './_components/test-user-button';
+import { DiscordSetupButton } from './_components/discord-setup-button';
 import { useToast } from '@/hooks/use-toast';
 import { DataLoader } from '@/components/data-loader';
 
@@ -227,6 +228,16 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <TestUserButton />
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline">Discord Setup</CardTitle>
+            <CardDescription>Configure Discord interactions endpoint</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DiscordSetupButton />
           </CardContent>
         </Card>
         

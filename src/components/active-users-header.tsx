@@ -16,10 +16,14 @@ export function ActiveUsersHeader({ serverId }: { serverId: string }) {
   useEffect(() => {
     const fetchActiveUsers = async () => {
       try {
+        console.log('[ActiveUsersHeader] Fetching users for serverId:', serverId);
         const response = await fetch(`/api/active-users?serverId=${serverId}`);
         if (response.ok) {
           const users = await response.json();
+          console.log('[ActiveUsersHeader] Received users:', users);
           setActiveUsers(users);
+        } else {
+          console.error('[ActiveUsersHeader] API error:', response.status);
         }
       } catch (error) {
         console.error('Failed to fetch active users:', error);
@@ -33,7 +37,11 @@ export function ActiveUsersHeader({ serverId }: { serverId: string }) {
   }, [serverId]);
 
   if (activeUsers.length === 0) {
-    return null;
+    return (
+      <div className="flex items-center gap-2 px-4">
+        <span className="text-sm text-gray-600">No active users found</span>
+      </div>
+    );
   }
 
   return (

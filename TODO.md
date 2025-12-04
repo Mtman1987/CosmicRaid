@@ -12,11 +12,14 @@
 - [x] Auto-refresh calendar screenshot after data updates (refreshCalendarMessage)
 - [x] Calendar embed updates when new events are added (submitCaptainLog/submitMission)
 - [ ] **URGENT: Configure Discord Interactions Endpoint URL**
-  - Added Discord verification handling to interactions route
-  - Test endpoint: `node test-interactions-endpoint.js`
-  - Go to Discord Developer Portal → Your App → General Information
-  - Set Interactions Endpoint URL to: `https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/api/discord/interactions`
-  - Discord will send verification challenge (type: 1) - endpoint should respond with {type: 1}
+  - Added Discord signature verification to interactions route
+  - **STEP 1**: Go to Settings page and click "Add Discord Public Key" button
+    - This adds the public key to Firestore automatically
+    - Public Key: `6a903d0ec86d3d1556aeb2a7ec1dd585ab35e9129d040a8149cdfb8ad4154561`
+  - **STEP 2**: Deploy updated code with signature verification
+  - **STEP 3**: Set Interactions Endpoint URL in Discord Developer Portal
+    - URL: `https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/api/discord/interactions`
+  - Discord will verify with Ed25519 signature + timestamp validation
 - [ ] Test calendar styling in FreeConvert screenshots
 - [ ] Test Discord button interactions end-to-end
 - [ ] Verify calendar refresh triggers properly
@@ -112,6 +115,31 @@
   }
 }
 ```
+
+### API Optimization & Performance
+- [ ] Implement API rate limiting and caching
+- [ ] Add Redis/memory cache for frequently accessed data
+- [ ] Batch Firestore operations where possible
+- [ ] Cache Discord API responses (user data, channels, roles)
+- [ ] Implement request deduplication for concurrent calls
+- [ ] Add API response caching headers
+- [ ] Batch Discord message operations
+- [ ] Cache leaderboard data with TTL
+- [ ] Optimize database queries with proper indexing
+- [ ] Implement background job processing for heavy operations
+
+#### Caching Strategy:
+- **User Data**: 5 minutes TTL
+- **Leaderboard**: 2 minutes TTL  
+- **Discord Channels/Roles**: 30 minutes TTL
+- **Calendar Events**: 1 minute TTL
+- **Screenshots**: 10 minutes TTL
+
+#### Batch Operations:
+- Group multiple Discord API calls
+- Batch Firestore writes in transactions
+- Queue image generation requests
+- Combine multiple user activity updates
 
 ### Infrastructure Improvements
 - [ ] Implement FreeConvert webhook support
