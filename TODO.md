@@ -47,6 +47,10 @@
 - [x] Fix VIP online display (VIP users now show as online regardless of streaming status)
 - [x] Fix Twitch API authentication (now passes serverId to load correct credentials)
 - [ ] Build out raid pile shoutouts functionality
+- [x] **URGENT: Fix Discord message length limit errors (BASE_TYPE_MAX_LENGTH)**
+  - [x] Added base64 data URL detection and rejection in discord-bot-service.ts
+  - [x] System now rejects base64 URLs and forces use of storage URLs
+  - [x] Fallback to embed format when base64 detected (should not happen with proper storage)
 - [ ] Test complete VIP GIF workflow end-to-end
 - [ ] Test shoutout posting to correct Discord channels
 

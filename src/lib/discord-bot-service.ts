@@ -28,6 +28,25 @@ async function resolveBotUserId(botToken: string): Promise<string | null> {
   }
 }
 
+// Helper function to validate Discord message content
+function validateDiscordContent(messageData: any): any {
+  const MAX_CONTENT_LENGTH = 4000;
+  const validatedData = { ...messageData };
+  
+  // Check for base64 data URLs which should never be used
+  if (validatedData.content && typeof validatedData.content === 'string') {
+    if (validatedData.content.startsWith('data:')) {
+      console.error('[Discord] Base64 data URL detected - this should use storage URLs instead');
+      validatedData.content = '[Error: Image should use storage URL, not base64]';
+    } else if (validatedData.content.length > MAX_CONTENT_LENGTH) {
+      console.warn(`[Discord] Content too long (${validatedData.content.length} chars), truncating`);
+      validatedData.content = validatedData.content.substring(0, MAX_CONTENT_LENGTH - 3) + '...';
+    }
+  }
+  
+  return validatedData;
+}
+
 export async function sendDiscordMessage(channelId: string, messageData: any, serverId?: string): Promise<string | null> {
   try {
     const botToken = await getDiscordBotToken();
@@ -37,13 +56,16 @@ export async function sendDiscordMessage(channelId: string, messageData: any, se
       return null;
     }
     
+    // Validate and truncate content if necessary
+    const validatedMessageData = validateDiscordContent(messageData);
+    
     const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: 'POST',
       headers: {
         'Authorization': `Bot ${botToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(messageData),
+      body: JSON.stringify(validatedMessageData),
     });
     
     if (!response.ok) {
@@ -71,13 +93,16 @@ export async function updateDiscordMessage(channelId: string, messageId: string,
       return false;
     }
     
+    // Validate and truncate content if necessary
+    const validatedMessageData = validateDiscordContent(messageData);
+    
     const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages/${messageId}`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bot ${botToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(messageData),
+      body: JSON.stringify(validatedMessageData),
     });
     
     if (!response.ok) {

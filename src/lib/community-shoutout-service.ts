@@ -207,6 +207,15 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
 
         if (cardUrl) {
           console.log('[Shoutout] Community user', streamerName?.replace(/[\r\n]/g, ''), 'using card URL:', cardUrl);
+          
+          // Reject base64 data URLs - should always use storage URLs
+          if (cardUrl.startsWith('data:')) {
+            console.error('[Shoutout] Base64 data URL detected for community user - falling back to embed');
+            cardUrl = null; // Force fallback to embed
+          }
+        }
+        
+        if (cardUrl) {
           shoutoutData = {
             content: cardUrl,
             components: await buildActionButtons(streamerName, {
@@ -300,6 +309,15 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
 
         if (cardUrl) {
           console.log('[Shoutout] VIP user', streamerName?.replace(/[\r\n]/g, ''), 'using GIF URL:', cardUrl);
+          
+          // Reject base64 data URLs - should always use storage URLs
+          if (cardUrl.startsWith('data:')) {
+            console.error('[Shoutout] Base64 data URL detected for VIP user - falling back to embed');
+            cardUrl = null; // Force fallback to embed
+          }
+        }
+        
+        if (cardUrl) {
           shoutoutData = {
             content: cardUrl,
             components: await buildActionButtons(streamerName, {

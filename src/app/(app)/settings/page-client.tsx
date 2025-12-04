@@ -27,6 +27,7 @@ import { ChannelSelectionSettings } from './_components/channel-selection-settin
 import { DiscordSyncSettings } from './_components/discord-sync-settings';
 import { TestUserButton } from './_components/test-user-button';
 import { DiscordSetupButton } from './_components/discord-setup-button';
+import { TestShoutoutCard } from './_components/test-shoutout-card';
 import { useToast } from '@/hooks/use-toast';
 import { DataLoader } from '@/components/data-loader';
 
@@ -230,6 +231,8 @@ export default function SettingsPage() {
             <TestUserButton />
           </CardContent>
         </Card>
+        
+        <TestShoutoutCard />
         
         <Card>
           <CardHeader>
