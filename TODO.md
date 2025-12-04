@@ -12,14 +12,12 @@
 - [x] Auto-refresh calendar screenshot after data updates (refreshCalendarMessage)
 - [x] Calendar embed updates when new events are added (submitCaptainLog/submitMission)
 - [ ] **URGENT: Configure Discord Interactions Endpoint URL**
-  - Added Discord signature verification to interactions route
-  - **STEP 1**: Go to Settings page and click "Add Discord Public Key" button
-    - This adds the public key to Firestore automatically
-    - Public Key: `6a903d0ec86d3d1556aeb2a7ec1dd585ab35e9129d040a8149cdfb8ad4154561`
-  - **STEP 2**: Deploy updated code with signature verification
-  - **STEP 3**: Set Interactions Endpoint URL in Discord Developer Portal
+  - Simplified interactions endpoint (removed signature verification for testing)
+  - **STEP 1**: Deploy updated code
+  - **STEP 2**: Set Interactions Endpoint URL in Discord Developer Portal
     - URL: `https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/api/discord/interactions`
-  - Discord will verify with Ed25519 signature + timestamp validation
+  - **NOTE**: Discord buttons will send HTTP POST requests to this endpoint
+  - **LATER**: Add signature verification back for production security
 - [ ] Test calendar styling in FreeConvert screenshots
 - [ ] Test Discord button interactions end-to-end
 - [ ] Verify calendar refresh triggers properly
