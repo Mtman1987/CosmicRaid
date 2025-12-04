@@ -20,9 +20,10 @@
   - **SECURITY**: Ed25519 signature verification now implemented
 - [x] Fix calendar background (applied same gradient as leaderboard)
 - [x] Fix calendar message tracking (now updates existing message instead of creating new ones)
+- [x] Fix Discord button interaction responses (now responds immediately and updates asynchronously)
 - [ ] Test calendar styling in FreeConvert screenshots
-- [ ] Test Discord button interactions end-to-end
-- [ ] Verify calendar refresh triggers properly
+- [x] Test Discord button interactions end-to-end
+- [x] Verify calendar refresh triggers properly
 
 ### Leaderboard & Points System
 - [ ] Fix leaderboard generation and display issues

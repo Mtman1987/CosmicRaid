@@ -178,22 +178,16 @@ export async function POST(request: NextRequest) {
 
       if (customId.startsWith('calendar_prev_month_')) {
         const serverId = customId.replace('calendar_prev_month_', '');
-        const result = await shiftCalendarMonth(serverId, -1);
-        return ephemeral(
-          result.success
-            ? `📅 Calendar shifted to **${result.monthLabel}**`
-            : `⚠️ ${result.message ?? 'Unable to update calendar.'}`
-        );
+        // Respond immediately, then refresh asynchronously
+        shiftCalendarMonth(serverId, -1).catch(console.error);
+        return ephemeral('📅 Updating calendar...');
       }
 
       if (customId.startsWith('calendar_next_month_')) {
         const serverId = customId.replace('calendar_next_month_', '');
-        const result = await shiftCalendarMonth(serverId, 1);
-        return ephemeral(
-          result.success
-            ? `📅 Calendar shifted to **${result.monthLabel}**`
-            : `⚠️ ${result.message ?? 'Unable to update calendar.'}`
-        );
+        // Respond immediately, then refresh asynchronously
+        shiftCalendarMonth(serverId, 1).catch(console.error);
+        return ephemeral('📅 Updating calendar...');
       }
 
       if (customId.startsWith('check_rank_')) {
