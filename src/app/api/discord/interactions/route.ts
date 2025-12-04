@@ -23,8 +23,11 @@ function ephemeral(content: string) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('[Discord Interactions] Received:', body.type, body.data?.custom_id);
 
+    // Discord verification challenge
     if (body.type === 1) {
+      console.log('[Discord Interactions] Verification challenge received');
       return NextResponse.json({ type: 1 });
     }
 
@@ -215,4 +218,9 @@ export async function POST(request: NextRequest) {
     console.error('Discord interaction error:', error);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
+}
+
+// Handle GET requests for verification
+export async function GET() {
+  return NextResponse.json({ message: 'Discord interactions endpoint' });
 }

@@ -19,7 +19,22 @@ export async function setServerIdForUser(userId: string, serverId: string): Prom
   await db.collection('userServerMappings').doc(userId).set({
     serverId,
     userId,
-    updatedAt: new Date()
+    updatedAt: new Date(),
+    lastSeen: new Date(),
+    isOnline: true
+  }, { merge: true });
+}
+
+export async function updateUserActivity(userId: string): Promise<void> {
+  await db.collection('userServerMappings').doc(userId).update({
+    lastSeen: new Date(),
+    isOnline: true
+  });
+}
+
+export async function setUserOffline(userId: string): Promise<void> {
+  await db.collection('userServerMappings').doc(userId).update({
+    isOnline: false
   });
 }
 

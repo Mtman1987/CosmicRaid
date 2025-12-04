@@ -6,6 +6,21 @@
 
 ## High Priority
 
+### Calendar System Fixes
+- [x] Fix calendar screenshot styling (added headless layout for CSS loading)
+- [x] Discord button modal functionality (already implemented in interactions route)
+- [x] Auto-refresh calendar screenshot after data updates (refreshCalendarMessage)
+- [x] Calendar embed updates when new events are added (submitCaptainLog/submitMission)
+- [ ] **URGENT: Configure Discord Interactions Endpoint URL**
+  - Added Discord verification handling to interactions route
+  - Test endpoint: `node test-interactions-endpoint.js`
+  - Go to Discord Developer Portal → Your App → General Information
+  - Set Interactions Endpoint URL to: `https://cosmicraid--studio-9468926194-e03ac.us-central1.hosted.app/api/discord/interactions`
+  - Discord will send verification challenge (type: 1) - endpoint should respond with {type: 1}
+- [ ] Test calendar styling in FreeConvert screenshots
+- [ ] Test Discord button interactions end-to-end
+- [ ] Verify calendar refresh triggers properly
+
 ### Leaderboard & Points System
 - [ ] Fix leaderboard generation and display issues
 - [ ] Verify points calculation and attribution
@@ -36,34 +51,67 @@
 
 ## Future Features
 
-### User Status Dashboard
-- [ ] Show logged-in user avatars across header
+### User Status Dashboard - ACTIVE IMPLEMENTATION
+- [x] Create ActiveUsersHeader component for main layout
+- [x] Implement /api/active-users endpoint
+- [x] Update user-server-mapping.ts with activity tracking
+- [x] Add useActivityTracker hook and /api/user-activity endpoint
+- [x] Add ActiveUsersHeader to main layout
+- [x] Create test user button in settings page
+- [x] Add /api/test-user endpoint for button functionality
+- [ ] Test with real user + test user display
 - [ ] Add red/green status circles for local service connectivity
 - [ ] Display which user is hosting local services
 - [ ] Real-time status updates for service availability
 - [ ] Implement service failover between multiple users
 
-#### Implementation Strategy:
-**Data Structure - Expand userServerMappings:**
-- Add lastSeen, isOnline, localServices fields
-- localServices: { tunnelUrl, screenshotService, conversionService, lastHealthCheck }
+#### Implementation Steps:
 
-**Multi-layered Health Checks:**
-- Client-side: 1.5 minute intervals for active users (useHealthMonitor hook)
-- Page events: Immediate updates on focus/visibility change (useActivityTracker)
-- Cron job: 10 minute cleanup of inactive users (existing cron expanded)
+**Phase 1 - Basic Avatar Display:**
+1. Create components/active-users-header.tsx
+2. Add to main layout (src/app/(app)/layout.tsx)
+3. Create /api/active-users endpoint
+4. Update userServerMappings with lastSeen, isOnline fields
+5. Add test user document to Firestore:
+   ```
+   userServerMappings/test_user_123: {
+     userId: "test_user_123",
+     serverId: "1240832965865635881", 
+     twitchUsername: "testuser",
+     isOnline: true,
+     lastSeen: new Date()
+   }
+   ```
+6. Cross-reference servers/{serverId}/users for avatars
 
-**Components:**
-- ActiveUsersDisplay component for header avatars
-- Cross-reference Discord users collection for avatars/usernames
-- Health check API endpoint (/api/user-health)
-- Activity tracker API (/api/user-activity)
+**Phase 2 - Activity Tracking:**
+- Update lib/user-server-mapping.ts with updateUserActivity()
+- Add useActivityTracker hook to main layout
+- 30-second refresh interval for avatar display
 
-**Benefits:**
-- Reuses existing userServerMappings collection
-- Near real-time status without system overload
-- Automatic cleanup of stale sessions
-- Visual indication of service availability
+**Phase 3 - Service Status:**
+- Add localServices field to userServerMappings
+- Create /api/user-health endpoint
+- Add green/red status circles
+- useHealthMonitor hook for service pinging
+
+**Test Data Structure:**
+```typescript
+// userServerMappings expansion
+{
+  userId: string,
+  serverId: string, 
+  twitchUsername: string,
+  lastSeen: Date,
+  isOnline: boolean,
+  localServices?: {
+    tunnelUrl?: string,
+    screenshotService: boolean,
+    conversionService: boolean,
+    lastHealthCheck: Date
+  }
+}
+```
 
 ### Infrastructure Improvements
 - [ ] Implement FreeConvert webhook support

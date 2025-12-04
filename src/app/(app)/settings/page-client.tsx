@@ -25,6 +25,7 @@ import { AdminRoleSettings } from './_components/admin-role-settings';
 import { TwitchPollingSettings } from './_components/twitch-polling-settings';
 import { ChannelSelectionSettings } from './_components/channel-selection-settings';
 import { DiscordSyncSettings } from './_components/discord-sync-settings';
+import { TestUserButton } from './_components/test-user-button';
 import { useToast } from '@/hooks/use-toast';
 import { DataLoader } from '@/components/data-loader';
 
@@ -216,6 +217,16 @@ export default function SettingsPage() {
             >
               📥 Download User Guide
             </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline">Test User Management</CardTitle>
+            <CardDescription>Create/update test user for avatar display testing</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TestUserButton />
           </CardContent>
         </Card>
         

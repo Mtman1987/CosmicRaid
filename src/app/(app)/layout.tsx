@@ -18,6 +18,9 @@ import { FirebaseComponentsProvider } from '@/firebase';
 import { AuthGuard } from '@/components/auth-guard';
 import { LocalServiceStatus } from '@/components/local-service-status';
 import { AppInitializer } from '@/components/app-initializer';
+import { ActiveUsersHeader } from '@/components/active-users-header';
+import { useActivityTracker } from '@/hooks/use-activity-tracker';
+import { useEffect, useState } from 'react';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -53,7 +56,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
               <SidebarTrigger />
               <div className="flex-1">
-                {/* Future header content can go here, like a search bar */}
+                <ActiveUsersHeader serverId="1240832965865635881" />
               </div>
               <LocalServiceStatus />
             </header>
