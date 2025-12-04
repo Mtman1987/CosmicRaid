@@ -47,11 +47,11 @@
 ## Medium Priority
 
 ### Local Services Connection
-- [ ] Fix local service connectivity issues
-- [ ] Resolve tunnel configuration problems
-- [ ] Figure out distribution strategy for local services
-- [ ] Implement ngrok parallel endpoints to same domain
+- [x] Clean up local services sidekick (created minimal CosmicRaid-Sidekick package)
+- [x] Create distribution-ready package with essential files only
+- [x] Add easy setup scripts and documentation
 - [ ] Test screenshot and conversion services locally
+- [ ] Distribute to community for testing
 
 ## Future Features
 

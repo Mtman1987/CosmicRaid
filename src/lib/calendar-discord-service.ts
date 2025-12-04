@@ -4,7 +4,7 @@ import { app, db } from '@/firebase/server-init';
 import { generateCalendarImage } from '@/ai/flows/generate-calendar-image';
 import { getSecret } from './firestore-secrets';
 
-const STORAGE_BUCKET = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+const STORAGE_BUCKET = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'studio-9468926194-e03ac.firebasestorage.app';
 
 type CalendarMessageMeta = {
   channelId: string;
