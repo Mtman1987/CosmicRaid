@@ -65,6 +65,7 @@
 - [x] Add /api/test-user endpoint for button functionality
 - [x] Fix Firestore errors in active users API (added error handling)
 - [x] Fix Firestore composite index error (simplified query to avoid index requirement)
+- [x] Fix user activity tracking (now properly creates/updates user mappings with serverId)
 - [ ] Test with real user + test user display
 - [ ] Add red/green status circles for local service connectivity
 - [ ] Display which user is hosting local services

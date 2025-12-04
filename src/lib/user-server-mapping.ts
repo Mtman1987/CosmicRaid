@@ -26,16 +26,16 @@ export async function setServerIdForUser(userId: string, serverId: string): Prom
 }
 
 export async function updateUserActivity(userId: string): Promise<void> {
-  await db.collection('userServerMappings').doc(userId).update({
+  await db.collection('userServerMappings').doc(userId).set({
     lastSeen: new Date(),
     isOnline: true
-  });
+  }, { merge: true });
 }
 
 export async function setUserOffline(userId: string): Promise<void> {
-  await db.collection('userServerMappings').doc(userId).update({
+  await db.collection('userServerMappings').doc(userId).set({
     isOnline: false
-  });
+  }, { merge: true });
 }
 
 export async function loginUser(prevState: any, formData: FormData) {

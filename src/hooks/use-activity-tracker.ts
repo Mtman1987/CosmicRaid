@@ -8,10 +8,11 @@ export function useActivityTracker(userId: string) {
 
     const updateActivity = async () => {
       try {
+        const serverId = localStorage.getItem('serverId');
         await fetch('/api/user-activity', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId })
+          body: JSON.stringify({ userId, serverId })
         });
       } catch (error) {
         console.error('Failed to update user activity:', error);

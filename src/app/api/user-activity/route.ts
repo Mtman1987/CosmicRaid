@@ -3,13 +3,19 @@ import { updateUserActivity } from '@/lib/user-server-mapping';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await request.json();
+    const { userId, serverId } = await request.json();
     
     if (!userId) {
       return NextResponse.json({ error: 'userId is required' }, { status: 400 });
     }
 
-    await updateUserActivity(userId);
+    // If serverId provided, ensure complete mapping exists
+    if (serverId) {
+      const { setServerIdForUser } = await import('@/lib/user-server-mapping');
+      await setServerIdForUser(userId, serverId);
+    } else {
+      await updateUserActivity(userId);
+    }
     
     return NextResponse.json({ success: true });
   } catch (error) {
