@@ -44,6 +44,8 @@
 - [x] Fix stale user online status (force update all users in cron, added /api/force-update-users)
 - [x] Add manual update buttons to shoutout pages (Update Users & Post to Discord)
 - [x] Fix VIP user persistence issues (fixed user ID handling in ManageMembersDialog)
+- [x] Fix VIP online display (VIP users now show as online regardless of streaming status)
+- [x] Fix Twitch API authentication (now passes serverId to load correct credentials)
 - [ ] Build out raid pile shoutouts functionality
 - [ ] Test complete VIP GIF workflow end-to-end
 - [ ] Test shoutout posting to correct Discord channels

@@ -46,11 +46,13 @@ class TwitchApiService {
   private accessToken: string | null = null;
   private tokenExpiry: number = 0;
   private initialized: boolean = false;
+  private serverId: string | undefined;
 
-  async initialize() {
-    if (this.initialized) return;
+  async initialize(serverId?: string) {
+    if (this.initialized && this.serverId === serverId) return;
     
-    const secrets = await getSecrets();
+    this.serverId = serverId;
+    const secrets = await getSecrets(serverId);
     this.clientId = secrets.TWITCH_CLIENT_ID || '';
     this.clientSecret = secrets.TWITCH_CLIENT_SECRET || '';
     
@@ -59,11 +61,11 @@ class TwitchApiService {
     }
     
     this.initialized = true;
-    console.log('[TwitchAPI] Initialized with Firestore secrets');
+    console.log('[TwitchAPI] Initialized with Firestore secrets for server:', serverId || 'global');
   }
 
-  private async getAccessToken(): Promise<string> {
-    await this.initialize(); // Ensure initialized
+  private async getAccessToken(serverId?: string): Promise<string> {
+    await this.initialize(serverId); // Ensure initialized
     
     if (this.accessToken && Date.now() < this.tokenExpiry) {
       return this.accessToken;
@@ -99,8 +101,8 @@ class TwitchApiService {
     return this.accessToken;
   }
 
-  private async makeApiCall(endpoint: string): Promise<any> {
-    const token = await this.getAccessToken();
+  private async makeApiCall(endpoint: string, serverId?: string): Promise<any> {
+    const token = await this.getAccessToken(serverId);
     
     const response = await fetch(`https://api.twitch.tv/helix/${endpoint}`, {
       headers: {
@@ -191,7 +193,7 @@ class TwitchApiService {
     }
   }
 
-  async checkMultipleStreamsStatus(userLogins: string[]): Promise<Map<string, boolean>> {
+  async checkMultipleStreamsStatus(userLogins: string[], serverId?: string): Promise<Map<string, boolean>> {
     const statusMap = new Map<string, boolean>();
     
     try {
@@ -210,7 +212,7 @@ class TwitchApiService {
         chunk.forEach(login => params.append('user_login', login));
         const endpoint = `streams?${params.toString()}`.replace(/&amp;/g, '&');
         console.log(`[TwitchAPI] Calling endpoint for ${chunk.length} users`);
-        const data = await this.makeApiCall(endpoint);
+        const data = await this.makeApiCall(endpoint, serverId);
         
         console.log(`[TwitchAPI] Found ${data.data.length} live streams in this chunk`);
         
@@ -258,8 +260,8 @@ export async function getRandomClipFromOnlineUsers(userLogins: string[]): Promis
   return twitchApiService.getRandomClipFromOnlineUsers(userLogins);
 }
 
-export async function checkMultipleStreamsStatus(userLogins: string[]): Promise<Map<string, boolean>> {
-  return twitchApiService.checkMultipleStreamsStatus(userLogins);
+export async function checkMultipleStreamsStatus(userLogins: string[], serverId?: string): Promise<Map<string, boolean>> {
+  return twitchApiService.checkMultipleStreamsStatus(userLogins, serverId);
 }
 
 /**

@@ -96,7 +96,9 @@ export async function runUnifiedCronCycle(): Promise<{
     console.log('[UnifiedCron] Will use Twitch API calls:', apiCalls, '(limit: 100 per call)');
 
     // 3. Single batched Twitch API call for ALL users
-    const streamStatusMap = await checkMultipleStreamsStatus(allUsernames);
+    // Use the first serverId for authentication (all servers should have same Twitch credentials)
+    const firstServerId = Array.from(serverIds)[0];
+    const streamStatusMap = await checkMultipleStreamsStatus(allUsernames, firstServerId);
 
     // 4. Update each server with their users' status
     for (const [serverId, serverData] of allServerUsers) {

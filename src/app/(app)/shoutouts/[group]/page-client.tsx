@@ -845,8 +845,14 @@ export default function GroupDetailPage() {
     let mutableUsers = allUsers ? [...allUsers] : [];
 
     const groupMembers = mutableUsers.filter((u) => matchesGroup(u.group, groupName));
-    const online = groupMembers.filter(u => u.isOnline || u.lastTwitchData?.isLive);
-    const offline = groupMembers.filter(u => !u.isOnline && !u.lastTwitchData?.isLive);
+    // For VIP group, show all members as "online" for display purposes
+    // For other groups, use actual online status
+    const online = groupName === 'VIP' 
+      ? groupMembers 
+      : groupMembers.filter(u => u.isOnline || u.lastTwitchData?.isLive);
+    const offline = groupName === 'VIP' 
+      ? [] 
+      : groupMembers.filter(u => !u.isOnline && !u.lastTwitchData?.isLive);
     const community = mutableUsers.filter(u => matchesGroup(u.group, 'Community'));
 
     // Extract all unique roles from all users
