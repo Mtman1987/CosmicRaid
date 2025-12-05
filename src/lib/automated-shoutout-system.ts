@@ -163,12 +163,14 @@ export async function postAllShoutoutsToDiscord(serverId: string, options: PostO
       if (communityUsers.length > 0 && communityChannelId) {
         console.log('[AutoShoutout] Processing community shoutouts:', communityUsers.length, 'to channel', communityChannelId?.replace(/[\r\n]/g, ''));
         
-        for (const user of communityUsers) {
-          if (user.dailyShoutout) {
-            console.log('[AutoShoutout] Posting community shoutout for:', user.username?.replace(/[\r\n]/g, ''));
-            const messageId = await postOrUpdateShoutout(communityChannelId, user, serverId);
+        // Batch community users in groups of 2
+        for (let i = 0; i < communityUsers.length; i += 2) {
+          const batch = communityUsers.slice(i, i + 2).filter(user => user.dailyShoutout);
+          if (batch.length > 0) {
+            console.log('[AutoShoutout] Posting batch of', batch.length, 'community shoutouts');
+            const messageId = await postBatchShoutouts(communityChannelId, batch, serverId);
             if (messageId) communityKeepIds.push(messageId);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 2000));
           }
         }
       }
@@ -190,12 +192,14 @@ export async function postAllShoutoutsToDiscord(serverId: string, options: PostO
       if (vipUsers.length > 0 && vipChannelId) {
         console.log('[AutoShoutout] Processing VIP shoutouts:', vipUsers.length, 'to channel', vipChannelId?.replace(/[\r\n]/g, ''));
         
-        for (const user of vipUsers) {
-          if (user.dailyShoutout) {
-            console.log('[AutoShoutout] Posting VIP shoutout for:', user.username?.replace(/[\r\n]/g, ''));
-            const messageId = await postOrUpdateShoutout(vipChannelId, user, serverId);
+        // Batch VIP users in groups of 2
+        for (let i = 0; i < vipUsers.length; i += 2) {
+          const batch = vipUsers.slice(i, i + 2).filter(user => user.dailyShoutout);
+          if (batch.length > 0) {
+            console.log('[AutoShoutout] Posting batch of', batch.length, 'VIP shoutouts');
+            const messageId = await postBatchShoutouts(vipChannelId, batch, serverId);
             if (messageId) vipKeepIds.push(messageId);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 2000));
           }
         }
       } else if (vipUsers.length > 0 && !vipChannelId) {
@@ -224,6 +228,52 @@ export async function startAutomatedShoutouts(serverId: string): Promise<void> {
   setInterval(() => {
     runAutomatedShoutoutCycle(serverId);
   }, getShoutoutIntervalMs());
+}
+
+async function postBatchShoutouts(channelId: string, users: any[], serverId: string): Promise<string | null> {
+  try {
+    const content = users.map(user => {
+      const isVip = await isVipGroup(user.group, serverId);
+      const mediaUrl = isVip ? 
+        (user.dailyShoutout?.content || user.dailyShoutout?.gifUrl) : 
+        (user.dailyShoutout?.content || user.dailyShoutout?.imageUrl);
+      return mediaUrl;
+    }).filter(Boolean).join('\n');
+
+    const embeds = users.map(user => {
+      const description = typeof user.dailyShoutout === 'string' 
+        ? user.dailyShoutout 
+        : user.dailyShoutout?.description || 'Come check out the stream!';
+      
+      return {
+        title: `🎮 ${user.username} is live!`,
+        description,
+        color: 0x9146FF,
+        thumbnail: { url: user.avatarUrl || '' },
+        timestamp: new Date().toISOString()
+      };
+    });
+
+    const components = users.map(user => ({
+      type: 2,
+      style: 5,
+      label: `Join ${user.username}`,
+      url: `https://twitch.tv/${user.username}`
+    }));
+
+    const messageId = await sendDiscordMessage(channelId, {
+      content: content || undefined,
+      embeds,
+      components: [{
+        type: 1,
+        components: components.slice(0, 5) // Discord limit of 5 buttons per row
+      }]
+    });
+    return messageId;
+  } catch (error) {
+    console.error('Failed to post batch shoutouts:', error);
+    return null;
+  }
 }
 
 async function postOrUpdateShoutout(channelId: string, user: any, serverId: string): Promise<string | null> {
