@@ -23,67 +23,48 @@ export async function POST(request: NextRequest) {
     const streamThumbnail = stream?.thumbnail_url?.replace('{width}', '640').replace('{height}', '360');
 
     // Generate VIP-style GIF shoutout
-    const serverId = '1240832965865635881'; // Your server ID
+    const serverId = '1240832965865635881';
+    let gifUrl: string | null = null;
     
-    const gifUrl = await generateShoutoutCardGif(serverId, {
-      streamerName: username,
-      streamTitle,
-      gameName: streamGame,
-      viewerCount,
-      avatarUrl: twitchAvatar,
-      streamThumbnail,
-      isLive,
-      isMature: Boolean(stream?.is_mature),
-      group: 'vip'
-    });
-
-    // Send to Discord
-    let messageId;
-    if (gifUrl && !gifUrl.startsWith('data:')) {
-      messageId = await sendDiscordMessage(channelId, {
-        content: gifUrl,
-        components: [{
-          type: 1,
-          components: [{
-            type: 2,
-            style: 5,
-            label: "⚡ JOIN COMMAND",
-            url: `https://twitch.tv/${username}`
-          }]
-        }]
+    try {
+      gifUrl = await generateShoutoutCardGif(serverId, {
+        streamerName: username,
+        streamTitle,
+        gameName: streamGame,
+        viewerCount,
+        avatarUrl: twitchAvatar,
+        streamThumbnail,
+        isLive,
+        isMature: Boolean(stream?.is_mature),
+        group: 'vip'
       });
-    } else {
-      // Fallback to embed
-      messageId = await sendDiscordMessage(channelId, {
-        embeds: [{
-          author: {
-            name: `Captain ${username}`,
-            url: `https://twitch.tv/${username}`,
-            icon_url: twitchAvatar,
-          },
-          title: streamTitle,
-          url: `https://twitch.tv/${username}`,
-          description: `Captain ${username} is ${isLive ? 'broadcasting' : 'standing by with'} "${streamTitle}" in ${streamGame}. ${isLive ? `Leading ${viewerCount} viewers through the mission.` : 'Rally the crew before the next sortie.'}`,
-          color: 9521663,
-          footer: { text: 'TEST: Space Mountain Command | Honored Crew VIP' },
-          timestamp: new Date().toISOString(),
-        }],
-        components: [{
-          type: 1,
-          components: [{
-            type: 2,
-            style: 5,
-            label: "⚡ JOIN COMMAND",
-            url: `https://twitch.tv/${username}`
-          }]
-        }]
-      });
+      console.log('[TestGif] Generated GIF URL:', gifUrl ? 'SUCCESS' : 'FAILED');
+    } catch (error) {
+      console.error('[TestGif] GIF generation error:', error);
     }
+
+    // Send to Discord - force placeholder for now to test posting
+    let messageId;
+    const placeholderUrl = 'https://via.placeholder.com/960x540/9521663/ffffff?text=TEST+GIF+CARD';
+    
+    console.log('[TestGif] Using placeholder URL for testing:', placeholderUrl);
+    messageId = await sendDiscordMessage(channelId, {
+      content: placeholderUrl,
+      components: [{
+        type: 1,
+        components: [{
+          type: 2,
+          style: 5,
+          label: "⚡ JOIN COMMAND (TEST)",
+          url: `https://twitch.tv/${username}`
+        }]
+      }]
+    });
 
     return NextResponse.json({ 
       success: true, 
       messageId,
-      gifUrl,
+      gifUrl: gifUrl || 'placeholder',
       isLive,
       streamTitle,
       streamGame,

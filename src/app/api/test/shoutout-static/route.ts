@@ -21,66 +21,48 @@ export async function POST(request: NextRequest) {
     const twitchAvatar = twitchUser?.profile_image_url;
 
     // Generate static community-style shoutout
-    const { generateCommunityCardImage } = await import('@/ai/flows/generate-community-card-image');
-    const serverId = '1240832965865635881'; // Your server ID
+    const serverId = '1240832965865635881';
+    let cardUrl: string | null = null;
     
-    const cardUrl = await generateCommunityCardImage(serverId, username, {
-      title: streamTitle,
-      game: streamGame,
-      viewers: viewerCount,
-      avatarUrl: twitchAvatar,
-      thumbnailUrl: stream?.thumbnail_url?.replace('{width}', '640').replace('{height}', '360'),
-      isLive,
-      group: 'community'
-    });
-
-    // Send to Discord
-    let messageId;
-    if (cardUrl && !cardUrl.startsWith('data:')) {
-      messageId = await sendDiscordMessage(channelId, {
-        content: cardUrl,
-        components: [{
-          type: 1,
-          components: [{
-            type: 2,
-            style: 5,
-            label: "🚀 JOIN STREAM",
-            url: `https://twitch.tv/${username}`
-          }]
-        }]
+    try {
+      const { generateCommunityCardImage } = await import('@/ai/flows/generate-community-card-image');
+      cardUrl = await generateCommunityCardImage(serverId, username, {
+        title: streamTitle,
+        game: streamGame,
+        viewers: viewerCount,
+        avatarUrl: twitchAvatar,
+        thumbnailUrl: stream?.thumbnail_url?.replace('{width}', '640').replace('{height}', '360'),
+        isLive,
+        group: 'community'
       });
-    } else {
-      // Fallback to embed
-      messageId = await sendDiscordMessage(channelId, {
-        embeds: [{
-          author: {
-            name: `dYs? Captain ${username}`,
-            url: `https://twitch.tv/${username}`,
-            icon_url: twitchAvatar,
-          },
-          title: streamTitle,
-          url: `https://twitch.tv/${username}`,
-          description: `Space Cadet ${username} is ${isLive ? 'live' : 'prepping'} with "${streamTitle}" in ${streamGame}. ${isLive ? `Currently holding ${viewerCount} viewers.` : 'Standing by for launch.'}`,
-          color: 6570404,
-          footer: { text: 'TEST: dYOO Space Mountain Community Member' },
-          timestamp: new Date().toISOString(),
-        }],
-        components: [{
-          type: 1,
-          components: [{
-            type: 2,
-            style: 5,
-            label: "🚀 JOIN STREAM",
-            url: `https://twitch.tv/${username}`
-          }]
-        }]
-      });
+      console.log('[TestStatic] Generated card URL:', cardUrl ? cardUrl.substring(0, 100) + '...' : 'FAILED');
+      console.log('[TestStatic] Is base64?', cardUrl?.startsWith('data:'));
+    } catch (error) {
+      console.error('[TestStatic] Image generation error:', error);
     }
+
+    // Send to Discord - force placeholder for now to test posting
+    let messageId;
+    const placeholderUrl = 'https://via.placeholder.com/960x360/6570404/ffffff?text=TEST+STATIC+CARD';
+    
+    console.log('[TestStatic] Using placeholder URL for testing:', placeholderUrl);
+    messageId = await sendDiscordMessage(channelId, {
+      content: placeholderUrl,
+      components: [{
+        type: 1,
+        components: [{
+          type: 2,
+          style: 5,
+          label: "🚀 JOIN STREAM (TEST)",
+          url: `https://twitch.tv/${username}`
+        }]
+      }]
+    });
 
     return NextResponse.json({ 
       success: true, 
       messageId,
-      cardUrl,
+      cardUrl: cardUrl || 'placeholder',
       isLive,
       streamTitle,
       streamGame,
