@@ -91,12 +91,11 @@ export async function postCommunitySpotlight(serverId: string): Promise<void> {
       return;
     }
 
-    // Create spotlight embed
+    // Create spotlight embed (without image)
     const embed = {
       title: '🌟 Community Spotlight',
       description: `Featuring ${spotlight.streamerName} - ${spotlight.streamData.title}`,
       color: 0x9146ff,
-      image: { url: spotlight.cardGifUrl },
       fields: [
         { name: 'Game', value: spotlight.streamData.game, inline: true },
         { name: 'Viewers', value: spotlight.streamData.viewers.toString(), inline: true },
@@ -152,7 +151,19 @@ export async function postCommunitySpotlight(serverId: string): Promise<void> {
       })
     });
 
-    // Post main spotlight
+    // Post GIF/image first (full size preview)
+    await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bot ${botToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        content: spotlight.cardGifUrl
+      })
+    });
+
+    // Post main spotlight embed with buttons
     const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: 'POST',
       headers: {

@@ -254,6 +254,20 @@ export function CommunitySpotlight() {
           <h3 className="text-lg font-semibold">{spotlight.streamData.title}</h3>
           <p className="text-sm text-muted-foreground">Game: {spotlight.streamData.game}</p>
         </div>
+
+        <div className="flex gap-3">
+          <Button asChild className="flex-1">
+            <a href={twitchUrl ?? '#'} target="_blank" rel="noopener noreferrer">
+              <PlayCircle className="mr-2 h-4 w-4" />
+              Join Stream
+            </a>
+          </Button>
+          <Button asChild variant="secondary" className="flex-1">
+            <a href="https://discord.gg/mQWtcRNCZW" target="_blank" rel="noopener noreferrer">
+              Join Community
+            </a>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
