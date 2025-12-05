@@ -36,25 +36,33 @@ interface SpotlightData {
 
 export async function updateCommunitySpotlight(serverId: string): Promise<void> {
   try {
+    console.log(`[Spotlight] Starting update for server ${serverId}`);
+    
     // Get all online community members
     const usersRef = db.collection('servers').doc(serverId).collection('users');
     const snapshot = await usersRef
       .where('isOnline', '==', true)
       .get();
 
+    console.log(`[Spotlight] Found ${snapshot.docs.length} online users`);
+    
     const communityDocs = snapshot.docs.filter(doc => isCommunityGroupSync(doc.data().group));
+    console.log(`[Spotlight] Found ${communityDocs.length} online community members`);
+    
     const onlineMembers = communityDocs
       .map(doc => ({
         userId: doc.id,
         username: doc.data().username as string | undefined,
       }))
       .filter(member => Boolean(member.username)) as { userId: string; username: string }[];
+      
+    console.log(`[Spotlight] Valid online members:`, onlineMembers.map(m => m.username));
 
     // Get current spotlight reference first
     const spotlightRef = db.collection('servers').doc(serverId).collection('spotlight').doc('current');
     
     if (onlineMembers.length === 0) {
-      console.log('No online community members, trying cached clips');
+      console.log('[Spotlight] No online community members, trying cached clips');
       
       // Get all community members with cached clips
       const allUsersSnapshot = await usersRef.get();
@@ -71,8 +79,26 @@ export async function updateCommunitySpotlight(serverId: string): Promise<void> 
         }
       }
       
+      console.log(`[Spotlight] Found ${communityMembersWithClips.length} members with cached clips`);
+      
       if (communityMembersWithClips.length === 0) {
-        console.log('No community members with cached clips');
+        console.log('[Spotlight] No community members with cached clips - creating placeholder');
+        
+        // Create a placeholder spotlight
+        const spotlightRef = db.collection('servers').doc(serverId).collection('spotlight').doc('current');
+        await spotlightRef.set({
+          streamerName: 'Space Mountain Community',
+          cardGifUrl: 'https://via.placeholder.com/800x450/8B5CF6/FFFFFF?text=No+Community+Members+Live',
+          lastUpdated: new Date().toISOString(),
+          streamData: {
+            title: 'Community Spotlight Coming Soon',
+            game: 'Just Chatting',
+            viewers: 0,
+            avatarUrl: 'https://static-cdn.jtvnw.net/jtv_user_pictures/default_profile_image-300x300.png'
+          }
+        }, { merge: true });
+        
+        console.log('[Spotlight] Created placeholder spotlight');
         return;
       }
       
