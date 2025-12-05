@@ -207,13 +207,9 @@ export async function postAllShoutoutsToDiscord(serverId: string, options: PostO
       }
     }
     
-    // Clean up old messages in both channels
-    if (communityChannelId) {
-      await cleanupDuplicateBotMessages(communityChannelId, communityKeepIds);
-    }
-    if (vipChannelId) {
-      await cleanupDuplicateBotMessages(vipChannelId, vipKeepIds);
-    }
+    // Skip cleanup for now to prevent message deletion
+    // TODO: Implement smarter cleanup that doesn't delete recent shoutouts
+    console.log('[AutoShoutout] Skipping message cleanup to preserve shoutout images');
     
   } catch (error) {
     console.error('[AutoShoutout] Error posting to Discord:', error);

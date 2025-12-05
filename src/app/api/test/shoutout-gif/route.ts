@@ -43,23 +43,49 @@ export async function POST(request: NextRequest) {
       console.error('[TestGif] GIF generation error:', error);
     }
 
-    // Send to Discord - force placeholder for now to test posting
+    // Send to Discord
     let messageId;
-    const placeholderUrl = 'https://via.placeholder.com/960x540/9521663/ffffff?text=TEST+GIF+CARD';
     
-    console.log('[TestGif] Using placeholder URL for testing:', placeholderUrl);
-    messageId = await sendDiscordMessage(channelId, {
-      content: placeholderUrl,
-      components: [{
-        type: 1,
+    if (gifUrl && !gifUrl.startsWith('data:')) {
+      messageId = await sendDiscordMessage(channelId, {
+        content: gifUrl,
         components: [{
-          type: 2,
-          style: 5,
-          label: "⚡ JOIN COMMAND (TEST)",
-          url: `https://twitch.tv/${username}`
+          type: 1,
+          components: [{
+            type: 2,
+            style: 5,
+            label: "⚡ JOIN COMMAND",
+            url: `https://twitch.tv/${username}`
+          }]
         }]
-      }]
-    });
+      });
+    } else {
+      // Fallback to embed if no GIF generated
+      messageId = await sendDiscordMessage(channelId, {
+        embeds: [{
+          author: {
+            name: `Captain ${username}`,
+            url: `https://twitch.tv/${username}`,
+            icon_url: twitchAvatar,
+          },
+          title: streamTitle,
+          url: `https://twitch.tv/${username}`,
+          description: `Captain ${username} is ${isLive ? 'broadcasting' : 'standing by with'} "${streamTitle}" in ${streamGame}. ${isLive ? `Leading ${viewerCount} viewers through the mission.` : 'Rally the crew before the next sortie.'}`,
+          color: 9521663,
+          footer: { text: 'TEST: Space Mountain Command | Honored Crew VIP' },
+          timestamp: new Date().toISOString(),
+        }],
+        components: [{
+          type: 1,
+          components: [{
+            type: 2,
+            style: 5,
+            label: "⚡ JOIN COMMAND",
+            url: `https://twitch.tv/${username}`
+          }]
+        }]
+      });
+    }
 
     return NextResponse.json({ 
       success: true, 

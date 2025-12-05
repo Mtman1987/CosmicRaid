@@ -90,7 +90,7 @@ export default async function HeadlessShoutoutCardPage({
                 )}
               </div>
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-black/30 relative">
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-900 to-blue-900 relative">
                 <img 
                   src={thumbnail as string}
                   alt="Stream thumbnail"
@@ -110,11 +110,11 @@ export default async function HeadlessShoutoutCardPage({
               <p className={`text-2xl font-semibold ${
                 isVip ? 'text-purple-300' : 'text-blue-300'
               }`}>
-                {isVip ? 'Space Mountain VIP Fleet' : 'Space Mountain Community'}
+                Stream Info
               </p>
-              <p className="text-white text-xl leading-relaxed">
-                Space Mountain is a coalition of streamers uplifting each other through raids, shoutouts, and mission briefs.
-                Honored Captains like {streamer} lead the crew every day.
+              <p className="text-white text-lg">
+                Currently streaming: {game}
+                {isLive ? 'LIVE NOW' : 'Stream Offline'} • {viewers} viewers
               </p>
             </div>
             <div className="space-y-6 text-xl text-white">
