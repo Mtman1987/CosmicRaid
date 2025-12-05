@@ -105,35 +105,35 @@ export default async function HeadlessShoutoutCardPage({
               </div>
             )}
           </div>
-          <div className="w-[320px] h-[360px] bg-black/60 border-l border-white/10 flex flex-col gap-4 p-4">
+          <div className="w-[320px] h-[360px] bg-black/60 border-l border-white/10 flex flex-col gap-2 p-3">
             <div>
-              <p className={`text-2xl font-semibold ${
+              <p className={`text-lg font-semibold ${
                 isVip ? 'text-purple-300' : 'text-blue-300'
               }`}>
                 Stream Info
               </p>
-              <p className="text-white text-lg">
+              <p className="text-white text-sm">
                 Currently streaming: {game}
                 {isLive ? 'LIVE NOW' : 'Stream Offline'} • {viewers} viewers
               </p>
             </div>
-            <div className="space-y-6 text-xl text-white">
+            <div className="space-y-2 text-sm text-white">
               <div className="flex justify-between">
                 <span className="text-purple-300">Game</span>
-                <span>{game}</span>
+                <span className="text-right truncate ml-2">{game}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-purple-300">Viewers</span>
                 <span>{viewers}</span>
               </div>
               <div>
-                <span className="text-purple-300 block">Stream Title</span>
-                <span className="line-clamp-3">{title}</span>
+                <span className="text-purple-300 block mb-1">Stream Title</span>
+                <span className="text-xs leading-tight line-clamp-2">{title}</span>
               </div>
             </div>
-            <div className="rounded-md bg-black/40 p-6 border border-white/5">
-              <p className="text-xl text-purple-300 font-semibold mb-2">Mission Log</p>
-              <p className="text-xl text-white leading-relaxed">
+            <div className="flex-1 rounded-md bg-black/40 p-3 border border-white/5">
+              <p className="text-sm text-purple-300 font-semibold mb-2">Mission Log</p>
+              <p className="text-xs text-white leading-relaxed">
                 {isVip 
                   ? `"Captain ${streamer} is blazing through ${game} with stellar skill! Join this epic space adventure and reinforce their crew."`
                   : `"Community member ${streamer} is exploring ${game} with determination! Join their mission and help expand our galactic reach."`

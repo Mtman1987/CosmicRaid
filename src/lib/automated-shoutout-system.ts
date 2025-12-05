@@ -152,6 +152,16 @@ export async function postAllShoutoutsToDiscord(serverId: string, options: PostO
       }
     }
     
+    // Clean up old bot messages BEFORE posting new ones
+    if (communityChannelId) {
+      await cleanupDuplicateBotMessages(communityChannelId, [], serverId);
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
+    if (vipChannelId) {
+      await cleanupDuplicateBotMessages(vipChannelId, [], serverId);
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
+    
     // Collect current message IDs for cleanup
     const communityKeepIds: string[] = [];
     const vipKeepIds: string[] = [];
@@ -207,14 +217,6 @@ export async function postAllShoutoutsToDiscord(serverId: string, options: PostO
         console.log('[AutoShoutout] No VIPs live, posting community spotlight to VIP channel');
         await postCommunitySpotlightMessage(serverId, vipChannelId, vipKeepIds);
       }
-    }
-    
-    // Clean up old bot messages
-    if (communityChannelId && communityKeepIds.length > 0) {
-      await cleanupDuplicateBotMessages(communityChannelId, communityKeepIds, serverId);
-    }
-    if (vipChannelId && vipKeepIds.length > 0) {
-      await cleanupDuplicateBotMessages(vipChannelId, vipKeepIds, serverId);
     }
     
   } catch (error) {

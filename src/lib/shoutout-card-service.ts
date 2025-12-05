@@ -100,7 +100,7 @@ export async function generateShoutoutCardGif(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         url: shoutoutUrl,
-        duration: 5000,
+        duration: 15000,
         fps: 10,
         width: 960,
         height: 540

@@ -135,6 +135,6 @@
   }
 
   .animate-vertical-marquee {
-    animation: vertical-marquee 40s linear infinite;
+    animation: vertical-marquee 15s linear infinite;
   }
 }

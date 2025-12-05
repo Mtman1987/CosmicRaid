@@ -181,10 +181,10 @@ export async function cleanupDuplicateBotMessages(channelId: string, keepMessage
       .filter((msg: any) => msg.author.id === botId && !keepMessageIds.includes(msg.id))
       .map((msg: any) => msg.id);
     
-    // Delete old bot messages
+    // Delete old bot messages with proper delays
     for (const messageId of messagesToDelete) {
       await deleteDiscordMessage(channelId, messageId);
-      await new Promise(resolve => setTimeout(resolve, 100)); // Rate limit protection
+      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay between deletes
     }
     
     if (messagesToDelete.length > 0) {
