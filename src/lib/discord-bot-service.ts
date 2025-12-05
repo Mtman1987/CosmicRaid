@@ -33,12 +33,9 @@ function validateDiscordContent(messageData: any): any {
   const MAX_CONTENT_LENGTH = 4000;
   const validatedData = { ...messageData };
   
-  // Check for base64 data URLs which should never be used
+  // Check content length
   if (validatedData.content && typeof validatedData.content === 'string') {
-    if (validatedData.content.startsWith('data:')) {
-      console.error('[Discord] Base64 data URL detected - this should use storage URLs instead');
-      validatedData.content = '[Error: Image should use storage URL, not base64]';
-    } else if (validatedData.content.length > MAX_CONTENT_LENGTH) {
+    if (validatedData.content.length > MAX_CONTENT_LENGTH) {
       console.warn(`[Discord] Content too long (${validatedData.content.length} chars), truncating`);
       validatedData.content = validatedData.content.substring(0, MAX_CONTENT_LENGTH - 3) + '...';
     }

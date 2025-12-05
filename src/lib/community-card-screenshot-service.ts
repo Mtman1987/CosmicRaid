@@ -49,9 +49,11 @@ export async function takeCommunityCardScreenshot(
       return null;
     }
 
-    const { dataUrl, imageUrl } = await response.json();
+    const result = await response.json();
     console.log(`[CommunityCardScreenshot] Screenshot successful for ${streamerName}`);
-    return imageUrl || dataUrl || null;
+    
+    // Return storage URL if available, otherwise base64 (like calendar/leaderboard)
+    return result.imageUrl || result.dataUrl || null;
 
   } catch (error) {
     console.log(`[CommunityCardScreenshot] Error for ${streamerName}:`, error);

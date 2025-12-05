@@ -1,5 +1,47 @@
 'use server';
 
+import { getStorage } from 'firebase-admin/storage';
+import { app } from '@/firebase/server-init';
+
+const STORAGE_BUCKET = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'studio-9468926194-e03ac.firebasestorage.app';
+
+async function uploadShoutoutImage(serverId: string, streamerName: string, imageData: string): Promise<string> {
+  // FreeConvert URLs are valid for 4 hours - use directly
+  if (imageData.startsWith('https://') && imageData.includes('freeconvert')) {
+    console.log('[ShoutoutUpload] Using FreeConvert URL directly');
+    return imageData;
+  }
+  
+  // If already a Firebase Storage URL, return as-is
+  if (imageData.startsWith('https://storage.googleapis.com/')) {
+    return imageData;
+  }
+  
+  // If local service returned imageUrl, use it
+  if (imageData.startsWith('https://') && !imageData.startsWith('data:')) {
+    return imageData;
+  }
+
+  // Upload base64 to Firebase Storage
+  if (!STORAGE_BUCKET) {
+    throw new Error('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET is not configured');
+  }
+
+  const base64Data = imageData.replace(/^data:image\/png;base64,/, '');
+  const imageBuffer = Buffer.from(base64Data, 'base64');
+
+  const bucket = getStorage(app).bucket(STORAGE_BUCKET);
+  const fileName = `shoutout-images/${serverId}/${streamerName}-${Date.now()}.png`;
+  const file = bucket.file(fileName);
+
+  await file.save(imageBuffer, {
+    metadata: { contentType: 'image/png' },
+    public: true,
+  });
+
+  return `https://storage.googleapis.com/${STORAGE_BUCKET}/${fileName}`;
+}
+
 export async function generateCommunityCardImage(
   serverId: string,
   streamerName: string,
@@ -10,11 +52,12 @@ export async function generateCommunityCardImage(
 
     // Try local screenshot service first
     const { takeCommunityCardScreenshot } = await import('@/lib/community-card-screenshot-service');
-    let dataUrl = await takeCommunityCardScreenshot(serverId, streamerName, streamData);
+    let imageData = await takeCommunityCardScreenshot(serverId, streamerName, streamData);
     
-    if (dataUrl) {
+    if (imageData) {
       console.log(`[CommunityCardImage] Local screenshot successful for ${streamerName}`);
-      return dataUrl;
+      // Upload to storage and return permanent URL
+      return await uploadShoutoutImage(serverId, streamerName, imageData);
     }
 
     // Fallback to FreeConvert
@@ -107,7 +150,8 @@ export async function generateCommunityCardImage(
         if (fileUrl) {
           console.log(`[FreeConvert] Found URL in result: ${fileUrl}`);
           console.log(`[FreeConvert] Job completed!`);
-          return fileUrl;
+          // Upload FreeConvert result to storage for permanent URL
+          return await uploadShoutoutImage(serverId, streamerName, fileUrl);
         }
       }
       

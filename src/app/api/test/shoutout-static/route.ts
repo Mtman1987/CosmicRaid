@@ -41,23 +41,49 @@ export async function POST(request: NextRequest) {
       console.error('[TestStatic] Image generation error:', error);
     }
 
-    // Send to Discord - force placeholder for now to test posting
+    // Send to Discord
     let messageId;
-    const placeholderUrl = 'https://via.placeholder.com/960x360/6570404/ffffff?text=TEST+STATIC+CARD';
     
-    console.log('[TestStatic] Using placeholder URL for testing:', placeholderUrl);
-    messageId = await sendDiscordMessage(channelId, {
-      content: placeholderUrl,
-      components: [{
-        type: 1,
+    if (cardUrl && !cardUrl.startsWith('data:')) {
+      messageId = await sendDiscordMessage(channelId, {
+        content: cardUrl,
         components: [{
-          type: 2,
-          style: 5,
-          label: "🚀 JOIN STREAM (TEST)",
-          url: `https://twitch.tv/${username}`
+          type: 1,
+          components: [{
+            type: 2,
+            style: 5,
+            label: "🚀 JOIN STREAM",
+            url: `https://twitch.tv/${username}`
+          }]
         }]
-      }]
-    });
+      });
+    } else {
+      // Fallback to embed if no image generated
+      messageId = await sendDiscordMessage(channelId, {
+        embeds: [{
+          author: {
+            name: `dYs? Captain ${username}`,
+            url: `https://twitch.tv/${username}`,
+            icon_url: twitchAvatar,
+          },
+          title: streamTitle,
+          url: `https://twitch.tv/${username}`,
+          description: `Space Cadet ${username} is ${isLive ? 'live' : 'prepping'} with "${streamTitle}" in ${streamGame}. ${isLive ? `Currently holding ${viewerCount} viewers.` : 'Standing by for launch.'}`,
+          color: 6570404,
+          footer: { text: 'TEST: dYOO Space Mountain Community Member' },
+          timestamp: new Date().toISOString(),
+        }],
+        components: [{
+          type: 1,
+          components: [{
+            type: 2,
+            style: 5,
+            label: "🚀 JOIN STREAM",
+            url: `https://twitch.tv/${username}`
+          }]
+        }]
+      });
+    }
 
     return NextResponse.json({ 
       success: true, 
