@@ -145,7 +145,7 @@ export default async function HeadlessShoutoutCardPage({
 
         {/* Bottom - Scrolling Content */}
         <div className="w-full h-[120px] bg-black/60 border-t border-white/10 overflow-hidden relative">
-          <div id="scrolling-content" className="absolute w-full p-4 animate-vertical-marquee">
+          <div id="scrolling-content" className="absolute w-full h-[300px] p-4 animate-vertical-marquee">
             {/* Mission Briefing */}
             <div className="border-b border-white/10 pb-4 mb-4">
               <div className="text-lg text-purple-300 mb-2 font-semibold">dYZ_ Strategic Mission Analysis:</div>
@@ -177,6 +177,36 @@ export default async function HeadlessShoutoutCardPage({
                 "Exploring the infinite possibilities of the digital cosmos, one stream at a time."
               </div>
             </div>
+
+            {/* VIP Exclusive Content - Only visible in GIFs */}
+            {isVip && (
+              <div className="mt-4 pt-4 border-t border-purple-400/30">
+                <div className="text-center bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg p-3 border border-purple-400/30">
+                  <div className="text-yellow-300 text-lg font-bold mb-2">⭐ VIP EXCLUSIVE ⭐</div>
+                  <div className="text-white text-sm font-semibold mb-1">
+                    "VIPs are the heart and soul of Space Mountain"
+                  </div>
+                  <div className="text-purple-300 text-xs">
+                    JOIN SPACE MOUNTAIN FOR YOUR SHOUTOUT
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Community Spotlight Exclusive Content */}
+            {isCommunity && (
+              <div className="mt-4 pt-4 border-t border-blue-400/30">
+                <div className="text-center bg-gradient-to-r from-blue-500/20 to-green-500/20 rounded-lg p-3 border border-blue-400/30">
+                  <div className="text-cyan-300 text-lg font-bold mb-2">🌟 COMMUNITY SPOTLIGHT 🌟</div>
+                  <div className="text-white text-sm font-semibold mb-1">
+                    "Featured Community Explorer"
+                  </div>
+                  <div className="text-blue-300 text-xs">
+                    BECOME A VIP FOR PREMIUM SHOUTOUTS
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
