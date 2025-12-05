@@ -1186,10 +1186,6 @@ export default function GroupDetailPage() {
                   currentPath={pathname}
                 />
               ))}
-              {/* Community Spotlight always appears at the bottom */}
-              <div className="md:col-span-2 lg:col-span-3">
-                <CommunitySpotlight />
-              </div>
             </div>
           ) : (
              <Card className="flex flex-col items-center justify-center py-20 text-center">
@@ -1200,6 +1196,9 @@ export default function GroupDetailPage() {
                 </CardHeader>
             </Card>
           )}
+
+          {/* Community Spotlight always appears */}
+          <CommunitySpotlight />
 
           <Separator />
 

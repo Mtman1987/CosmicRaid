@@ -82,14 +82,7 @@ export async function postCommunitySpotlight(serverId: string): Promise<void> {
       return;
     }
 
-    // Check if we already posted this spotlight
-    const lastPostRef = db.collection('servers').doc(serverId).collection('spotlight').doc('lastPost');
-    const lastPost = await lastPostRef.get();
-    
-    if (lastPost.exists && lastPost.data()?.streamerName === spotlight.streamerName) {
-      console.log(`[CommunitySpotlight] Already posted spotlight for ${spotlight.streamerName}`);
-      return;
-    }
+    // Always post spotlight when called (removed duplicate check)
 
     // Create spotlight embed (without image)
     const embed = {
