@@ -1,5 +1,38 @@
 'use server';
 
+// Upload GIF to Firebase Storage
+export async function uploadShoutoutGif(serverId: string, streamerName: string, gifData: string): Promise<string> {
+  const { getStorage } = await import('firebase-admin/storage');
+  const { app } = await import('@/firebase/server-init');
+  
+  const STORAGE_BUCKET = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'studio-9468926194-e03ac.firebasestorage.app';
+  
+  // If already a storage URL, return as-is
+  if (gifData.startsWith('https://storage.googleapis.com/')) {
+    return gifData;
+  }
+  
+  // If local service returned URL, use it
+  if (gifData.startsWith('https://') && !gifData.startsWith('data:')) {
+    return gifData;
+  }
+
+  // Upload base64 to Firebase Storage
+  const base64Data = gifData.replace(/^data:image\/gif;base64,/, '');
+  const gifBuffer = Buffer.from(base64Data, 'base64');
+
+  const bucket = getStorage(app).bucket(STORAGE_BUCKET);
+  const fileName = `shoutout-gifs/${serverId}/${streamerName}-${Date.now()}.gif`;
+  const file = bucket.file(fileName);
+
+  await file.save(gifBuffer, {
+    metadata: { contentType: 'image/gif' },
+    public: true,
+  });
+
+  return `https://storage.googleapis.com/${STORAGE_BUCKET}/${fileName}`;
+}
+
 export async function generateShoutoutCard(
   serverId: string,
   cardData: any
@@ -77,7 +110,12 @@ export async function generateShoutoutCardGif(
     
     if (response.ok) {
       const result = await response.json();
-      return result.imageUrl || result.dataUrl;
+      const rawUrl = result.imageUrl || result.dataUrl;
+      
+      if (rawUrl) {
+        // Upload to Firebase Storage for permanent URL
+        return await uploadShoutoutGif(serverId, cardData.streamerName || cardData.username, rawUrl);
+      }
     }
     return null;
   } catch (error) {
