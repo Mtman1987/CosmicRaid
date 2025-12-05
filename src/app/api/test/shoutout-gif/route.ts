@@ -38,7 +38,12 @@ export async function POST(request: NextRequest) {
         isMature: Boolean(stream?.is_mature),
         group: 'vip'
       });
-      console.log('[TestGif] Generated GIF URL:', gifUrl ? 'SUCCESS' : 'FAILED');
+      console.log('[TestGif] Generated GIF URL:', gifUrl || 'FAILED - NULL RETURNED');
+      if (gifUrl) {
+        console.log('[TestGif] GIF URL type:', typeof gifUrl);
+        console.log('[TestGif] GIF URL starts with data:', gifUrl.startsWith('data:'));
+        console.log('[TestGif] GIF URL starts with https:', gifUrl.startsWith('https:'));
+      }
     } catch (error) {
       console.error('[TestGif] GIF generation error:', error);
     }

@@ -105,17 +105,25 @@ export async function generateShoutoutCardGif(
         width: 960,
         height: 540
       }),
-      signal: AbortSignal.timeout(20000)
+      signal: AbortSignal.timeout(30000)
     });
     
     if (response.ok) {
       const result = await response.json();
+      console.log('[ShoutoutCardGif] Local service response:', result);
       const rawUrl = result.imageUrl || result.dataUrl;
       
       if (rawUrl) {
+        console.log('[ShoutoutCardGif] Raw URL received:', rawUrl.substring(0, 100) + '...');
         // Upload to Firebase Storage for permanent URL
-        return await uploadShoutoutGif(serverId, cardData.streamerName || cardData.username, rawUrl);
+        const uploadedUrl = await uploadShoutoutGif(serverId, cardData.streamerName || cardData.username, rawUrl);
+        console.log('[ShoutoutCardGif] Uploaded URL:', uploadedUrl);
+        return uploadedUrl;
+      } else {
+        console.log('[ShoutoutCardGif] No rawUrl in response');
       }
+    } else {
+      console.log('[ShoutoutCardGif] Response not ok:', response.status, response.statusText);
     }
     return null;
   } catch (error) {

@@ -1132,8 +1132,6 @@ export default function GroupDetailPage() {
       {/* RENDER COMMUNITY LAYOUT */}
       {!isLoadingUsers && isCommunityPage && (
         <div className="space-y-8">
-          <CommunitySpotlight />
-
           <div>
             <h2 className="text-2xl font-headline text-primary mb-2">
               Live Dashboard
@@ -1188,6 +1186,10 @@ export default function GroupDetailPage() {
                   currentPath={pathname}
                 />
               ))}
+              {/* Community Spotlight always appears at the bottom */}
+              <div className="md:col-span-2 lg:col-span-3">
+                <CommunitySpotlight />
+              </div>
             </div>
           ) : (
              <Card className="flex flex-col items-center justify-center py-20 text-center">
