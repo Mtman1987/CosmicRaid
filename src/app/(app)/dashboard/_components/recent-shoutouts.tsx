@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, limit, orderBy, query } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -48,7 +48,7 @@ export function RecentShoutouts() {
     setServerId(localStorage.getItem('discordServerId'));
   }, []);
 
-  const shoutoutsQuery = React.useMemo(() => {
+  const shoutoutsQuery = useMemoFirebase(() => {
     if (!firestore || !serverId) return null;
     return query(
       collection(firestore, 'servers', serverId, 'shoutoutLogs'),
@@ -113,4 +113,3 @@ export function RecentShoutouts() {
     </Card>
   );
 }
-

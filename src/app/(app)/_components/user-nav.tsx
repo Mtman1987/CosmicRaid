@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { doc } from 'firebase/firestore';
-import { useDoc, useFirestore, useUser } from '@/firebase';
+import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -26,7 +26,7 @@ export function UserNav() {
     setServerId(localStorage.getItem('discordServerId'));
   }, []);
 
-  const userProfileRef = React.useMemo(() => {
+  const userProfileRef = useMemoFirebase(() => {
     if (isUserLoading || !firestore || !serverId || !userId || !user) return null;
     return doc(firestore, 'servers', serverId, 'users', userId);
   }, [firestore, serverId, userId, user, isUserLoading]);

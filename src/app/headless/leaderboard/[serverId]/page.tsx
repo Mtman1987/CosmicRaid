@@ -9,11 +9,11 @@ import {
   query,
   limit,
 } from 'firebase/firestore';
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { UserProfile, LeaderboardEntry } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy } from 'lucide-react';
-import { FirebaseComponentsProvider } from '@/firebase';
+import { FirebaseClientProvider } from '@/firebase';
 
 type LeaderboardDisplayEntry = LeaderboardEntry & {
   user?: UserProfile;
@@ -27,7 +27,7 @@ function LeaderboardForScreenshot({ serverId }: { serverId: string }) {
   >([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  const leaderboardQuery = React.useMemo(() => {
+  const leaderboardQuery = useMemoFirebase(() => {
     if (!firestore || !serverId) return null;
     return query(
       collection(firestore, 'servers', serverId, 'leaderboard'),
@@ -133,10 +133,10 @@ export default function HeadlessLeaderboardPage({
   params: { serverId: string };
 }) {
   return (
-    <FirebaseComponentsProvider>
+    <FirebaseClientProvider>
       <main className="inline-block bg-slate-900">
         <LeaderboardForScreenshot serverId={params.serverId} />
       </main>
-    </FirebaseComponentsProvider>
+    </FirebaseClientProvider>
   );
 }

@@ -7,7 +7,7 @@ import {
   where,
   orderBy,
 } from 'firebase/firestore';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import {
   Card,
   CardContent,
@@ -34,11 +34,10 @@ const useCalendarContext = () => React.useContext(CalendarContext);
 function CustomDay(props: DayProps) {
     const { date, displayMonth } = props;
     const { allEvents } = useCalendarContext();
-    const dayContentProps = props as React.ComponentProps<typeof DayContent>;
 
     // Only render decorations for the current display month to avoid clutter.
     if (!isSameMonth(date, displayMonth)) {
-        return <DayContent {...dayContentProps} />;
+        return <DayContent {...props} />;
     }
 
     const captainsLog = allEvents.find(e => 
@@ -55,7 +54,7 @@ function CustomDay(props: DayProps) {
 
     return (
         <div className="relative h-full w-full">
-            <DayContent {...dayContentProps} />
+            <DayContent {...props} />
             {hasOtherEvents && <Star className="absolute top-0.5 right-0.5 h-6 w-6 fill-yellow-400 text-yellow-500 z-20" />}
             {captainsLog && (
                 <TooltipProvider>
@@ -67,7 +66,7 @@ function CustomDay(props: DayProps) {
                             </Avatar>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <p>Captain{"'"}s Log by {captainsLog.username}</p>
+                            <p>Captain's Log by {captainsLog.username}</p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
@@ -81,16 +80,10 @@ export function CalendarDisplay({ serverId, forScreenshot = false }: { serverId:
   const firestore = useFirestore();
   const [month, setMonth] = React.useState(startOfMonth(new Date()));
 
-  const { viewStart, viewEnd } = React.useMemo(() => {
-    const start = startOfWeek(startOfMonth(month));
-    const end = endOfWeek(endOfMonth(month));
-    return { viewStart: start, viewEnd: end };
-  }, [month]);
+  const viewStart = startOfWeek(startOfMonth(month));
+  const viewEnd = endOfWeek(endOfMonth(month));
 
-  const viewStartMs = viewStart.getTime();
-  const viewEndMs = viewEnd.getTime();
-
-  const eventsQuery = React.useMemo(() => {
+  const eventsQuery = useMemoFirebase(() => {
       if (!firestore || !serverId) return null;
       const eventsRef = collection(firestore, 'servers', serverId, 'calendarEvents');
       return query(
@@ -106,7 +99,7 @@ export function CalendarDisplay({ serverId, forScreenshot = false }: { serverId:
   const { monthCaptains } = React.useMemo(() => {
     if (!allEvents) return { monthCaptains: [] };
     
-    // Get all of this month{"'"}s Captain{"'"}s Logs for the left-hand footer avatar list.
+    // Get all of this month's Captain's Logs for the left-hand footer avatar list.
     const monthCaptainLogs = allEvents.filter(e => 
         e.type === 'captains-log' &&
         e.eventDateTime &&

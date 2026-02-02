@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useDoc, useFirestore } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import type { LeaderboardSettings } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -47,7 +47,7 @@ export function PointsConfigCard({ serverId }: { serverId: string }) {
     message: '',
   });
 
-  const settingsRef = React.useMemo(() => {
+  const settingsRef = useMemoFirebase(() => {
     if (!firestore || !serverId) return null;
     return doc(firestore, 'servers', serverId, 'config', 'leaderboardSettings');
   }, [firestore, serverId]);
@@ -142,7 +142,7 @@ export function PointsConfigCard({ serverId }: { serverId: string }) {
                         <Input id="admin-event-points" name="adminEventPoints" type="number" defaultValue={settings?.adminEventPoints ?? 10} required />
                     </div>
                      <div className="space-y-2">
-                        <Label htmlFor="admin-log-points">Add Captain{"'"}s Log</Label>
+                        <Label htmlFor="admin-log-points">Add Captain's Log</Label>
                         <Input id="admin-log-points" name="adminLogPoints" type="number" defaultValue={settings?.adminLogPoints ?? 5} required />
                     </div>
                  </div>
