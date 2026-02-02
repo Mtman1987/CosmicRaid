@@ -4,7 +4,6 @@ import { Playfair_Display, PT_Sans } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
-import '@/lib/auto-startup';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -37,7 +36,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Auto-startup services are initialized via the import above
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
