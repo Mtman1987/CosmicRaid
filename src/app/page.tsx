@@ -3,11 +3,10 @@
 import { PageHeader } from '@/components/page-header';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send, Film, TestTube } from 'lucide-react';
+import { Loader2, Send, TestTube } from 'lucide-react';
 import * as React from 'react';
+import { runAutomatedShoutoutCycle } from '@/lib/automated-shoutout-system';
 
 type ActionState = 'idle' | 'loading' | 'success' | 'error';
 type ActionType = 'calendar' | 'leaderboard' | 'shoutouts';
@@ -15,7 +14,7 @@ type ActionType = 'calendar' | 'leaderboard' | 'shoutouts';
 const ENDPOINT_MAP: Record<ActionType, string> = {
   calendar: '/api/dispatch/calendar',
   leaderboard: '/api/dispatch/leaderboard',
-  shoutouts: '/api/dispatch/shoutout-cycle',
+  shoutouts: '/api/dispatch/shoutout-cycle', // This is now unused but kept for structure
 };
 
 // Hardcoded values for simplified testing
@@ -33,10 +32,35 @@ export default function MissionControlPage() {
   });
 
   const handleDispatch = async (type: ActionType) => {
+    // Shoutout cycle is now a direct server action call
+    if (type === 'shoutouts') {
+      setActionStates(prev => ({ ...prev, shoutouts: 'loading' }));
+      try {
+        await runAutomatedShoutoutCycle(SERVER_ID);
+        toast({
+          title: 'Dispatch Successful',
+          description: `Shoutout cycle completed.`,
+        });
+        setActionStates(prev => ({ ...prev, shoutouts: 'success' }));
+      } catch (error) {
+         const message = error instanceof Error ? error.message : String(error);
+          toast({
+            variant: 'destructive',
+            title: 'Dispatch Failed',
+            description: message,
+          });
+          setActionStates(prev => ({ ...prev, shoutouts: 'error' }));
+      } finally {
+        setTimeout(() => setActionStates(prev => ({ ...prev, shoutouts: 'idle' })), 3000);
+      }
+      return;
+    }
+    
+    // Legacy dispatch for calendar and leaderboard
     setActionStates(prev => ({ ...prev, [type]: 'loading' }));
     
     const endpoint = ENDPOINT_MAP[type];
-    const body = type === 'shoutouts' ? { serverId: SERVER_ID } : { serverId: SERVER_ID, channelId: CHANNEL_ID };
+    const body = { serverId: SERVER_ID, channelId: CHANNEL_ID };
 
     try {
       const response = await fetch(endpoint, {
@@ -182,13 +206,13 @@ export default function MissionControlPage() {
           <CardHeader>
             <CardTitle>📣 Shoutout Cycle</CardTitle>
             <CardDescription>
-              Manually trigger a full shoutout cycle for all configured groups and channels.
+              Manually trigger a diagnostic shoutout cycle. This posts a single mock shoutout.
             </CardDescription>
           </CardHeader>
           <CardFooter>
             <Button className="w-full" onClick={() => handleDispatch('shoutouts')} disabled={isLoading('shoutouts')}>
                {isLoading('shoutouts') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-              Dispatch All Shoutouts
+              Dispatch Diagnostic Shoutout
             </Button>
           </CardFooter>
         </Card>

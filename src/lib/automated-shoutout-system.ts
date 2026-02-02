@@ -1,57 +1,31 @@
 
 'use server';
 
-import { db } from "@/firebase/server-init";
 import { generateAllShoutouts } from "./community-shoutout-service";
 import { postAllShoutoutsToDiscord } from "./discord-bot-service";
 
-const SHOUTOUT_CYCLE_COOLDOWN_MS = 4 * 60 * 1000; // 4 minutes to be safe with a 5-min cron
-
-async function canRunCycle(serverId: string): Promise<boolean> {
-  const serverRef = db.collection('servers').doc(serverId);
-  const doc = await serverRef.get();
-  
-  if (!doc.exists) {
-    return true; // First time running
-  }
-
-  const lastRun = doc.data()?.lastShoutoutCycle?.toDate();
-  if (!lastRun) {
-    return true;
-  }
-
-  const elapsed = Date.now() - lastRun.getTime();
-  return elapsed > SHOUTOUT_CYCLE_COOLDOWN_MS;
-}
-
-export async function runAutomatedShoutoutCycle(serverId: string, options: { force?: boolean } = {}): Promise<void> {
+/**
+ * A drastically simplified shoutout cycle for diagnostics.
+ * This function is now self-contained and has no external dependencies besides the two services it calls.
+ * It does not interact with Firestore.
+ */
+export async function runAutomatedShoutoutCycle(serverId: string): Promise<void> {
   const cycleId = Date.now();
-  console.log(`[ShoutoutCycle/${cycleId}] SIMPLIFIED: Received request for server ${serverId}.`);
+  console.log(`[ShoutoutCycle/${cycleId}] DIAGNOSTIC MODE: Received request for server ${serverId}.`);
   
-  if (!options.force) {
-    const canRun = await canRunCycle(serverId);
-    if (!canRun) {
-      console.log(`[ShoutoutCycle/${cycleId}] Cooldown active. Skipping.`);
-      return;
-    }
-  }
-
-  const serverRef = db.collection('servers').doc(serverId);
-  await serverRef.set({ lastShoutoutCycle: new Date() }, { merge: true });
-
   try {
-    // 1. Generate a single piece of mock shoutout data. No database reads.
-    console.log(`[ShoutoutCycle/${cycleId}] Step 1: Generating mock shoutout data...`);
-    const mockUsersToPost = generateAllShoutouts(serverId);
+    // 1. Generate a single piece of mock shoutout data.
+    console.log(`[ShoutoutCycle/${cycleId}] Step 1: Generating hardcoded mock shoutout data...`);
+    const mockUsersToPost = await generateAllShoutouts(serverId);
     
     // 2. Post the mock data to Discord.
     console.log(`[ShoutoutCycle/${cycleId}] Step 2: Posting mock shoutout to Discord...`);
     await postAllShoutoutsToDiscord(serverId, mockUsersToPost);
     
-    console.log(`[ShoutoutCycle/${cycleId}] Simplified cycle completed successfully.`);
+    console.log(`[ShoutoutCycle/${cycleId}] Diagnostic cycle completed successfully.`);
 
   } catch (error) {
-    console.error(`[ShoutoutCycle/${cycleId}] An error occurred:`, error);
-    await serverRef.set({ lastShoutoutCycleError: (error as Error).message }, { merge: true });
+    console.error(`[ShoutoutCycle/${cycleId}] An error occurred during the diagnostic run:`, error);
+    // Intentionally not writing to DB to keep this isolated.
   }
 }
