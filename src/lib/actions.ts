@@ -1,3 +1,4 @@
+
 'use server'
 
 import { revalidatePath } from 'next/cache'
@@ -205,26 +206,16 @@ export async function postNewCalendar(guildId: string, channelId: string) {
     const calendarImage = await generateCalendarImage(guildId)
     if (!calendarImage) throw new Error('Failed to generate calendar image.')
 
-    const attachments: Array<{
-      buffer: Buffer
-      mime: string
-      filename: string
-    }> = []
-
-    function decodeImage(dataUrl: string, filename: string) {
-      const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/)
-      if (!match) {
-        throw new Error(`Invalid image data URL for ${filename}.`)
-      }
-      const [, mime, base64] = match
-      return {
-        buffer: Buffer.from(base64, 'base64'),
-        mime,
-        filename,
-      }
+    const match = calendarImage.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+    if (!match) {
+      throw new Error('Invalid image data URL for calendar.');
     }
-
-    attachments.push(decodeImage(calendarImage, 'calendar.png'))
+    const [, mime, base64] = match;
+    const attachment = {
+      buffer: Buffer.from(base64, 'base64'),
+      mime,
+      filename: 'calendar.png',
+    };
     
     const embeds = [
       {
@@ -238,23 +229,21 @@ export async function postNewCalendar(guildId: string, channelId: string) {
 
     const payload = {
       embeds,
-      attachments: attachments.map((attachment, index) => ({
-        id: index,
+      attachments: [{
+        id: 0,
         filename: attachment.filename,
-        description: `Auto generated ${attachment.filename}`,
-      })),
+        description: `Auto generated calendar`,
+      }],
     }
 
     const formData = new FormData()
     formData.append('payload_json', JSON.stringify(payload))
 
-    attachments.forEach((attachment, index) => {
-      formData.append(
-        `files[${index}]`,
-        new Blob([attachment.buffer], { type: attachment.mime }),
-        attachment.filename,
-      )
-    })
+    formData.append(
+      `files[0]`,
+      new Blob([attachment.buffer], { type: attachment.mime }),
+      attachment.filename,
+    )
 
     const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: 'POST',
