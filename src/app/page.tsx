@@ -17,10 +17,13 @@ const ENDPOINT_MAP: Record<ActionType, string> = {
   shoutouts: '/api/dispatch/shoutout-cycle',
 };
 
+// Hardcoded values for simplified testing
+const SERVER_ID = '1240832965865635881';
+const CHANNEL_ID = '1341946492696526858';
+
+
 export default function MissionControlPage() {
   const { toast } = useToast();
-  const [serverId, setServerId] = React.useState('');
-  const [channelId, setChannelId] = React.useState('');
   const [isTesting, setIsTesting] = React.useState(false);
   const [isTestingFreeConvert, setIsTestingFreeConvert] = React.useState(false);
   const [actionStates, setActionStates] = React.useState<Record<ActionType, ActionState>>({
@@ -29,27 +32,11 @@ export default function MissionControlPage() {
     shoutouts: 'idle',
   });
 
-  React.useEffect(() => {
-    const storedServerId = localStorage.getItem('discordServerId');
-    if (storedServerId) {
-      setServerId(storedServerId);
-    }
-  }, []);
-
   const handleDispatch = async (type: ActionType) => {
-    if (!serverId || (type !== 'shoutouts' && !channelId)) {
-      toast({
-        variant: 'destructive',
-        title: 'Missing Information',
-        description: 'Please provide both a Server ID and a Target Channel ID.',
-      });
-      return;
-    }
-
     setActionStates(prev => ({ ...prev, [type]: 'loading' }));
     
     const endpoint = ENDPOINT_MAP[type];
-    const body = type === 'shoutouts' ? { serverId } : { serverId, channelId };
+    const body = type === 'shoutouts' ? { serverId: SERVER_ID } : { serverId: SERVER_ID, channelId: CHANNEL_ID };
 
     try {
       const response = await fetch(endpoint, {
@@ -83,22 +70,13 @@ export default function MissionControlPage() {
   };
   
   const handleTestPost = async () => {
-    if (!channelId) {
-      toast({
-        variant: 'destructive',
-        title: 'Missing Channel ID',
-        description: 'Please provide a Target Channel ID to send a test message.',
-      });
-      return;
-    }
-    
     setIsTesting(true);
     try {
         const response = await fetch('/api/discord/post', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                channelId,
+                channelId: CHANNEL_ID,
                 content: 'Hello from Firebase Studio! The bot is connected. ✅'
             }),
         });
@@ -111,7 +89,7 @@ export default function MissionControlPage() {
 
         toast({
             title: 'Test Message Sent!',
-            description: `Successfully posted to channel ${channelId}.`,
+            description: `Successfully posted to channel ${CHANNEL_ID}.`,
         });
 
     } catch (error) {
@@ -175,28 +153,18 @@ export default function MissionControlPage() {
           <CardHeader>
             <CardTitle>Configuration</CardTitle>
             <CardDescription>
-              Set the Discord Server and Channel ID for all dispatch actions.
+              Dispatch actions are hardcoded for testing.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="server-id">Discord Server ID</Label>
-              <Input
-                id="server-id"
-                placeholder="Enter your server ID"
-                value={serverId}
-                onChange={(e) => setServerId(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="channel-id">Target Channel ID</Label>
-              <Input
-                id="channel-id"
-                placeholder="Enter the channel ID to post to"
-                value={channelId}
-                onChange={(e) => setChannelId(e.target.value)}
-              />
-            </div>
+          <CardContent className="grid gap-4 sm:grid-cols-2 text-sm">
+             <div>
+                <p className="font-semibold text-muted-foreground">Server ID:</p>
+                <p className="font-mono">{SERVER_ID}</p>
+             </div>
+             <div>
+                <p className="font-semibold text-muted-foreground">Channel ID:</p>
+                <p className="font-mono">{CHANNEL_ID}</p>
+             </div>
           </CardContent>
         </Card>
         
