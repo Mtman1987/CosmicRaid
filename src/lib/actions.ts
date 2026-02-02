@@ -92,8 +92,7 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
   }
 
   try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = await getServerConfig(guildId, 'DISCORD_BOT_TOKEN');
+    const botToken = process.env.DISCORD_BOT_TOKEN;
     if (!botToken) {
       return { status: 'error' as const, message: 'Discord bot token not found for this server.' }
     }
@@ -123,7 +122,7 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
       .map((c: any) => ({ id: c.id, name: c.name }))
 
     // 4. Fetch Members (get all members with pagination)
-    let allMembers = [];
+    let allMembers: any[] = [];
     let after = null;
     
     do {
@@ -198,8 +197,7 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
  */
 export async function postNewCalendar(guildId: string, channelId: string) {
   try {
-    const { getServerConfig } = await import('./config-service');
-    const botToken = await getServerConfig(guildId, 'DISCORD_BOT_TOKEN');
+    const botToken = process.env.DISCORD_BOT_TOKEN;
     if (!botToken) {
       throw new Error('Discord bot token not found for this server.')
     }
