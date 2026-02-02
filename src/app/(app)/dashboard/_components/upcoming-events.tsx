@@ -12,9 +12,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, Calendar, Users, Megaphone } from 'lucide-react';
 import { format } from 'date-fns';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, limit } from 'firebase/firestore';
-import type { CalendarEvent } from '@/lib/types';
+import { events } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -24,27 +22,14 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 export function UpcomingEvents() {
-  const firestore = useFirestore();
-  const [serverId, setServerId] = React.useState<string | null>(null);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const upcomingEvents = events.slice(0, 3);
 
-  React.useEffect(() => {
-    setServerId(localStorage.getItem('discordServerId'));
-  }, []);
-
-  const now = React.useMemo(() => new Date(), []);
-
-  const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || !serverId) return null;
-    return query(
-        collection(firestore, 'servers', serverId, 'calendarEvents'),
-        where('eventDateTime', '>=', now),
-        where('type', '!=', 'captains-log'),
-        orderBy('eventDateTime', 'asc'),
-        limit(3)
-    );
-  }, [firestore, serverId, now]);
-
-  const { data: upcomingEvents, isLoading } = useCollection<CalendarEvent>(eventsQuery);
+    React.useEffect(() => {
+        // Simulate loading
+        const timer = setTimeout(() => setIsLoading(false), 1000);
+        return () => clearTimeout(timer);
+    }, []);
 
   return (
     <Card>
@@ -71,15 +56,15 @@ export function UpcomingEvents() {
               </div>
             </div>
           ))}
-          {!isLoading && upcomingEvents && upcomingEvents.map((event) => (
+          {!isLoading && upcomingEvents.map((event) => (
             <div key={event.id} className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
                 {iconMap[event.type] || <Calendar className="h-4 w-4 text-muted-foreground" />}
               </div>
               <div className="flex-1">
-                <p className="font-medium">{event.eventName}</p>
+                <p className="font-medium">{event.title}</p>
                 <p className="text-sm text-muted-foreground">
-                  {format(event.eventDateTime.toDate(), 'MMM d, yyyy')}
+                  {format(event.date, 'MMM d, yyyy')}
                 </p>
               </div>
             </div>
