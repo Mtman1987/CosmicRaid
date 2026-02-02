@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { PageHeader } from '@/components/page-header';
 import {
   Card,
@@ -23,6 +25,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { CopyButton } from '@/components/copy-button';
 import { AdminRoleSettings } from './_components/admin-role-settings';
 import { UISettingsCard } from './_components/ui-settings';
+import { cn } from '@/lib/utils';
 
 function SyncButton() {
     const { pending } = useFormStatus();
@@ -69,8 +72,12 @@ function ResetCalendarButton() {
 export default function SettingsPage() {
   const router = useRouter();
   const pathname = usePathname();
+  const firestore = useFirestore();
   const [guildId, setGuildId] = React.useState('');
   const [testChannelId, setTestChannelId] = React.useState('');
+
+  type SyncStatus = 'checking' | 'synced' | 'not_synced';
+  const [syncStatus, setSyncStatus] = React.useState<SyncStatus>('checking');
 
   const [syncState, syncAction] = useActionState(syncDiscordData, { status: 'idle', message: '' });
   const [testState, testAction] = useActionState(testCalendarPostAction, { status: 'idle', message: '', logs: [] });
@@ -82,8 +89,30 @@ export default function SettingsPage() {
     const storedGuildId = localStorage.getItem('discordServerId');
     if (storedGuildId) {
       setGuildId(storedGuildId);
+    } else {
+      setSyncStatus('not_synced');
     }
   }, []);
+
+  const serverDocRef = useMemoFirebase(() => {
+      if (!firestore || !guildId) return null;
+      return doc(firestore, 'servers', guildId);
+  }, [firestore, guildId]);
+  
+  const { data: serverData, isLoading: isServerLoading } = useDoc(serverDocRef);
+
+  React.useEffect(() => {
+      if (!guildId) {
+        setSyncStatus('not_synced');
+      } else if (isServerLoading) {
+        setSyncStatus('checking');
+      } else if (serverData) {
+        setSyncStatus('synced');
+      } else {
+        setSyncStatus('not_synced');
+      }
+  }, [serverData, isServerLoading, guildId]);
+
 
   const handleReset = () => {
     localStorage.clear();
@@ -101,7 +130,19 @@ export default function SettingsPage() {
             <Card>
                 <form action={syncAction}>
                     <CardHeader>
-                        <CardTitle className="font-headline">Database Sync</CardTitle>
+                        <CardTitle className="font-headline flex items-center gap-3">
+                             <span
+                              className={cn(
+                                'h-3 w-3 rounded-full',
+                                {
+                                  'bg-green-500': syncStatus === 'synced',
+                                  'bg-red-500 animate-pulse': syncStatus === 'not_synced',
+                                  'bg-yellow-500 animate-pulse': syncStatus === 'checking',
+                                }
+                              )}
+                            />
+                            Database Sync
+                        </CardTitle>
                         <CardDescription>
                             Populate your database with members, roles, and channels from your Discord server. This is required for most features.
                         </CardDescription>
