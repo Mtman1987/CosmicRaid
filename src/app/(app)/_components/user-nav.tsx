@@ -33,7 +33,7 @@ export function UserNav() {
 
   const { data: userProfile, isLoading } = useDoc<UserProfile>(userProfileRef);
 
-  if (isLoading || isUserLoading) {
+  if (isLoading || isUserLoading || !user) {
     return (
       <div className="flex items-center gap-3 group-data-[collapsed=true]:justify-center">
         <Skeleton className="h-9 w-9 rounded-full" />

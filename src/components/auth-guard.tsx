@@ -1,43 +1,38 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { useUser } from '@/firebase';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const pathname = usePathname();
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const isLoggedIn = localStorage.getItem('isLoggedIn');
-      const discordServerId = localStorage.getItem('discordServerId');
-      const discordUserId = localStorage.getItem('discordUserId');
-      const twitchUsername = localStorage.getItem('twitchUsername');
-
-      if (isLoggedIn === 'true' && discordServerId && discordUserId && twitchUsername) {
-        setIsAuthenticated(true);
+    if (!isUserLoading) {
+      const hasSession = localStorage.getItem('isLoggedIn') === 'true' && localStorage.getItem('discordServerId');
+      if (!user || !hasSession) {
+        // Allow access to login page without redirect loop
+        if (pathname !== '/login') {
+          router.push('/login');
+        }
       } else {
-        setIsAuthenticated(false);
-        router.push('/login');
+        setIsAuthChecked(true);
       }
-    };
+    }
+  }, [user, isUserLoading, router, pathname]);
 
-    checkAuth();
-  }, [router]);
-
-  if (isAuthenticated === null) {
+  if (!isAuthChecked) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading...</p>
+          <p>Authenticating...</p>
         </div>
       </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    return null;
   }
 
   return <>{children}</>;

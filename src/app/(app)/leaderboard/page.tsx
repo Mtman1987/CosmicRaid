@@ -66,10 +66,14 @@ export default function LeaderboardPage() {
     let rank = 1;
     for (const entry of rawLeaderboard) {
         let userProfile: UserProfile | undefined = undefined;
-        const userDocRef = doc(firestore, 'servers', serverId, 'users', entry.userProfileId);
-        const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists()) {
-            userProfile = userDocSnap.data() as UserProfile;
+        try {
+            const userDocRef = doc(firestore, 'servers', serverId, 'users', entry.userProfileId);
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists()) {
+                userProfile = userDocSnap.data() as UserProfile;
+            }
+        } catch (e) {
+            console.error(`Failed to fetch profile for ${entry.userProfileId}`, e);
         }
         combinedData.push({ ...entry, user: userProfile, rank });
         rank++;

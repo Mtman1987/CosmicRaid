@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Playfair_Display, PT_Sans } from 'next/font/google';
+import { FirebaseComponentsProvider } from '@/firebase';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -42,10 +43,13 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className="star-field"></div>
-            <div className="star-field-2"></div>
-            {children}
-            <Toaster />
+            <FirebaseComponentsProvider>
+                <div className="star-field"></div>
+                <div className="star-field-2"></div>
+                <div className="star-field-3"></div>
+                {children}
+                <Toaster />
+            </FirebaseComponentsProvider>
         </ThemeProvider>
       </body>
     </html>
