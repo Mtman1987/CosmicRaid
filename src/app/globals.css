@@ -1,77 +1,109 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    --background: 240 20% 95%;
-    --foreground: 240 10% 3.9%;
-
-    --card: 260 15% 100%;
-    --card-foreground: 240 10% 3.9%;
-
-    --popover: 240 20% 100%;
-    --popover-foreground: 240 10% 3.9%;
-
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 264 82.4% 97.8%;
-
-    --secondary: 260 15% 95%;
-    --secondary-foreground: 240 10% 3.9%;
-
-    --muted: 260 15% 90%;
-    --muted-foreground: 240 5% 45%;
- 
-    --accent: 260 15% 92%;
-    --accent-foreground: 240 10% 3.9%;
-
-    --destructive: 0 84.2% 60.2%;
+    --background: 232 40% 12%;
+    --foreground: 259 10% 95%;
+    --card: 260 30% 18%;
+    --card-foreground: 259 10% 95%;
+    --popover: 270 10% 10%;
+    --popover-foreground: 259 10% 95%;
+    --primary: 263 80% 65%;
+    --primary-foreground: 263 10% 10%;
+    --secondary: 270 10% 20%;
+    --secondary-foreground: 259 10% 95%;
+    --muted: 270 10% 20%;
+    --muted-foreground: 259 5% 65%;
+    --accent: 263 80% 75%;
+    --accent-foreground: 263 10% 10%;
+    --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 260 15% 85%;
-    --input: 260 15% 85%;
-    --ring: 263.4 70% 50.4%;
-
-    --radius: 0.5rem;
+    --border: 270 10% 25%;
+    --input: 270 10% 25%;
+    --ring: 263 80% 70%;
+    --radius: 0.8rem;
   }
- 
   .dark {
-    --background: 240 20% 5%;
-    --foreground: 0 0% 98%;
-
-    --card: 260 15% 10%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 20% 5%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 264 82.4% 97.8%;
-
-    --secondary: 260 15% 15%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 260 15% 12%;
-    --muted-foreground: 240 5% 64.9%;
- 
-    --accent: 260 15% 15%;
-    --accent-foreground: 0 0% 98%;
- 
-    --destructive: 0 62.8% 30.6%;
+    --background: 232 40% 12%;
+    --foreground: 259 10% 95%;
+    --card: 260 30% 18%;
+    --card-foreground: 259 10% 95%;
+    --popover: 270 10% 10%;
+    --popover-foreground: 259 10% 95%;
+    --primary: 263 80% 65%;
+    --primary-foreground: 263 10% 10%;
+    --secondary: 270 10% 20%;
+    --secondary-foreground: 259 10% 95%;
+    --muted: 270 10% 20%;
+    --muted-foreground: 259 5% 65%;
+    --accent: 263 80% 75%;
+    --accent-foreground: 263 10% 10%;
+    --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 260 15% 18%;
-    --input: 260 15% 18%;
-    --ring: 263.4 70% 50.4%;
+    --border: 270 10% 25%;
+    --input: 270 10% 25%;
+    --ring: 263 80% 70%;
   }
 }
- 
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    position: relative;
   }
+}
+
+/* Twinkling Starfield Background */
+@keyframes twinkle {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.star-field {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+}
+
+.star-field::before,
+.star-field::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  border-radius: 50%;
+  animation-name: twinkle;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.star-field::before {
+  /* Smaller, faster stars */
+  box-shadow: 5vw 85vh 1px 1px #fff, 15vw 35vh 1px 1px #fff, 25vw 10vh 1px 1px #fff, 40vw 80vh 1px 1px #fff, 55vw 20vh 1px 1px #fff, 68vw 45vh 1px 1px #fff, 82vw 70vh 1px 1px #fff, 95vw 5vh 1px 1px #fff, 5vw 95vh 1px 1px #fff, 90vw 90vh 1px 1px #fff, 33vw 33vh 1px 1px #fff, 66vw 66vh 1px 1px #fff, 88vw 12vh 1px 1px #fff;
+  animation-duration: 5s;
+}
+
+.star-field::after {
+  /* Larger, slower stars */
+  width: 2px;
+  height: 2px;
+  box-shadow: 10vw 10vh 2px 2px #fff, 30vw 70vh 2px 2px #fff, 50vw 40vh 2px 2px #fff, 70vw 5vh 2px 2px #fff, 90vw 40vh 2px 2px #fff, 45vw 90vh 2px 2px #fff, 20vw 55vh 2px 2px #fff, 80vw 25vh 2px 2px #fff;
+  animation-duration: 10s;
+  animation-delay: -3s;
 }
