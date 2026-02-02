@@ -23,37 +23,37 @@ const navItems: NavItem[] = [
   {
     title: 'Dashboard',
     href: '/dashboard',
-    icon: <LayoutDashboard />,
+    icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
     title: 'AI Shoutouts',
     href: '/shoutouts',
-    icon: <Megaphone />,
+    icon: <Megaphone className="h-5 w-5" />,
   },
   {
     title: 'Calendar',
     href: '/calendar',
-    icon: <Calendar />,
+    icon: <Calendar className="h-5 w-5" />,
   },
   {
     title: 'Leaderboard',
     href: '/leaderboard',
-    icon: <Trophy />,
+    icon: <Trophy className="h-5 w-5" />,
   },
   {
     title: 'Raid Pile',
     href: '/raid-pile',
-    icon: <Mountain />,
+    icon: <Mountain className="h-5 w-5" />,
   },
   {
     title: 'Messages',
     href: '/forwarding',
-    icon: <MessageSquare />,
+    icon: <MessageSquare className="h-5 w-5" />,
   },
   {
     title: 'Settings',
     href: '/settings',
-    icon: <Settings />,
+    icon: <Settings className="h-5 w-5" />,
   },
 ];
 
@@ -67,10 +67,10 @@ export function MainNav() {
           <SidebarMenuItem key={item.href}>
             <SidebarMenuButton
               asChild
-              isActive={pathname === item.href}
+              isActive={pathname.startsWith(item.href)}
               className={cn(
-                'w-full gap-2 group-data-[collapsed=true]:justify-center group-data-[collapsed=false]:justify-start',
-                pathname === item.href &&
+                'w-full gap-2 group-data-[collapsed=false]:justify-start group-data-[collapsed=true]:justify-center group-data-[collapsed=true]:px-2',
+                pathname.startsWith(item.href) &&
                   'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
               )}
               tooltip={item.title}
