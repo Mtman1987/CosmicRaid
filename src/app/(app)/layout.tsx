@@ -19,9 +19,9 @@ import { FirebaseClientProvider } from '@/firebase';
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <FirebaseClientProvider>
-      <SidebarProvider>
+      <SidebarProvider collapsible="icon">
         <div className="flex min-h-screen">
-          <Sidebar className="border-r group" collapsible="icon">
+          <Sidebar className="border-r group">
             <SidebarHeader className="p-4 flex items-center justify-between">
               <Link
                 href="/dashboard"

@@ -18,7 +18,7 @@ const sidebarVariants = cva(
   {
     variants: {
       collapsible: {
-        true: 'w-16 data-[collapsed=false]:w-64',
+        true: 'data-[collapsed=true]:w-16 data-[collapsed=false]:w-64',
         false: 'w-64',
       },
     },
@@ -28,9 +28,10 @@ const sidebarVariants = cva(
   }
 );
 
-interface SidebarContextProps extends VariantProps<typeof sidebarVariants> {
+interface SidebarContextProps {
   isCollapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
+  collapsible: boolean;
 }
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
@@ -63,8 +64,8 @@ const SidebarProvider = ({
 
 const Sidebar = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof sidebarVariants>
->(({ className, children, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
   const { isCollapsed, collapsible } = useSidebar();
 
   return (
@@ -73,9 +74,7 @@ const Sidebar = React.forwardRef<
       className={cn(sidebarVariants({ collapsible }), className)}
       data-collapsed={isCollapsed}
       {...props}
-    >
-      {children}
-    </div>
+    />
   );
 });
 Sidebar.displayName = 'Sidebar';
