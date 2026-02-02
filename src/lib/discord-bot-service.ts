@@ -1,7 +1,9 @@
+
 'use server';
 
 import { db } from '@/firebase/server-init';
 import { isVipGroup } from './group-utils';
+import type { DocumentData } from 'firebase-admin/firestore';
 
 let botUserIdCache: string | null = null;
 
@@ -15,16 +17,25 @@ async function getBotUserId(botToken: string): Promise<string> {
   return data.id;
 }
 
-export async function postAllShoutoutsToDiscord(serverId: string): Promise<void> {
-  const usersSnapshot = await db
-    .collection('servers')
-    .doc(serverId)
-    .collection('users')
-    .where('isOnline', '==', true)
-    .get();
+export async function postAllShoutoutsToDiscord(serverId: string, usersToPost?: DocumentData[]): Promise<void> {
+  let usersSnapshot: DocumentData[] = [];
 
-  if (usersSnapshot.empty) {
-    console.log('[DiscordBot] No online users to post shoutouts for.');
+  if (usersToPost) {
+    console.log('[DiscordBot] Using provided mock data for posting.');
+    usersSnapshot = usersToPost;
+  } else {
+    console.log('[DiscordBot] Fetching online users from Firestore for posting.');
+    const snapshot = await db
+      .collection('servers')
+      .doc(serverId)
+      .collection('users')
+      .where('isOnline', '==', true)
+      .get();
+    usersSnapshot = snapshot.docs.map(doc => doc.data());
+  }
+
+  if (usersSnapshot.length === 0) {
+    console.log('[DiscordBot] No users found to post shoutouts for.');
     return;
   }
 
@@ -33,7 +44,6 @@ export async function postAllShoutoutsToDiscord(serverId: string): Promise<void>
     console.error('[DiscordBot] DISCORD_BOT_TOKEN is not configured.');
     return;
   }
-  const botId = await getBotUserId(botToken);
 
   const serverConfig = (await db.collection('servers').doc(serverId).get()).data() || {};
   const channelConfig = serverConfig.shoutoutChannels || {};
@@ -41,8 +51,7 @@ export async function postAllShoutoutsToDiscord(serverId: string): Promise<void>
   const vipChannelId = channelConfig.vip || process.env.DISCORD_VIP_CHANNEL_ID;
   const communityChannelId = channelConfig.community || process.env.DISCORD_SHOUTOUT_CHANNEL_ID;
 
-  for (const doc of usersSnapshot.docs) {
-    const user = doc.data();
+  for (const user of usersSnapshot) {
     if (!user.dailyShoutout) continue;
 
     const targetChannelId = isVipGroup(user.group) ? vipChannelId : communityChannelId;
@@ -53,48 +62,21 @@ export async function postAllShoutoutsToDiscord(serverId: string): Promise<void>
     }
 
     try {
-      const existingMessageId = user.discordMessageId;
-      let success = false;
-      
-      if (existingMessageId) {
-        // Try to update existing message
-        const updateResponse = await fetch(`https://discord.com/api/v10/channels/${targetChannelId}/messages/${existingMessageId}`, {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bot ${botToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(user.dailyShoutout),
-        });
+      // For simplicity in the mock flow, we always post a new message.
+      const postResponse = await fetch(`https://discord.com/api/v10/channels/${targetChannelId}/messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bot ${botToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(user.dailyShoutout),
+      });
 
-        if (updateResponse.ok) {
-          success = true;
-          console.log(`[DiscordBot] Successfully updated shoutout for ${user.username}`);
-        } else {
-          console.warn(`[DiscordBot] Failed to update message ${existingMessageId} for ${user.username}. It might have been deleted. Posting new message.`);
-        }
-      }
-      
-      if (!success) {
-        // Post a new message
-        const postResponse = await fetch(`https://discord.com/api/v10/channels/${targetChannelId}/messages`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bot ${botToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(user.dailyShoutout),
-        });
-
-        if (postResponse.ok) {
-          const messageData = await postResponse.json();
-          // Update Firestore with the new message ID
-          await doc.ref.update({ discordMessageId: messageData.id });
-          console.log(`[DiscordBot] Successfully posted new shoutout for ${user.username}`);
-        } else {
-          const error = await postResponse.text();
-          console.error(`[DiscordBot] Failed to post shoutout for ${user.username}:`, error);
-        }
+      if (postResponse.ok) {
+        console.log(`[DiscordBot] Successfully posted new shoutout for ${user.username}`);
+      } else {
+        const error = await postResponse.text();
+        console.error(`[DiscordBot] Failed to post shoutout for ${user.username}:`, error);
       }
 
     } catch (error) {

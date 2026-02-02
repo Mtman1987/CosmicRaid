@@ -1,9 +1,8 @@
+
 'use server';
 
 import { db } from "@/firebase/server-init";
-import { manualPoll } from "./polling-service";
 import { generateAllShoutouts } from "./community-shoutout-service";
-import { updateCommunitySpotlight } from "./community-spotlight-service";
 import { postAllShoutoutsToDiscord } from "./discord-bot-service";
 
 const SHOUTOUT_CYCLE_COOLDOWN_MS = 4 * 60 * 1000; // 4 minutes to be safe with a 5-min cron
@@ -27,7 +26,7 @@ async function canRunCycle(serverId: string): Promise<boolean> {
 
 export async function runAutomatedShoutoutCycle(serverId: string, options: { force?: boolean } = {}): Promise<void> {
   const cycleId = Date.now();
-  console.log(`[ShoutoutCycle/${cycleId}] Received request for server ${serverId}. Force: ${!!options.force}`);
+  console.log(`[ShoutoutCycle/${cycleId}] SIMPLIFIED: Received request for server ${serverId}.`);
   
   if (!options.force) {
     const canRun = await canRunCycle(serverId);
@@ -41,27 +40,18 @@ export async function runAutomatedShoutoutCycle(serverId: string, options: { for
   await serverRef.set({ lastShoutoutCycle: new Date() }, { merge: true });
 
   try {
-    // 1. Poll Twitch for latest online statuses
-    console.log(`[ShoutoutCycle/${cycleId}] Step 1: Polling Twitch for online statuses...`);
-    await manualPoll(serverId);
+    // 1. Generate a single piece of mock shoutout data. No database reads.
+    console.log(`[ShoutoutCycle/${cycleId}] Step 1: Generating mock shoutout data...`);
+    const mockUsersToPost = generateAllShoutouts(serverId);
     
-    // 2. Generate new shoutout content (images, embeds) for all online users
-    console.log(`[ShoutoutCycle/${cycleId}] Step 2: Generating shoutout content...`);
-    await generateAllShoutouts(serverId);
+    // 2. Post the mock data to Discord.
+    console.log(`[ShoutoutCycle/${cycleId}] Step 2: Posting mock shoutout to Discord...`);
+    await postAllShoutoutsToDiscord(serverId, mockUsersToPost);
     
-    // 3. Update the community spotlight to pick a new random user
-    console.log(`[ShoutoutCycle/${cycleId}] Step 3: Updating community spotlight...`);
-    await updateCommunitySpotlight(serverId);
-    
-    // 4. Post everything to Discord
-    console.log(`[ShoutoutCycle/${cycleId}] Step 4: Posting all shoutouts to Discord...`);
-    await postAllShoutoutsToDiscord(serverId);
-    
-    console.log(`[ShoutoutCycle/${cycleId}] Cycle completed successfully.`);
+    console.log(`[ShoutoutCycle/${cycleId}] Simplified cycle completed successfully.`);
 
   } catch (error) {
     console.error(`[ShoutoutCycle/${cycleId}] An error occurred:`, error);
-    // Optionally update Firestore with error state
     await serverRef.set({ lastShoutoutCycleError: (error as Error).message }, { merge: true });
   }
 }
