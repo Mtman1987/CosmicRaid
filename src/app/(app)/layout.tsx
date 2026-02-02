@@ -43,9 +43,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <UserNav />
                 <SidebarSeparator />
                 <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                  <span className="group-data-[collapsed=true]:hidden">
-                    For Space Mountain Admin, powered by Mtman1987
-                  </span>
+                  <div className="text-center group-data-[collapsed=true]:hidden">
+                    <p>For Space Mountain Admin.</p>
+                    <p>Powered by Mtman1987</p>
+                  </div>
                   <Rocket className="h-3 w-3 shrink-0" />
                 </div>
               </SidebarFooter>
