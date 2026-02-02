@@ -3,23 +3,10 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
-import { Playfair_Display, PT_Sans } from 'next/font/google';
 import { FirebaseComponentsProvider } from '@/firebase';
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-playfair-display',
-});
-
-const ptSans = PT_Sans({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-pt-sans',
-});
-
 export const metadata: Metadata = {
-  title: "Cosmic Raid",
+  title: "Discord Streamer's Hub",
   description: 'Manage your Discord community with AI-powered tools.',
 };
 
@@ -30,11 +17,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=PT+Sans:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
         className={cn(
-          'min-h-screen bg-background font-sans antialiased',
-          playfair.variable,
-          ptSans.variable
+          'min-h-screen bg-background font-body antialiased'
         )}
       >
         <ThemeProvider
@@ -44,12 +41,9 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <FirebaseComponentsProvider>
-                <div className="star-field"></div>
-                <div className="star-field-2"></div>
-                <div className="star-field-3"></div>
-                {children}
-                <Toaster />
+              {children}
             </FirebaseComponentsProvider>
+            <Toaster />
         </ThemeProvider>
       </body>
     </html>

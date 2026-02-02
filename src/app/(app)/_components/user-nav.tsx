@@ -33,11 +33,11 @@ export function UserNav() {
 
   const { data: userProfile, isLoading } = useDoc<UserProfile>(userProfileRef);
 
-  if (isLoading || isUserLoading || !user) {
+  if (isLoading || isUserLoading) {
     return (
-      <div className="flex items-center gap-3 group-data-[collapsed=true]:justify-center">
+      <div className="flex items-center gap-3">
         <Skeleton className="h-9 w-9 rounded-full" />
-        <div className="grid gap-1 group-data-[collapsed=true]:hidden">
+        <div className="grid gap-1">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-3 w-32" />
         </div>
@@ -49,16 +49,16 @@ export function UserNav() {
   const displayServer = serverId ? `Server: ${serverId}` : 'No server selected';
 
   return (
-    <div className="flex items-center gap-3 group-data-[collapsed=true]:justify-center">
+    <div className="flex items-center gap-3">
       <Avatar className="h-9 w-9">
         {userProfile?.avatarUrl && (
           <AvatarImage src={userProfile.avatarUrl} alt={displayName} />
         )}
         <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
       </Avatar>
-      <div className="grid gap-0.5 text-sm group-data-[collapsed=true]:hidden">
-        <div className="font-medium truncate">{displayName}</div>
-        <div className="text-muted-foreground truncate">{displayServer}</div>
+      <div className="grid gap-0.5 text-sm">
+        <div className="font-medium">{displayName}</div>
+        <div className="text-muted-foreground">{displayServer}</div>
       </div>
     </div>
   );

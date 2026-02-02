@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { collection, query, where } from 'firebase/firestore';
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import {
   Card,
   CardContent,
@@ -38,7 +38,7 @@ export function ShoutoutDashboard() {
     setServerId(localStorage.getItem('discordServerId'));
   }, []);
 
-  const usersCollectionRef = React.useMemo(() => {
+  const usersCollectionRef = useMemoFirebase(() => {
     if (!firestore || !serverId) return null;
     return collection(firestore, 'servers', serverId, 'users');
   }, [firestore, serverId]);

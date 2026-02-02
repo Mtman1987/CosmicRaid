@@ -17,46 +17,46 @@ import { UserNav } from './_components/user-nav';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen">
-        <Sidebar className="border-r" collapsible="icon">
-          <SidebarHeader className="p-4">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2"
-              prefetch={false}
-            >
-              <BotMessageSquare className="h-8 w-8 text-primary" />
-              <h2 className="font-headline text-lg font-semibold tracking-tight">
-                Streamer's Hub
-              </h2>
-            </Link>
-          </SidebarHeader>
-          <SidebarContent className="p-4">
-            <MainNav />
-          </SidebarContent>
-          <SidebarFooter className="p-4 space-y-4">
-            <UserNav />
-            <SidebarSeparator />
-            <div className="text-center text-xs text-muted-foreground">
-              Powered by mtman1987 <Rocket className="inline h-3 w-3" />
-            </div>
-          </SidebarFooter>
-        </Sidebar>
-        <div className="flex flex-1 flex-col">
-          <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
-            <div className="md:hidden">
-              <SidebarTrigger />
-            </div>
-            <div className="flex-1">
-              {/* Future header content can go here, like a search bar */}
-            </div>
-          </header>
-          <main className="flex-1 overflow-y-auto p-4 md:p-8">
-            {children}
-          </main>
+      <SidebarProvider>
+        <div className="flex min-h-screen">
+          <Sidebar className="border-r" collapsible="icon">
+            <SidebarHeader className="p-4">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2"
+                prefetch={false}
+              >
+                <BotMessageSquare className="h-8 w-8 text-primary" />
+                <h2 className="font-headline text-lg font-semibold tracking-tight">
+                  Streamer's Hub
+                </h2>
+              </Link>
+            </SidebarHeader>
+            <SidebarContent className="p-4">
+              <MainNav />
+            </SidebarContent>
+            <SidebarFooter className="p-4 space-y-4">
+              <UserNav />
+              <SidebarSeparator />
+              <div className="text-center text-xs text-muted-foreground">
+                Powered by mtman1987 <Rocket className="inline h-3 w-3" />
+              </div>
+            </SidebarFooter>
+          </Sidebar>
+          <div className="flex flex-1 flex-col">
+            <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
+              <div className="md:hidden">
+                <SidebarTrigger />
+              </div>
+              <div className="flex-1">
+                {/* Future header content can go here, like a search bar */}
+              </div>
+            </header>
+            <main className="flex-1 overflow-y-auto p-4 md:p-8">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
   );
 }
