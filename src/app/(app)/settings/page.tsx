@@ -97,34 +97,7 @@ export default function SettingsPage() {
         description="Configure your application and integrations."
       />
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <div className="lg:col-span-1 space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline">Discord Integration</CardTitle>
-              <CardDescription>
-                Connect your Discord bot and server details.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="discord-token">Bot Token</Label>
-                <Input
-                  id="discord-token"
-                  type="password"
-                  placeholder="Set in your .env file"
-                  disabled
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="discord-server-id">Server ID</Label>
-                <Input id="discord-server-id" value={guildId} disabled />
-              </div>
-            </CardContent>
-          </Card>
-          {guildId && <AdminRoleSettings serverId={guildId} />}
-        </div>
-        
-         <div className="space-y-8 lg:col-span-1">
+        <div className="space-y-8 lg:col-span-1">
             <Card>
                 <form action={syncAction}>
                     <CardHeader>
@@ -159,6 +132,10 @@ export default function SettingsPage() {
                     </CardFooter>
                 </form>
             </Card>
+          {guildId && <AdminRoleSettings serverId={guildId} />}
+        </div>
+        
+         <div className="space-y-8 lg:col-span-1">
             <UISettingsCard />
         </div>
 
