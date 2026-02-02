@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --background: 232 40% 12%;
+    --background: 232 40% 10%; /* Darker Blue Background */
     --foreground: 259 10% 95%;
-    --card: 260 30% 18%;
+    --card: 260 40% 15%; /* Darker, more saturated purple for translucent effect */
     --card-foreground: 259 10% 95%;
     --popover: 270 10% 10%;
     --popover-foreground: 259 10% 95%;
@@ -25,10 +25,11 @@
     --ring: 263 80% 70%;
     --radius: 0.8rem;
   }
+
   .dark {
-    --background: 232 40% 12%;
+    --background: 232 40% 10%;
     --foreground: 259 10% 95%;
-    --card: 260 30% 18%;
+    --card: 260 40% 15%;
     --card-foreground: 259 10% 95%;
     --popover: 270 10% 10%;
     --popover-foreground: 259 10% 95%;
@@ -47,6 +48,7 @@
     --ring: 263 80% 70%;
   }
 }
+
 @layer base {
   * {
     @apply border-border;
@@ -61,17 +63,21 @@
 /* Twinkling Starfield Background */
 @keyframes twinkle {
   0% {
+    transform: scale(0.8);
     opacity: 0;
   }
   50% {
-    opacity: 0.7;
+    transform: scale(1.2);
+    opacity: 0.8;
   }
   100% {
+    transform: scale(0.8);
     opacity: 0;
   }
 }
 
-.star-field {
+.star-field,
+.star-field-2 {
   position: fixed;
   top: 0;
   left: 0;
@@ -81,7 +87,9 @@
 }
 
 .star-field::before,
-.star-field::after {
+.star-field::after,
+.star-field-2::before,
+.star-field-2::after {
   content: '';
   position: absolute;
   width: 1px;
@@ -93,17 +101,50 @@
   animation-iteration-count: infinite;
 }
 
+/* Layer 1 - Small, fast stars */
 .star-field::before {
-  /* Smaller, faster stars */
-  box-shadow: 5vw 85vh 1px 1px #fff, 15vw 35vh 1px 1px #fff, 25vw 10vh 1px 1px #fff, 40vw 80vh 1px 1px #fff, 55vw 20vh 1px 1px #fff, 68vw 45vh 1px 1px #fff, 82vw 70vh 1px 1px #fff, 95vw 5vh 1px 1px #fff, 5vw 95vh 1px 1px #fff, 90vw 90vh 1px 1px #fff, 33vw 33vh 1px 1px #fff, 66vw 66vh 1px 1px #fff, 88vw 12vh 1px 1px #fff;
+  box-shadow: 5vw 85vh 1px 1px #fff, 15vw 35vh 1px 1px #fff, 25vw 10vh 1px 1px #fff,
+    40vw 80vh 1px 1px #fff, 55vw 20vh 1px 1px #fff, 68vw 45vh 1px 1px #fff,
+    82vw 70vh 1px 1px #fff, 95vw 5vh 1px 1px #fff, 5vw 95vh 1px 1px #fff,
+    90vw 90vh 1px 1px #fff, 33vw 33vh 1px 1px #fff, 66vw 66vh 1px 1px #fff,
+    88vw 12vh 1px 1px #fff, 7vw 5vh 1px 1px #fff, 92vw 30vh 1px 1px #fff,
+    45vw 60vh 1px 1px #fff, 75vw 80vh 1px 1px #fff, 23vw 48vh 1px 1px #fff;
   animation-duration: 5s;
 }
 
+/* Layer 2 - Larger, slower stars */
 .star-field::after {
-  /* Larger, slower stars */
   width: 2px;
   height: 2px;
-  box-shadow: 10vw 10vh 2px 2px #fff, 30vw 70vh 2px 2px #fff, 50vw 40vh 2px 2px #fff, 70vw 5vh 2px 2px #fff, 90vw 40vh 2px 2px #fff, 45vw 90vh 2px 2px #fff, 20vw 55vh 2px 2px #fff, 80vw 25vh 2px 2px #fff;
+  box-shadow: 10vw 10vh 2px 2px #fff, 30vw 70vh 2px 2px #fff, 50vw 40vh 2px 2px #fff,
+    70vw 5vh 2px 2px #fff, 90vw 40vh 2px 2px #fff, 45vw 90vh 2px 2px #fff,
+    20vw 55vh 2px 2px #fff, 80vw 25vh 2px 2px #fff, 18vw 82vh 2px 2px #fff,
+    58vw 8vh 2px 2px #fff, 83vw 95vh 2px 2px #fff, 37vw 22vh 2px 2px #fff;
   animation-duration: 10s;
   animation-delay: -3s;
+}
+
+/* Layer 3 - Medium, medium-speed stars */
+.star-field-2::before {
+  width: 1.5px;
+  height: 1.5px;
+  box-shadow: 8vw 25vh 1.5px 1.5px #fff, 28vw 90vh 1.5px 1.5px #fff,
+    48vw 5vh 1.5px 1.5px #fff, 62vw 60vh 1.5px 1.5px #fff, 85vw 15vh 1.5px 1.5px #fff,
+    98vw 80vh 1.5px 1.5px #fff, 3vw 40vh 1.5px 1.5px #fff, 22vw 72vh 1.5px 1.5px #fff,
+    51vw 28vh 1.5px 1.5px #fff, 77vw 52vh 1.5px 1.5px #fff, 93vw 88vh 1.5px 1.5px #fff;
+  animation-duration: 7s;
+  animation-delay: -1.5s;
+}
+
+/* Layer 4 - Tiny, very fast stars */
+.star-field-2::after {
+  width: 0.5px;
+  height: 0.5px;
+  box-shadow: 2vw 15vh 0.5px 0.5px #fff, 12vw 65vh 0.5px 0.5px #fff, 22vw 30vh 0.5px 0.5px #fff,
+    32vw 95vh 0.5px 0.5px #fff, 42vw 45vh 0.5px 0.5px #fff, 52vw 85vh 0.5px 0.5px #fff,
+    62vw 25vh 0.5px 0.5px #fff, 72vw 75vh 0.5px 0.5px #fff, 82vw 10vh 0.5px 0.5px #fff,
+    92vw 55vh 0.5px 0.5px #fff, 4vw 78vh 0.5px 0.5px #fff, 34vw 18vh 0.5px 0.5px #fff,
+    64vw 92vh 0.5px 0.5px #fff, 84vw 38vh 0.5px 0.5px #fff, 99vw 72vh 0.5px 0.5px #fff;
+  animation-duration: 3s;
+  animation-delay: -0.5s;
 }

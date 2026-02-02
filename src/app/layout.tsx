@@ -43,6 +43,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <div className="star-field"></div>
+            <div className="star-field-2"></div>
             {children}
             <Toaster />
         </ThemeProvider>
