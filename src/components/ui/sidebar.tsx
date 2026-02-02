@@ -1,11 +1,17 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const sidebarVariants = cva(
   'flex flex-col bg-card text-card-foreground transition-all duration-300 ease-in-out',
@@ -20,38 +26,46 @@ const sidebarVariants = cva(
       collapsible: false,
     },
   }
-)
+);
 
 interface SidebarContextProps extends VariantProps<typeof sidebarVariants> {
-  isCollapsed: boolean
-  setCollapsed: (collapsed: boolean) => void
+  isCollapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
 }
 
-const SidebarContext = React.createContext<SidebarContextProps | null>(null)
+const SidebarContext = React.createContext<SidebarContextProps | null>(null);
 
 const useSidebar = () => {
-  const context = React.useContext(SidebarContext)
+  const context = React.useContext(SidebarContext);
   if (!context) {
-    throw new Error('useSidebar must be used within a SidebarProvider')
+    throw new Error('useSidebar must be used within a SidebarProvider');
   }
-  return context
-}
+  return context;
+};
 
-const SidebarProvider = ({ children, collapsible }: { children: React.ReactNode, collapsible?: boolean | 'icon' }) => {
-  const [isCollapsed, setCollapsed] = React.useState(collapsible === 'icon')
+const SidebarProvider = ({
+  children,
+  collapsible,
+}: {
+  children: React.ReactNode;
+  collapsible?: boolean | 'icon';
+}) => {
+  const [isCollapsed, setCollapsed] = React.useState(collapsible === 'icon');
 
   return (
-    <SidebarContext.Provider value={{ isCollapsed, setCollapsed, collapsible: !!collapsible }}>
+    <SidebarContext.Provider
+      value={{ isCollapsed, setCollapsed, collapsible: !!collapsible }}
+    >
       {children}
     </SidebarContext.Provider>
-  )
-}
+  );
+};
 
 const Sidebar = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof sidebarVariants>
 >(({ className, children, ...props }, ref) => {
-  const { isCollapsed, collapsible } = useSidebar()
+  const { isCollapsed, collapsible } = useSidebar();
 
   return (
     <div
@@ -62,54 +76,53 @@ const Sidebar = React.forwardRef<
     >
       {children}
     </div>
-  )
-})
-Sidebar.displayName = 'Sidebar'
+  );
+});
+Sidebar.displayName = 'Sidebar';
 
 const SidebarHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  const { isCollapsed } = useSidebar()
   return (
     <div
       ref={ref}
       className={cn(
         'flex h-16 items-center',
-        isCollapsed ? 'justify-center' : 'justify-between',
+        'group-data-[collapsed=true]:justify-center',
         className
       )}
       {...props}
     />
-  )
-})
-SidebarHeader.displayName = 'SidebarHeader'
+  );
+});
+SidebarHeader.displayName = 'SidebarHeader';
 
 const SidebarContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('flex-1 overflow-y-auto', className)} {...props} />
-))
-SidebarContent.displayName = 'SidebarContent'
+  <div
+    ref={ref}
+    className={cn('flex-1 overflow-y-auto', className)}
+    {...props}
+  />
+));
+SidebarContent.displayName = 'SidebarContent';
 
 const SidebarFooter = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn('mt-auto border-t', className)}
-    {...props}
-  />
-))
-SidebarFooter.displayName = 'SidebarFooter'
+  <div ref={ref} className={cn('mt-auto border-t', className)} {...props} />
+));
+SidebarFooter.displayName = 'SidebarFooter';
 
 const SidebarTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button>
 >(({ className, ...props }, ref) => {
-  const { isCollapsed, setCollapsed } = useSidebar()
+  const { isCollapsed, setCollapsed } = useSidebar();
 
   return (
     <Button
@@ -123,65 +136,85 @@ const SidebarTrigger = React.forwardRef<
       {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
       <span className="sr-only">{isCollapsed ? 'Expand' : 'Collapse'}</span>
     </Button>
-  )
-})
-SidebarTrigger.displayName = 'SidebarTrigger'
+  );
+});
+SidebarTrigger.displayName = 'SidebarTrigger';
 
 const SidebarMenu = React.forwardRef<
   HTMLUListElement,
   React.HTMLAttributes<HTMLUListElement>
 >(({ className, ...props }, ref) => (
   <ul ref={ref} className={cn('space-y-2', className)} {...props} />
-))
-SidebarMenu.displayName = 'SidebarMenu'
+));
+SidebarMenu.displayName = 'SidebarMenu';
 
 const SidebarMenuItem = React.forwardRef<
   HTMLLIElement,
   React.HTMLAttributes<HTMLLIElement>
 >(({ className, ...props }, ref) => (
   <li ref={ref} className={cn('', className)} {...props} />
-))
-SidebarMenuItem.displayName = 'SidebarMenuItem'
+));
+SidebarMenuItem.displayName = 'SidebarMenuItem';
 
 const SidebarMenuButton = React.forwardRef<
   HTMLButtonElement,
-  React.ComponentProps<typeof Button> & { isActive?: boolean, tooltip?: string }
->(({ className, variant = 'ghost', size = 'default', isActive, tooltip, children, ...props }, ref) => {
-  const { isCollapsed } = useSidebar()
+  React.ComponentProps<typeof Button> & { isActive?: boolean; tooltip?: string }
+>(
+  (
+    {
+      className,
+      variant = 'ghost',
+      size = 'default',
+      isActive,
+      tooltip,
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    const { isCollapsed } = useSidebar();
 
-  const content = (
-    <Button
-      ref={ref}
-      variant={variant}
-      size={size}
-      className={cn(
-        'w-full justify-start gap-2',
-        isActive && 'bg-primary/10 text-primary',
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </Button>
-  )
+    const content = (
+      <Button
+        ref={ref}
+        variant={variant}
+        size={size}
+        className={cn(
+          'w-full justify-start gap-2',
+          isActive && 'bg-primary/10 text-primary',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </Button>
+    );
 
-  if (isCollapsed && tooltip) {
-    return (
-        content
-    )
-  } 
+    if (isCollapsed && tooltip) {
+      return (
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>{content}</TooltipTrigger>
+            <TooltipContent side="right">
+              <p>{tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
 
-  return content
-})
-SidebarMenuButton.displayName = 'SidebarMenuButton'
+    return content;
+  }
+);
+SidebarMenuButton.displayName = 'SidebarMenuButton';
 
 const SidebarSeparator = React.forwardRef<
   HTMLHRElement,
   React.HTMLAttributes<HTMLHRElement>
 >(({ className, ...props }, ref) => (
   <hr ref={ref} className={cn('border-border', className)} {...props} />
-))
-SidebarSeparator.displayName = 'SidebarSeparator'
+));
+SidebarSeparator.displayName = 'SidebarSeparator';
 
 export {
   Sidebar,
@@ -194,4 +227,5 @@ export {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarSeparator,
-}
+  useSidebar,
+};

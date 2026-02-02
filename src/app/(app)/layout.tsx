@@ -23,15 +23,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <AuthGuard>
         <SidebarProvider collapsible="icon">
           <div className="flex min-h-screen">
-            <Sidebar className="border-r">
+            <Sidebar className="border-r group">
               <SidebarHeader className="p-4">
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 group-data-[collapsed=true]:justify-center"
                   prefetch={false}
                 >
                   <BotMessageSquare className="h-8 w-8 text-primary" />
-                  <h2 className="font-headline text-lg font-semibold tracking-tight">
+                  <h2 className="font-headline text-lg font-semibold tracking-tight group-data-[collapsed=true]:hidden">
                     Cosmic Raid
                   </h2>
                 </Link>
@@ -42,7 +42,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <SidebarFooter className="p-4 space-y-4">
                 <UserNav />
                 <SidebarSeparator />
-                <div className="text-center text-xs text-muted-foreground">
+                <div className="text-center text-xs text-muted-foreground group-data-[collapsed=true]:hidden">
                   Powered by mtman1987 <Rocket className="inline h-3 w-3" />
                 </div>
               </SidebarFooter>

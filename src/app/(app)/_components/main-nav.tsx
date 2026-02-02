@@ -11,7 +11,11 @@ import {
   Settings,
   Mountain,
 } from 'lucide-react';
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import {
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from '@/components/ui/sidebar';
 import { NavItem } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -65,7 +69,7 @@ export function MainNav() {
               asChild
               isActive={pathname === item.href}
               className={cn(
-                'w-full justify-start',
+                'w-full gap-2 group-data-[collapsed=true]:justify-center group-data-[collapsed=false]:justify-start',
                 pathname === item.href &&
                   'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
               )}
@@ -73,7 +77,9 @@ export function MainNav() {
             >
               <Link href={item.href}>
                 {item.icon}
-                <span className="truncate">{item.title}</span>
+                <span className="truncate group-data-[collapsed=true]:hidden">
+                  {item.title}
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
