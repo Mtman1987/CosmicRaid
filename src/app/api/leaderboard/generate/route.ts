@@ -1,5 +1,7 @@
+'use server';
+
 import { NextRequest, NextResponse } from 'next/server';
-// import { generateAndPostLeaderboard } from '@/lib/leaderboard-discord-service';
+import { generateAndPostLeaderboard } from '@/lib/leaderboard-discord-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,11 +11,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Server ID is required' }, { status: 400 });
     }
     
-    // await generateAndPostLeaderboard(serverId);
+    // Don't await, let it run in the background
+    generateAndPostLeaderboard(serverId).catch(console.error);
     
-    return NextResponse.json({ success: true, message: 'Leaderboard route disabled in local services' });
+    return NextResponse.json({ success: true, message: 'Leaderboard generation and posting initiated.' });
   } catch (error) {
     console.error('Error generating leaderboard:', error);
-    return NextResponse.json({ error: 'Failed to generate leaderboard' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to initiate leaderboard generation' }, { status: 500 });
   }
 }

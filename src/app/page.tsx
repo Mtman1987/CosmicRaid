@@ -11,6 +11,12 @@ import * as React from 'react';
 type ActionState = 'idle' | 'loading' | 'success' | 'error';
 type ActionType = 'calendar' | 'leaderboard' | 'shoutouts';
 
+const ENDPOINT_MAP: Record<ActionType, string> = {
+  calendar: '/api/calendar/post',
+  leaderboard: '/api/leaderboard/generate',
+  shoutouts: '/api/dispatch/shoutout-cycle',
+};
+
 export default function MissionControlPage() {
   const { toast } = useToast();
   const [serverId, setServerId] = React.useState('');
@@ -30,22 +36,25 @@ export default function MissionControlPage() {
   }, []);
 
   const handleDispatch = async (type: ActionType) => {
-    if (!serverId || !channelId) {
+    if (!serverId || (type !== 'shoutouts' && !channelId)) {
       toast({
         variant: 'destructive',
         title: 'Missing Information',
-        description: 'Please provide both a Server ID and a Channel ID.',
+        description: 'Please provide both a Server ID and a Target Channel ID.',
       });
       return;
     }
 
     setActionStates(prev => ({ ...prev, [type]: 'loading' }));
+    
+    const endpoint = ENDPOINT_MAP[type];
+    const body = type === 'shoutouts' ? { serverId } : { serverId, channelId };
 
     try {
-      const response = await fetch(`/api/dispatch/${type}`, {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ serverId, channelId }),
+        body: JSON.stringify(body),
       });
 
       const result = await response.json();

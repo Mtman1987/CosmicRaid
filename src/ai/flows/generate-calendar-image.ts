@@ -1,6 +1,7 @@
 'use server';
 
 import { ImageResponse } from '@vercel/og';
+import * as React from 'react';
 import { db } from '@/firebase/server-init';
 import {
   startOfMonth,
@@ -75,13 +76,11 @@ export async function generateCalendarImage(
     );
 
     const imageResponse = new ImageResponse(
-      (
-        <CalendarImageTemplate
-          events={events}
-          targetMonth={targetMonth}
-          today={today}
-        />
-      ),
+      React.createElement(CalendarImageTemplate, {
+        events: events,
+        targetMonth: targetMonth,
+        today: today,
+      }),
       {
         width: 600,
         height: 600,
