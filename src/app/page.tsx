@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send, Film } from 'lucide-react';
+import { Loader2, Send, Film, TestTube } from 'lucide-react';
 import * as React from 'react';
 
 type ActionState = 'idle' | 'loading' | 'success' | 'error';
 type ActionType = 'calendar' | 'leaderboard' | 'shoutouts';
 
 const ENDPOINT_MAP: Record<ActionType, string> = {
-  calendar: '/api/calendar/post',
+  calendar: '/api/dispatch/calendar',
   leaderboard: '/api/dispatch/leaderboard',
   shoutouts: '/api/dispatch/shoutout-cycle',
 };
@@ -21,6 +21,7 @@ export default function MissionControlPage() {
   const { toast } = useToast();
   const [serverId, setServerId] = React.useState('');
   const [channelId, setChannelId] = React.useState('');
+  const [isTesting, setIsTesting] = React.useState(false);
   const [isTestingFreeConvert, setIsTestingFreeConvert] = React.useState(false);
   const [actionStates, setActionStates] = React.useState<Record<ActionType, ActionState>>({
     calendar: 'idle',
@@ -81,6 +82,50 @@ export default function MissionControlPage() {
     }
   };
   
+  const handleTestPost = async () => {
+    if (!channelId) {
+      toast({
+        variant: 'destructive',
+        title: 'Missing Channel ID',
+        description: 'Please provide a Target Channel ID to send a test message.',
+      });
+      return;
+    }
+    
+    setIsTesting(true);
+    try {
+        const response = await fetch('/api/discord/post', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                channelId,
+                content: 'Hello from Firebase Studio! The bot is connected. ✅'
+            }),
+        });
+        
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || 'An unknown error occurred.');
+        }
+
+        toast({
+            title: 'Test Message Sent!',
+            description: `Successfully posted to channel ${channelId}.`,
+        });
+
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'An unknown error occurred';
+        toast({
+            variant: 'destructive',
+            title: 'Test Failed',
+            description: message,
+        });
+    } finally {
+        setIsTesting(false);
+    }
+  };
+
   const handleTestFreeConvert = async () => {
     setIsTestingFreeConvert(true);
     toast({
@@ -154,6 +199,21 @@ export default function MissionControlPage() {
             </div>
           </CardContent>
         </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>🧪 Connection Test</CardTitle>
+            <CardDescription>
+              Send a simple "Hello World" message to the target channel to verify your bot token and permissions.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button className="w-full" variant="secondary" onClick={handleTestPost} disabled={isTesting}>
+              {isTesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TestTube className="mr-2 h-4 w-4" />}
+              Send Test Message
+            </Button>
+          </CardFooter>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -185,11 +245,11 @@ export default function MissionControlPage() {
           </CardFooter>
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card>
           <CardHeader>
             <CardTitle>📣 Shoutout Cycle</CardTitle>
             <CardDescription>
-              Manually trigger a full shoutout cycle. This will poll Twitch, update online statuses, generate shoutouts for all live members (VIP and Community), and post them to their configured channels.
+              Manually trigger a full shoutout cycle for all configured groups and channels.
             </CardDescription>
           </CardHeader>
           <CardFooter>
