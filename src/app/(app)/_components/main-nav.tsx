@@ -9,13 +9,8 @@ import {
   Trophy,
   MessageSquare,
   Settings,
-  Mountain,
 } from 'lucide-react';
-import {
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from '@/components/ui/sidebar';
+import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { NavItem } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -23,37 +18,32 @@ const navItems: NavItem[] = [
   {
     title: 'Dashboard',
     href: '/dashboard',
-    icon: <LayoutDashboard className="h-5 w-5" />,
+    icon: <LayoutDashboard />,
   },
   {
     title: 'AI Shoutouts',
     href: '/shoutouts',
-    icon: <Megaphone className="h-5 w-5" />,
+    icon: <Megaphone />,
   },
   {
     title: 'Calendar',
     href: '/calendar',
-    icon: <Calendar className="h-5 w-5" />,
+    icon: <Calendar />,
   },
   {
     title: 'Leaderboard',
     href: '/leaderboard',
-    icon: <Trophy className="h-5 w-5" />,
-  },
-  {
-    title: 'Raid Pile',
-    href: '/raid-pile',
-    icon: <Mountain className="h-5 w-5" />,
+    icon: <Trophy />,
   },
   {
     title: 'Messages',
     href: '/forwarding',
-    icon: <MessageSquare className="h-5 w-5" />,
+    icon: <MessageSquare />,
   },
   {
     title: 'Settings',
     href: '/settings',
-    icon: <Settings className="h-5 w-5" />,
+    icon: <Settings />,
   },
 ];
 

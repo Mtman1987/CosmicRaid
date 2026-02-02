@@ -14,9 +14,11 @@ import Link from 'next/link';
 import { BotMessageSquare, Rocket } from 'lucide-react';
 import { MainNav } from './_components/main-nav';
 import { UserNav } from './_components/user-nav';
+import { FirebaseClientProvider } from '@/firebase';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
+    <FirebaseClientProvider>
       <SidebarProvider>
         <div className="flex min-h-screen">
           <Sidebar className="border-r" collapsible="icon">
@@ -39,7 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <UserNav />
               <SidebarSeparator />
               <div className="text-center text-xs text-muted-foreground">
-                Powered by mtman1987 <Rocket className="inline h-3 w-3" />
+                For the Space Mountain Admin, powered by Mtman1987 <Rocket className="inline h-3 w-3" />
               </div>
             </SidebarFooter>
           </Sidebar>
@@ -58,5 +60,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </SidebarProvider>
+    </FirebaseClientProvider>
   );
 }

@@ -6,11 +6,13 @@ import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Assuming a UserProfile type is defined somewhere, e.g., in @/lib/types
-// For now, we'll use a local interface.
 interface UserProfile {
   username: string;
   avatarUrl: string;
+}
+
+interface ServerInfo {
+  serverName: string;
 }
 
 export function UserNav() {
@@ -20,8 +22,6 @@ export function UserNav() {
   const [serverId, setServerId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    // This code runs only on the client, after the component has mounted.
-    // This avoids hydration errors.
     setUserId(localStorage.getItem('discordUserId'));
     setServerId(localStorage.getItem('discordServerId'));
   }, []);
@@ -31,9 +31,17 @@ export function UserNav() {
     return doc(firestore, 'servers', serverId, 'users', userId);
   }, [firestore, serverId, userId, user, isUserLoading]);
 
-  const { data: userProfile, isLoading } = useDoc<UserProfile>(userProfileRef);
+  const serverInfoRef = useMemoFirebase(() => {
+    if (!firestore || !serverId) return null;
+    return doc(firestore, 'servers', serverId);
+  }, [firestore, serverId]);
 
-  if (isLoading || isUserLoading) {
+  const { data: userProfile, isLoading: isUserLoadingProfile } = useDoc<UserProfile>(userProfileRef);
+  const { data: serverInfo, isLoading: isServerLoading } = useDoc<ServerInfo>(serverInfoRef);
+  
+  const isLoading = isUserLoading || isUserLoadingProfile || isServerLoading;
+
+  if (isLoading) {
     return (
       <div className="flex items-center gap-3">
         <Skeleton className="h-9 w-9 rounded-full" />
@@ -46,7 +54,7 @@ export function UserNav() {
   }
 
   const displayName = userProfile?.username || userId || 'Not logged in';
-  const displayServer = serverId ? `Server: ${serverId}` : 'No server selected';
+  const displayServer = serverInfo?.serverName || `Server ID: ${serverId}` || 'No server selected';
 
   return (
     <div className="flex items-center gap-3">
