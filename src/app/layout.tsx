@@ -34,6 +34,9 @@ export default function RootLayout({
           'min-h-screen bg-background font-body antialiased'
         )}
       >
+        <div className="star-field"></div>
+        <div className="star-field-2"></div>
+        <div className="star-field-3"></div>
         <ThemeProvider
             attribute="class"
             defaultTheme="dark"
