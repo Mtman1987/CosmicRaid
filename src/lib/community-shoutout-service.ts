@@ -3,58 +3,8 @@
 
 import { db } from "@/firebase/server-init"
 import { FieldValue } from "firebase-admin/firestore"
-import { getUserByLogin, getStreamByUserId } from "./twitch-api-service"
-import { generateShoutoutCardGif } from "./shoutout-card-service"
-import { generateCommunityCard } from "./community-card-service"
-import { getVipSpotlight } from "./vip-spotlight-service"
-import { addClipToPool, getRandomClipFromPool } from "./clip-management-service"
 
-const COMMUNITY_INVITE_URL =
-  process.env.NEXT_PUBLIC_DISCORD_INVITE_URL ||
-  process.env.DISCORD_INVITE_URL ||
-  null;
-
-function buildActionButtons(
-  streamerName: string,
-  options: { includeInvite?: boolean; metaLabel?: string; metaUrl?: string } = {}
-) {
-  const { includeInvite = true } = options;
-
-  const buttons = [
-    {
-      type: 2,
-      style: 5,
-      label: "dYs? LAUNCH MISSION",
-      url: `https://twitch.tv/${streamerName}`
-    }
-  ];
-
-  if (includeInvite && COMMUNITY_INVITE_URL) {
-    buttons.push({
-      type: 2,
-      style: 5,
-      label: "JOIN SPACE MOUNTAIN",
-      url: COMMUNITY_INVITE_URL
-    });
-  }
-
-  return [
-    {
-      type: 1,
-      components: buttons
-    }
-  ];
-}
-
-function resolveExistingMediaUrl(shoutout: any): string | null {
-  if (!shoutout) return null;
-  if (typeof shoutout.content === 'string' && shoutout.content.startsWith('http')) {
-    return shoutout.content;
-  }
-  return shoutout.embeds?.[0]?.image?.url || null;
-}
-import { isCommunityGroup, isVipGroup } from "./group-utils"
-
+const PLACEHOLDER_GIF = 'https://media.tenor.com/yG_mD8bW32EAAAAd/star-wars-celebration-lightsaber.gif';
 
 export interface ShoutoutResult {
   streamerName: string
@@ -62,16 +12,9 @@ export interface ShoutoutResult {
   message: string
 }
 
-/**
- * Generates tailored shoutouts for all online members of the 'Community' group.
- * @param serverId The ID of the Discord server.
- * @returns A promise that resolves with an array of shoutout generation results.
- */
 export async function generateAllShoutouts(serverId: string): Promise<ShoutoutResult[]> {
   const usersRef = db.collection('servers').doc(serverId).collection('users')
-  const snapshot = await usersRef
-    .where('isOnline', '==', true)
-    .get()
+  const snapshot = await usersRef.where('isOnline', '==', true).get()
 
   if (snapshot.empty) {
     console.log('No online users found to generate shoutouts for.')
@@ -89,232 +32,34 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
 
   for (const doc of snapshot.docs) {
     const user = doc.data()
-    const userId = doc.id
     const streamerName = user.username
-    const userLookup = { userId, username: streamerName }
 
     try {
-      console.log(`[Shoutout] Processing user ${streamerName} - Group: ${user.group}, Online: ${user.isOnline}`)
-      const isVip = isVipGroup(user.group)
-      const isCommunity = isCommunityGroup(user.group)
-      
-      // Get real Twitch data and clips
-      const twitchUser = await getUserByLogin(streamerName.toLowerCase())
-      const stream = twitchUser ? await getStreamByUserId(twitchUser.id) : null
-      
-      const now = new Date();
-      const streamTitle = stream?.title || user.topic || 'Live Stream';
-      const streamGame = stream?.game_name || 'Just Chatting';
-      const viewerCount = stream?.viewer_count ?? 0;
-      const streamThumbnail = stream?.thumbnail_url?.replace('{width}', '640').replace('{height}', '360') || '';
-      const twitchAvatar = twitchUser?.profile_image_url || user.avatarUrl;
-      const isLive = !!stream;
-      const isMatureStream = Boolean(stream?.is_mature);
-      const previousMediaUrl = resolveExistingMediaUrl(user.dailyShoutout);
-      const unixSeconds = Math.floor(now.getTime() / 1000);
-      const timestampIso = now.toISOString();
-      const discordRelativeTime = `<t:${unixSeconds}:R>`;
-      const readableTimestamp = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-      }).format(now);
-      
-      // Handle different shoutout types
-      let cardUrl: string | null = null;
-      
-      const freshShoutout = isShoutoutFresh(user.shoutoutGeneratedAt);
+      console.log(`[Shoutout] SIMPLIFIED: Processing user ${streamerName}`)
 
-      if (isVip) {
-        console.log(`[Shoutout] Processing VIP user ${streamerName}, live: ${!!stream}`);
-        
-        if (freshShoutout && previousMediaUrl) {
-          cardUrl = previousMediaUrl;
-          console.log(`[Shoutout] Reusing fresh VIP clip for ${streamerName}`);
-        }
-        
-        if (!cardUrl) {
-          const vipSpotlightData = await getVipSpotlight(serverId, streamerName);
-          if (vipSpotlightData?.cardGifUrl) {
-            cardUrl = vipSpotlightData.cardGifUrl;
-            console.log(`[Shoutout] Using VIP spotlight clip for ${streamerName}: ${cardUrl}`);
-          } else {
-            const pooledClip = await getRandomClipFromPool(serverId, userLookup);
-            if (pooledClip?.gifUrl) {
-              cardUrl = pooledClip.gifUrl;
-              console.log(`[Shoutout] Using pooled VIP clip for ${streamerName}: ${cardUrl}`);
-            }
-          }
-        }
-
-        if (!cardUrl) {
-          const clipResult = await generateShoutoutCardGif({
-            streamerName,
-            streamTitle,
-            gameName: streamGame,
-            viewerCount,
-            avatarUrl: twitchAvatar,
-            streamThumbnail,
-            isLive,
-            isMature: isMatureStream
-          }, serverId)
-          
-          if (clipResult) {
-            cardUrl = clipResult.gifUrl
-            console.log(`[Shoutout] VIP GIF freshly generated for ${streamerName}: ${cardUrl}`);
-            await addClipToPool(serverId, userLookup, {
-              gifUrl: clipResult.gifUrl,
-              mp4Url: clipResult.mp4Url,
-              streamTitle,
-              gameName: streamGame
-            });
-          } else {
-            console.log(`[Shoutout] VIP GIF generation failed for ${streamerName}`);
-          }
-        }
-      } else if (isCommunity) {
-        if (freshShoutout && previousMediaUrl) {
-          cardUrl = previousMediaUrl;
-          console.log(`[Shoutout] Reusing fresh community card for ${streamerName}`);
-        } else {
-            try {
-              cardUrl = await generateCommunityCard(serverId, streamerName, {
-                title: streamTitle,
-                game: streamGame,
-                viewers: viewerCount,
-                avatarUrl: twitchAvatar,
-                thumbnailUrl: streamThumbnail,
-                isLive
-              })
-              console.log(`[Shoutout] Community card generated for ${streamerName}: ${cardUrl}`);
-            } catch (cardError) {
-              console.error(`[Shoutout] Community card failed for ${streamerName}:`, cardError);
-              cardUrl = null;
-            }
-        }
-      }
-      
-      // Different formats for different groups
-      let shoutoutData;
-
-      if (isCommunity) {
-        if (cardUrl) {
-          shoutoutData = {
-            content: cardUrl,
-            components: buildActionButtons(streamerName, {
-              includeInvite: true,
-              metaLabel: `Updated ${readableTimestamp}`,
-              metaUrl: cardUrl || `https://twitch.tv/${streamerName}`,
-            }),
-          };
-        } else {
-          const communityDescription = isLive
-            ? `Space Cadet ${streamerName} is live with "${streamTitle}" in ${streamGame}. ${viewerCount > 0 ? `Currently holding ${viewerCount} viewers.` : 'Be the first to reinforce their mission crew.'}`
-            : `Space Cadet ${streamerName} is prepping the ${streamGame} mission "${streamTitle}". Tap in to boost morale before launch.`;
-          const communityFields: any[] = [
-            { name: 'Game', value: streamGame, inline: true },
-            { name: 'Viewers', value: viewerCount.toString(), inline: true },
-            { name: 'Status', value: isLive ? 'Live Now! dYs?' : 'Standing By', inline: true },
-            { name: 'Last Scan', value: discordRelativeTime, inline: true },
-          ];
-          if (isMatureStream) {
-            communityFields.push({ name: 'Content Advisory', value: 'Mature audience stream', inline: true });
-          }
-
-          const communityEmbed: any = {
-            author: {
-              name: `dYs? Captain ${streamerName}`,
-              url: `https://twitch.tv/${streamerName}`,
-              icon_url: twitchAvatar,
-            },
-            title: streamTitle,
+      // Create a very simple, static shoutout object.
+      const shoutoutData = {
+        embeds: [
+          {
+            title: `🚀 ${streamerName} is LIVE!`,
+            description: `Join ${streamerName}'s stream now for some awesome content!`,
             url: `https://twitch.tv/${streamerName}`,
-            description: communityDescription,
-            color: 6570404,
-            footer: { text: 'dYOO Space Mountain Community Member' },
-            timestamp: timestampIso,
-          };
-          if (communityFields.length) {
-            communityEmbed.fields = communityFields;
-          }
-
-          shoutoutData = {
-            embeds: [communityEmbed],
-            components: buildActionButtons(streamerName, {
-              includeInvite: true,
-              metaLabel: `Updated ${readableTimestamp}`,
-              metaUrl: `https://twitch.tv/${streamerName}`,
-            }),
-          };
-        }
-      } else if (isVip) {
-        if (cardUrl) {
-          shoutoutData = {
-            content: cardUrl,
-            components: buildActionButtons(streamerName, {
-              includeInvite: false,
-              metaLabel: `Updated ${readableTimestamp}`,
-              metaUrl: cardUrl || `https://twitch.tv/${streamerName}`,
-            }),
-          };
-        } else {
-          const vipDescription = isLive
-            ? `Captain ${streamerName} is broadcasting "${streamTitle}" in ${streamGame}. ${viewerCount > 0 ? `Leading ${viewerCount} viewers through the mission.` : 'They could use reinforcements.'}`
-            : `Captain ${streamerName} is standing by with "${streamTitle}". Rally the crew before the next sortie.`;
-          const vipFields: any[] = [
-            { name: 'Game', value: streamGame, inline: true },
-            { name: 'Viewers', value: viewerCount.toString(), inline: true },
-            { name: 'Status', value: isLive ? 'LIVE in command' : 'Off-duty prep', inline: true },
-            { name: 'Last Scan', value: discordRelativeTime, inline: true },
-          ];
-          if (isMatureStream) {
-            vipFields.push({ name: 'Content Advisory', value: 'Mature audience stream', inline: true });
-          }
-
-          const vipEmbed: any = {
-            author: {
-              name: `Captain ${streamerName}`,
-              url: `https://twitch.tv/${streamerName}`,
-              icon_url: twitchAvatar,
+            color: 5814783, // A nice blue
+            image: {
+              url: PLACEHOLDER_GIF,
             },
-            title: streamTitle,
-            url: `https://twitch.tv/${streamerName}`,
-            description: vipDescription,
-            color: 9521663,
-            footer: { text: 'Space Mountain Command | Honored Crew VIP' },
-            timestamp: timestampIso,
-          };
-          if (vipFields.length) {
-            vipEmbed.fields = vipFields;
-          }
-
-          shoutoutData = {
-            embeds: [vipEmbed],
-            components: buildActionButtons(streamerName, {
-              includeInvite: false,
-              metaLabel: `Updated ${readableTimestamp}`,
-              metaUrl: `https://twitch.tv/${streamerName}`,
-            }),
-          };
-        }
+            footer: {
+              text: 'Cosmic Raid Shoutout System',
+            },
+            timestamp: new Date().toISOString(),
+          },
+        ],
       }
 
-// Add the generated shoutout to the user's document in the batch update
-      const updateData: any = {
+      // Add the generated shoutout to the user's document in the batch update
+      const updateData = {
         dailyShoutout: shoutoutData,
         shoutoutGeneratedAt: FieldValue.serverTimestamp(),
-        lastTwitchData: {
-          isLive: !!stream,
-          updatedAt: new Date(),
-        },
-      }
-      
-      // Only add defined values to avoid Firestore errors
-      if (stream?.game_name !== undefined) {
-        updateData.lastTwitchData.gameTitle = stream.game_name
-      }
-      if (stream?.viewer_count !== undefined) {
-        updateData.lastTwitchData.viewerCount = stream.viewer_count
       }
       
       batch.update(doc.ref, updateData)
@@ -322,10 +67,10 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
       results.push({
         streamerName,
         success: true,
-        message: 'Shoutout generated and saved successfully.',
+        message: 'Simplified shoutout generated successfully.',
       })
     } catch (error) {
-      console.error(`Failed to generate shoutout for ${streamerName}:`, error)
+      console.error(`Failed to generate simplified shoutout for ${streamerName}:`, error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       results.push({
         streamerName,
@@ -337,15 +82,7 @@ export async function generateAllShoutouts(serverId: string): Promise<ShoutoutRe
 
   // Commit all the updates at once
   await batch.commit()
-  console.log('Batch update of shoutouts completed.')
+  console.log('Simplified batch update of shoutouts completed.')
 
   return results
-}
-
-function isShoutoutFresh(timestamp: any): boolean {
-  if (!timestamp) return false;
-  const date = typeof timestamp?.toDate === 'function' ? timestamp.toDate() : new Date(timestamp);
-  if (!(date instanceof Date) || isNaN(date.getTime())) return false;
-  const TEN_MIN = 10 * 60 * 1000;
-  return Date.now() - date.getTime() < TEN_MIN;
 }
