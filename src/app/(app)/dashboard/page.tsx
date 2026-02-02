@@ -1,5 +1,4 @@
 import { PageHeader } from "@/components/page-header";
-import { UpcomingEvents } from "./_components/upcoming-events";
 import { LeaderboardSnapshot } from "./_components/leaderboard-snapshot";
 import { RecentShoutouts } from "./_components/recent-shoutouts";
 
@@ -15,7 +14,6 @@ export default function DashboardPage() {
            <RecentShoutouts />
         </div>
         <div className="space-y-8">
-          <UpcomingEvents />
           <LeaderboardSnapshot />
         </div>
       </div>

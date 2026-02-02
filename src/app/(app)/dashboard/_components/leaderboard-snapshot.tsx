@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, Trophy } from 'lucide-react';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, getDoc, limit, orderBy, query } from 'firebase/firestore';
 import type { LeaderboardEntry, UserProfile } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -27,7 +27,7 @@ export function LeaderboardSnapshot() {
     setServerId(localStorage.getItem('discordServerId'));
   }, []);
 
-  const leaderboardQuery = React.useMemo(() => {
+  const leaderboardQuery = useMemoFirebase(() => {
     if (!firestore || !serverId) return null;
     return query(
       collection(firestore, 'servers', serverId, 'leaderboard'),
@@ -159,4 +159,3 @@ export function LeaderboardSnapshot() {
     </Card>
   );
 }
-
