@@ -22,7 +22,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <SidebarProvider>
         <div className="flex min-h-screen">
           <Sidebar className="border-r group" collapsible="icon">
-            <SidebarHeader className="p-4">
+            <SidebarHeader className="p-4 flex items-center justify-between">
               <Link
                 href="/dashboard"
                 className="flex items-center gap-2"
@@ -33,6 +33,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   Streamer's Hub
                 </h2>
               </Link>
+              <SidebarTrigger className="hidden md:flex" />
             </SidebarHeader>
             <SidebarContent className="p-4">
               <MainNav />
@@ -44,7 +45,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <div>For the Space Mountain Admin</div>
                 <div>powered by Mtman1987 <Rocket className="inline h-3 w-3" /></div>
               </div>
-              <SidebarTrigger className="hidden md:flex mx-auto" />
             </SidebarFooter>
           </Sidebar>
           <div className="flex flex-1 flex-col">
