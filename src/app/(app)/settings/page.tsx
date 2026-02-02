@@ -21,7 +21,6 @@ import { syncDiscordData, testCalendarPostAction, resetCalendarAction } from '@/
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CopyButton } from '@/components/copy-button';
-import { UISettingsCard } from './_components/ui-settings';
 
 function SyncButton() {
     const { pending } = useFormStatus();
@@ -157,7 +156,6 @@ export default function SettingsPage() {
                     </CardFooter>
                 </form>
             </Card>
-            <UISettingsCard />
         </div>
 
 

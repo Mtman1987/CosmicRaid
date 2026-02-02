@@ -1,34 +1,24 @@
+'use server';
 
-'use server'
-
-import { revalidatePath } from 'next/cache'
-import { db } from '@/firebase/server-init'
-import { generateCalendarImage } from '@/ai/flows/generate-calendar-image'
-import { generateLeaderboardImage } from '@/ai/flows/generate-leaderboard-image'
-import { generateAllShoutouts } from '@/lib/community-shoutout-service'
-import { manualPoll } from '@/lib/polling-service'
-import { schedulePolling } from '@/lib/cloud-scheduler'
-import { updateVipSpotlights } from '@/lib/vip-spotlight-service'
-import { runAutomatedShoutoutCycle } from '@/lib/automated-shoutout-system'
-import { postAllShoutoutsToDiscord } from '@/lib/discord-bot-service'
-import { forwardMessage } from '@/lib/forwarding-service'
-import { replyToMessage } from '@/lib/reply-service'
-import { FieldValue, Timestamp } from 'firebase-admin/firestore'
-import { Buffer } from 'node:buffer'
+import { revalidatePath } from 'next/cache';
+import { db } from '@/firebase/server-init';
+import { replyToMessage } from '@/lib/reply-service';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { Buffer } from 'node:buffer';
 
 // Reusable error handler
 function handleError(error: any, defaultMessage: string) {
-  console.error('Action Error:', error)
-  const message = error instanceof Error ? error.message : defaultMessage
-  return { status: 'error' as const, message }
+  console.error('Action Error:', error);
+  const message = error instanceof Error ? error.message : defaultMessage;
+  return { status: 'error' as const, message };
 }
 
 // Reusable success handler
 function handleSuccess(message: string, path?: string) {
   if (path) {
-    revalidatePath(path)
+    revalidatePath(path);
   }
-  return { status: 'success' as const, message }
+  return { status: 'success' as const, message };
 }
 
 /**
@@ -36,20 +26,20 @@ function handleSuccess(message: string, path?: string) {
  */
 export async function updateAdminRoles(prevState: any, formData: FormData) {
   try {
-    const serverId = formData.get('serverId') as string
-    const currentPath = formData.get('currentPath') as string
-    if (!serverId) throw new Error('Server ID is required.')
+    const serverId = formData.get('serverId') as string;
+    const currentPath = formData.get('currentPath') as string;
+    if (!serverId) throw new Error('Server ID is required.');
 
     const roles = Array.from(formData.keys()).filter(
       (key) => key !== 'serverId' && key !== 'currentPath'
-    )
+    );
 
-    const serverRef = db.collection('servers').doc(serverId)
-    await serverRef.update({ adminRoles: roles })
+    const serverRef = db.collection('servers').doc(serverId);
+    await serverRef.update({ adminRoles: roles });
 
-    return handleSuccess('Admin roles have been updated successfully.', currentPath)
+    return handleSuccess('Admin roles have been updated successfully.', currentPath);
   } catch (error) {
-    return handleError(error, 'Failed to update admin roles.')
+    return handleError(error, 'Failed to update admin roles.');
   }
 }
 
@@ -58,9 +48,9 @@ export async function updateAdminRoles(prevState: any, formData: FormData) {
  */
 export async function updateLeaderboardSettings(prevState: any, formData: FormData) {
   try {
-    const serverId = formData.get('serverId') as string
-    const currentPath = formData.get('currentPath') as string
-    if (!serverId) throw new Error('Server ID is required.')
+    const serverId = formData.get('serverId') as string;
+    const currentPath = formData.get('currentPath') as string;
+    if (!serverId) throw new Error('Server ID is required.');
 
     const settings = {
       raidPoints: Number(formData.get('raidPoints')),
@@ -74,14 +64,14 @@ export async function updateLeaderboardSettings(prevState: any, formData: FormDa
       adminEventPoints: Number(formData.get('adminEventPoints')),
       adminLogPoints: Number(formData.get('adminLogPoints')),
       adminMessagePoints: Number(formData.get('adminMessagePoints')),
-    }
+    };
 
-    const settingsRef = db.collection('servers').doc(serverId).collection('config').doc('leaderboardSettings')
-    await settingsRef.set(settings, { merge: true })
+    const settingsRef = db.collection('servers').doc(serverId).collection('config').doc('leaderboardSettings');
+    await settingsRef.set(settings, { merge: true });
 
-    return handleSuccess('Leaderboard settings have been saved.', currentPath)
+    return handleSuccess('Leaderboard settings have been saved.', currentPath);
   } catch (error) {
-    return handleError(error, 'Failed to save leaderboard settings.')
+    return handleError(error, 'Failed to save leaderboard settings.');
   }
 }
 
@@ -89,40 +79,40 @@ export async function updateLeaderboardSettings(prevState: any, formData: FormDa
  * Fetches data from Discord API and syncs it with Firestore.
  */
 export async function syncDiscordData(prevState: any, formData: FormData) {
-  const guildId = formData.get('guildId') as string
+  const guildId = formData.get('guildId') as string;
   if (!guildId) {
-    return { status: 'error' as const, message: 'Guild ID is required.' }
+    return { status: 'error' as const, message: 'Guild ID is required.' };
   }
 
   try {
     const botToken = process.env.DISCORD_BOT_TOKEN;
     if (!botToken) {
-      return { status: 'error' as const, message: 'Discord bot token not found for this server.' }
+      return { status: 'error' as const, message: 'Discord bot token not found for this server.' };
     }
 
     const headers = {
       Authorization: `Bot ${botToken}`,
-    }
+    };
 
     // 1. Fetch Server Info
-    const serverResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}`, { headers })
-    if (!serverResponse.ok) throw new Error(`Failed to fetch server info: ${await serverResponse.text()}`)
-    const serverData = await serverResponse.json()
-    const serverName = serverData.name
+    const serverResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}`, { headers });
+    if (!serverResponse.ok) throw new Error(`Failed to fetch server info: ${await serverResponse.text()}`);
+    const serverData = await serverResponse.json();
+    const serverName = serverData.name;
 
     // 2. Fetch Roles
-    const rolesResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}/roles`, { headers })
-    if (!rolesResponse.ok) throw new Error(`Failed to fetch roles: ${await rolesResponse.text()}`)
-    const rolesData = await rolesResponse.json()
-    const roleNames = rolesData.map((r: any) => r.name).filter((name: string) => name !== '@everyone')
+    const rolesResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}/roles`, { headers });
+    if (!rolesResponse.ok) throw new Error(`Failed to fetch roles: ${await rolesResponse.text()}`);
+    const rolesData = await rolesResponse.json();
+    const roleNames = rolesData.map((r: any) => r.name).filter((name: string) => name !== '@everyone');
 
     // 3. Fetch Channels
-    const channelsResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}/channels`, { headers })
-    if (!channelsResponse.ok) throw new Error(`Failed to fetch channels: ${await channelsResponse.text()}`)
-    const channelsData = await channelsResponse.json()
+    const channelsResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}/channels`, { headers });
+    if (!channelsResponse.ok) throw new Error(`Failed to fetch channels: ${await channelsResponse.text()}`);
+    const channelsData = await channelsResponse.json();
     const textChannels = channelsData
       .filter((c: any) => c.type === 0) // Text channels only
-      .map((c: any) => ({ id: c.id, name: c.name }))
+      .map((c: any) => ({ id: c.id, name: c.name }));
 
     // 4. Fetch Members (get all members with pagination)
     let allMembers: any[] = [];
@@ -142,28 +132,28 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
 
 
     // 5. Save to Firestore
-    const batch = db.batch()
+    const batch = db.batch();
 
     // Public server info
-    const publicDiscordRef = db.collection('discords').doc(guildId)
-    batch.set(publicDiscordRef, { serverId: guildId, serverName }, { merge: true })
+    const publicDiscordRef = db.collection('discords').doc(guildId);
+    batch.set(publicDiscordRef, { serverId: guildId, serverName }, { merge: true });
 
     // Private server config
-    const serverRef = db.collection('servers').doc(guildId)
-    batch.set(serverRef, { serverId: guildId, serverName }, { merge: true })
+    const serverRef = db.collection('servers').doc(guildId);
+    batch.set(serverRef, { serverId: guildId, serverName }, { merge: true });
 
     // Config subcollections
-    const rolesRef = serverRef.collection('config').doc('roles')
-    batch.set(rolesRef, { list: roleNames })
+    const rolesRef = serverRef.collection('config').doc('roles');
+    batch.set(rolesRef, { list: roleNames });
 
-    const channelsRef = serverRef.collection('config').doc('channels')
-    batch.set(channelsRef, { list: textChannels })
+    const channelsRef = serverRef.collection('config').doc('channels');
+    batch.set(channelsRef, { list: textChannels });
 
     // Member profiles
     for (const member of membersData) {
-      if (member.user.bot) continue // Skip bots
-      const userRef = serverRef.collection('users').doc(member.user.id)
-      const userRoles = member.roles.map((roleId: string) => rolesData.find((r: any) => r.id === roleId)?.name).filter(Boolean)
+      if (member.user.bot) continue; // Skip bots
+      const userRef = serverRef.collection('users').doc(member.user.id);
+      const userRoles = member.roles.map((roleId: string) => rolesData.find((r: any) => r.id === roleId)?.name).filter(Boolean);
       
       batch.set(userRef, {
         discordUserId: member.user.id,
@@ -173,25 +163,25 @@ export async function syncDiscordData(prevState: any, formData: FormData) {
         group: 'Community', // Default group
         isOnline: false, // Placeholder
         topic: '' // Placeholder
-      }, { merge: true })
+      }, { merge: true });
     }
 
     try {
-      await batch.commit()
-      return handleSuccess(`Successfully synced ${serverName} with ${membersData.length} members, ${roleNames.length} roles, and ${textChannels.length} channels.`)
+      await batch.commit();
+      return handleSuccess(`Successfully synced ${serverName} with ${membersData.length} members, ${roleNames.length} roles, and ${textChannels.length} channels.`);
     } catch (batchError: any) {
-      console.error('Batch commit error:', batchError)
+      console.error('Batch commit error:', batchError);
       // Try individual writes as fallback
       try {
-        await db.collection('servers').doc(guildId).set({ serverId: guildId, serverName }, { merge: true })
-        return handleSuccess(`Partially synced ${serverName} - server info saved.`)
+        await db.collection('servers').doc(guildId).set({ serverId: guildId, serverName }, { merge: true });
+        return handleSuccess(`Partially synced ${serverName} - server info saved.`);
       } catch (fallbackError) {
-        throw new Error(`Database write failed: ${batchError.message}`)
+        throw new Error(`Database write failed: ${batchError.message}`);
       }
     }
 
   } catch (error) {
-    return handleError(error, 'An unexpected error occurred during the Discord sync.')
+    return handleError(error, 'An unexpected error occurred during the Discord sync.');
   }
 }
 
@@ -214,7 +204,7 @@ export async function testCalendarPostAction(prevState: any, formData: FormData)
         `[${new Date().toISOString()}] Initiating calendar post...`,
         `[${new Date().toISOString()}] Guild ID: ${guildId}`,
         `[${new Date().toISOString()}] Channel ID: ${channelId}`,
-        `[${new Date().toISOString()}] Generating calendar image via @vercel/og...`,
+        `[${new Date().toISOString()}] Generating calendar image via placeholder...`,
         // Simulate a delay
         await new Promise(resolve => setTimeout(() => resolve(`[${new Date().toISOString()}] Image process finished.`), 1500)),
         `[${new Date().toISOString()}] Image generated, posting to Discord...`,
@@ -258,157 +248,34 @@ export async function resetCalendarAction(prevState: any, formData: FormData) {
  * Generates shoutouts for all online members of the 'Community' group.
  */
 export async function generateAllShoutoutsAction(prevState: any, formData: FormData) {
-    const serverId = formData.get('serverId') as string;
-    if (!serverId) {
-        return { status: 'error' as const, results: [], error: 'Server ID is required.' };
-    }
+  const serverId = formData.get('serverId') as string;
+  if (!serverId) {
+    return { status: 'error' as const, results: [], error: 'Server ID is required.' };
+  }
 
-    try {
-        const results = await generateAllShoutouts(serverId);
-        await postAllShoutoutsToDiscord(serverId, results);
-        return { status: 'success' as const, results, error: undefined };
-    } catch (error) {
-        const message = error instanceof Error ? error.message : 'An unknown error occurred.';
-        return { status: 'error' as const, results: [], error: message };
+  try {
+    const { generateAllShoutouts, postAllShoutoutsToDiscord } = await import(
+      '@/lib/automated-shoutout-system'
+    );
+    const results = await generateAllShoutouts(serverId);
+    if (results.length === 0) {
+      return { status: 'success' as const, results: [{ streamerName: 'N/A', success: true, message: 'No online community members found to generate shoutouts for.' }], error: undefined };
     }
+    await postAllShoutoutsToDiscord(serverId, results);
+
+    const uiResults = results.map(user => ({
+        streamerName: user.username,
+        success: true,
+        message: 'Shoutout generated and posted successfully.'
+    }));
+
+    return { status: 'success' as const, results: uiResults, error: undefined };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+    return { status: 'error' as const, results: [], error: message };
+  }
 }
 
-export async function triggerVipShoutoutsAction(prevState: any, formData: FormData) {
-    const serverId = formData.get('serverId') as string;
-    const currentPath = formData.get('currentPath') as string | null;
-
-    if (!serverId) {
-        return { status: 'error' as const, message: 'Server ID is required.' };
-    }
-
-    try {
-        await schedulePolling(serverId);
-        await manualPoll(serverId);
-        await updateVipSpotlights(serverId);
-        await runAutomatedShoutoutCycle(serverId);
-        return handleSuccess('VIP shoutouts dispatched to Discord.', currentPath ?? undefined);
-    } catch (error) {
-        return handleError(error, 'Failed to dispatch VIP shoutouts.');
-    }
-}
-
-export async function updateShoutoutChannelAction(prevState: any, formData: FormData) {
-    const serverId = formData.get('serverId') as string;
-    const groupKey = formData.get('groupKey') as string;
-    const channelId = (formData.get('channelId') as string | null)?.trim() || null;
-    const currentPath = formData.get('currentPath') as string | null;
-
-    if (!serverId || !groupKey) {
-        return handleError('Invalid payload', 'Server ID and group key are required.');
-    }
-
-    try {
-        const serverRef = db.collection('servers').doc(serverId);
-        await serverRef.set({
-            shoutoutChannels: {
-                [groupKey]: channelId
-            },
-            updatedAt: FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        const message = channelId
-            ? `Saved channel ${channelId} for ${groupKey} shoutouts.`
-            : `Cleared custom channel for ${groupKey} shoutouts.`;
-
-        return handleSuccess(message, currentPath ?? undefined);
-    } catch (error) {
-        return handleError(error, 'Failed to save shoutout channel.');
-    }
-}
-
-export async function postShoutoutAction(prevState: any, formData: FormData) {
-    try {
-        const serverId = formData.get('serverId') as string;
-        const channelId = formData.get('channelId') as string;
-        const payloadJson = formData.get('payload') as string;
-        const streamerName = formData.get('streamerName') as string;
-        const currentPath = formData.get('currentPath') as string | null;
-
-        if (!serverId || !channelId || !payloadJson) {
-            throw new Error('Missing server ID, channel ID, or shoutout payload.');
-        }
-
-        let parsedPayload: any;
-        try {
-            parsedPayload = JSON.parse(payloadJson);
-        } catch (error) {
-            throw new Error('Shoutout payload is not valid JSON.');
-        }
-
-        if (!parsedPayload || typeof parsedPayload !== 'object') {
-            throw new Error('Shoutout payload must be an object.');
-        }
-
-        const messagePayload: {
-            content?: string
-            embeds?: any[]
-            components?: any[]
-            allowedMentions?: { parse?: string[]; users?: string[]; roles?: string[] }
-        } = {};
-
-        if (
-            'embeds' in parsedPayload ||
-            'content' in parsedPayload ||
-            'components' in parsedPayload ||
-            'allowed_mentions' in parsedPayload ||
-            'allowedMentions' in parsedPayload
-        ) {
-            if (typeof parsedPayload.content === 'string' && parsedPayload.content.length > 0) {
-                messagePayload.content = parsedPayload.content;
-            }
-
-            if (Array.isArray(parsedPayload.embeds)) {
-                messagePayload.embeds = parsedPayload.embeds;
-            }
-
-            if (Array.isArray(parsedPayload.components)) {
-                messagePayload.components = parsedPayload.components;
-            }
-
-            const allowedMentions =
-                parsedPayload.allowedMentions ?? parsedPayload.allowed_mentions ?? { parse: [] };
-            messagePayload.allowedMentions = allowedMentions;
-
-            if (!messagePayload.content && !(messagePayload.embeds?.length)) {
-                throw new Error('Shoutout payload does not contain content or embeds to post.');
-            }
-        } else {
-            messagePayload.embeds = [parsedPayload];
-        }
-
-        await forwardMessage({
-            targetChannelId: channelId,
-            content: messagePayload.content,
-            embeds: messagePayload.embeds,
-            components: messagePayload.components,
-            allowedMentions: messagePayload.allowedMentions ?? { parse: [] },
-        });
-
-        await db
-            .collection('servers')
-            .doc(serverId)
-            .collection('shoutoutLogs')
-            .add({
-                streamerName: streamerName ?? null,
-                channelId,
-                payload: parsedPayload,
-                createdAt: Timestamp.now(),
-            });
-
-        return handleSuccess(`Shoutout posted for ${streamerName || 'the selected user'}.`, currentPath ?? undefined);
-    } catch (error) {
-        return handleError(error, 'Failed to post shoutout.');
-    }
-}
-
-/**
- * Updates a user's group.
- */
 export async function updateUserGroupAction(prevState: any, formData: FormData) {
     try {
         const serverId = formData.get('serverId') as string;
@@ -429,9 +296,6 @@ export async function updateUserGroupAction(prevState: any, formData: FormData) 
     }
 }
 
-/**
- * Updates the group for all users with a specific role.
- */
 export async function updateUsersByRoleAction(prevState: any, formData: FormData) {
     try {
         const serverId = formData.get('serverId') as string;
@@ -462,9 +326,6 @@ export async function updateUsersByRoleAction(prevState: any, formData: FormData
     }
 }
 
-/**
- * Posts a reply to a forwarded message.
- */
 export async function replyToMessageAction(prevState: any, formData: FormData) {
     try {
         const messageId = formData.get('messageId') as string;
@@ -489,7 +350,6 @@ export async function replyToMessageAction(prevState: any, formData: FormData) {
             timestamp: Timestamp.now(),
         };
 
-        // This function would contain the logic to post the reply to Discord
         await replyToMessage({
             channelId,
             replyText,
@@ -498,7 +358,6 @@ export async function replyToMessageAction(prevState: any, formData: FormData) {
             forwardedMessageId: forwardedMessageId || undefined,
         });
 
-        // Update the message in Firestore with the reply
         const messageRef = db.collection('servers').doc(serverId).collection('messages').doc(messageId);
         await messageRef.update({ reply: replyData });
 
