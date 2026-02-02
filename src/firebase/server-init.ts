@@ -5,14 +5,11 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 if (!admin.apps.length) {
-  // When running in a Google Cloud environment (like App Hosting), the SDK
-  // should automatically find the service account credentials from the environment.
-  // We can make this explicit by using `credential.applicationDefault()`.
-  // This helps prevent issues where a local GOOGLE_APPLICATION_CREDENTIALS
-  // environment variable might cause errors in the deployed environment.
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-  });
+  // In a Google Cloud environment (like App Hosting), the SDK automatically
+  // finds credentials from the environment. Calling initializeApp() with no
+  // arguments is the correct way to do this. This prevents the SDK from
+  // trying to load local file paths that don't exist in the cloud.
+  admin.initializeApp();
 }
 
 const app = admin.app();
