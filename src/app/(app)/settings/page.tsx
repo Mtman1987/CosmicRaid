@@ -19,13 +19,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Save, Trash2, Zap, Loader2, TestTube, RefreshCcw } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
-import { syncDiscordData, testCalendarPostAction, resetCalendarAction } from '@/lib/actions';
+import { syncDiscordData, testCalendarPostAction, resetCalendarAction, checkDatabaseConnection } from '@/lib/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CopyButton } from '@/components/copy-button';
 import { AdminRoleSettings } from './_components/admin-role-settings';
 import { UISettingsCard } from './_components/ui-settings';
 import { cn } from '@/lib/utils';
+import type { Timestamp } from 'firebase/firestore';
+
 
 function SyncButton() {
     const { pending } = useFormStatus();
@@ -75,9 +77,10 @@ export default function SettingsPage() {
   const firestore = useFirestore();
   const [guildId, setGuildId] = React.useState('');
   const [testChannelId, setTestChannelId] = React.useState('');
-
-  type SyncStatus = 'checking' | 'synced' | 'not_synced';
-  const [syncStatus, setSyncStatus] = React.useState<SyncStatus>('checking');
+  
+  type HeartbeatStatus = 'checking' | 'ok' | 'error';
+  const [heartbeat, setHeartbeat] = React.useState<HeartbeatStatus>('checking');
+  const [heartbeatError, setHeartbeatError] = React.useState<string | null>(null);
 
   const [syncState, syncAction] = useActionState(syncDiscordData, { status: 'idle', message: '' });
   const [testState, testAction] = useActionState(testCalendarPostAction, { status: 'idle', message: '', logs: [] });
@@ -90,33 +93,64 @@ export default function SettingsPage() {
     if (storedGuildId) {
       setGuildId(storedGuildId);
     } else {
-      setSyncStatus('not_synced');
+      setHeartbeat('error');
     }
   }, []);
 
-  const serverDocRef = useMemoFirebase(() => {
-      if (!firestore || !guildId) return null;
-      return doc(firestore, 'servers', guildId);
+  const healthCheckRef = useMemoFirebase(() => {
+    if (!firestore || !guildId) return null;
+    return doc(firestore, 'servers', guildId, 'config', 'healthCheck');
   }, [firestore, guildId]);
   
-  const { data: serverData, isLoading: isServerLoading } = useDoc(serverDocRef);
+  const { data: healthCheckData, isLoading: isHealthCheckLoading } = useDoc<{ lastChecked: Timestamp }>(healthCheckRef);
 
   React.useEffect(() => {
-      if (!guildId) {
-        setSyncStatus('not_synced');
-      } else if (isServerLoading) {
-        setSyncStatus('checking');
-      } else if (serverData) {
-        setSyncStatus('synced');
-      } else {
-        setSyncStatus('not_synced');
-      }
-  }, [serverData, isServerLoading, guildId]);
+    if (!guildId) return;
 
+    const performCheck = async () => {
+      setHeartbeat('checking');
+      setHeartbeatError(null);
+      
+      const oneDayAgo = new Date();
+      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+      const lastCheckTimestamp = healthCheckData?.lastChecked?.toDate();
+      
+      if (lastCheckTimestamp && lastCheckTimestamp > oneDayAgo && !isHealthCheckLoading) {
+        setHeartbeat('ok');
+        return;
+      }
+
+      // If timestamp is old, non-existent, or we are still loading, try a live write.
+      const result = await checkDatabaseConnection(guildId);
+      if (result.success) {
+        setHeartbeat('ok');
+      } else {
+        setHeartbeat('error');
+        setHeartbeatError(result.error);
+      }
+    };
+    
+    performCheck();
+    
+  }, [guildId, healthCheckData, isHealthCheckLoading]);
 
   const handleReset = () => {
     localStorage.clear();
     router.push('/login');
+  };
+  
+  const getHeartbeatDescription = () => {
+    switch (heartbeat) {
+        case 'ok':
+            return "Database connection is healthy. Ready to sync.";
+        case 'error':
+            return heartbeatError || "Database connection failed. Check server logs.";
+        case 'checking':
+            return "Checking database connection...";
+        default:
+            return "Configure your server to check the database connection.";
+    }
   };
 
   return (
@@ -135,16 +169,16 @@ export default function SettingsPage() {
                     className={cn(
                       'h-3 w-3 rounded-full',
                       {
-                        'bg-green-500': syncStatus === 'synced',
-                        'bg-red-500 animate-pulse': syncStatus === 'not_synced',
-                        'bg-yellow-500 animate-pulse': syncStatus === 'checking',
+                        'bg-green-500': heartbeat === 'ok',
+                        'bg-red-500': heartbeat === 'error',
+                        'bg-yellow-500 animate-pulse': heartbeat === 'checking',
                       }
                     )}
                   />
                   Database Sync
                 </CardTitle>
-                <CardDescription>
-                  Populate your database with members, roles, and channels from your Discord server. This is required for most features.
+                <CardDescription className={cn(heartbeat === 'error' && 'text-destructive')}>
+                    {getHeartbeatDescription()}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

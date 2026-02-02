@@ -25,6 +25,27 @@ function handleSuccess(message: string, path?: string) {
 }
 
 /**
+ * Performs a health check by writing a timestamp to the database.
+ */
+export async function checkDatabaseConnection(serverId: string) {
+  if (!serverId) {
+    return { success: false, error: 'Server ID is required.' };
+  }
+  try {
+    const healthCheckRef = db.collection('servers').doc(serverId).collection('config').doc('healthCheck');
+    await healthCheckRef.set({
+      lastChecked: Timestamp.now(),
+      status: 'ok',
+    }, { merge: true });
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('[Action] Database health check failed:', error);
+    const message = error instanceof Error ? error.message : 'An unknown database error occurred.';
+    return { success: false, error: message };
+  }
+}
+
+/**
  * Updates the admin roles for a given server.
  */
 export async function updateAdminRoles(prevState: any, formData: FormData) {
