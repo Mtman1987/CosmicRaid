@@ -7,13 +7,11 @@ import { uploadToStorage } from '@/lib/firebase-storage-service';
 export async function POST(request: NextRequest) {
   console.log('[TestFreeConvert] Received test request.');
 
-  // A hardcoded URL to a known MP4 in your Firebase Storage
-  const BUCKET_NAME = 'studio-9468926194-e03ac.appspot.com';
-  const FILE_NAME = 'shoutout_CutterDawg52_1762986110515.mp4';
-  const testMp4Url = `https://storage.googleapis.com/${BUCKET_NAME}/${FILE_NAME}`;
+  // Use a reliable, public stock footage URL for testing
+  const testMp4Url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
   try {
-    console.log(`[TestFreeConvert] Starting conversion for: ${testMp4Url}`);
+    console.log(`[TestFreeConvert] Starting conversion for stock footage: ${testMp4Url}`);
     const gifBuffer = await freeConvertService.convertVideoUrlToGif(testMp4Url, {
       width: 480, // Use a smaller width for faster testing
       fps: 12,
@@ -46,4 +44,3 @@ export async function POST(request: NextRequest) {
     }, { status: 500 });
   }
 }
-    
