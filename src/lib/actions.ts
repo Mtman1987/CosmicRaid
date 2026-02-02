@@ -6,9 +6,11 @@ import { db } from '@/firebase/server-init'
 import { generateCalendarImage } from '@/ai/flows/generate-calendar-image'
 import { generateLeaderboardImage } from '@/ai/flows/generate-leaderboard-image'
 import { generateAllShoutouts } from '@/lib/community-shoutout-service'
-import { manualPoll, startPolling } from '@/lib/polling-service'
+import { manualPoll } from '@/lib/polling-service'
+import { schedulePolling } from '@/lib/cloud-scheduler'
 import { updateVipSpotlights } from '@/lib/vip-spotlight-service'
-import { postCommunityShoutouts, postVipShoutouts } from '@/lib/automated-shoutout-system'
+import { runAutomatedShoutoutCycle } from '@/lib/automated-shoutout-system'
+import { postAllShoutoutsToDiscord } from '@/lib/discord-bot-service'
 import { forwardMessage } from '@/lib/forwarding-service'
 import { replyToMessage } from '@/lib/reply-service'
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
@@ -263,7 +265,7 @@ export async function generateAllShoutoutsAction(prevState: any, formData: FormD
 
     try {
         const results = await generateAllShoutouts(serverId);
-        await postCommunityShoutouts(serverId);
+        await postAllShoutoutsToDiscord(serverId, results);
         return { status: 'success' as const, results, error: undefined };
     } catch (error) {
         const message = error instanceof Error ? error.message : 'An unknown error occurred.';
@@ -280,11 +282,10 @@ export async function triggerVipShoutoutsAction(prevState: any, formData: FormDa
     }
 
     try {
-        await startPolling(serverId);
+        await schedulePolling(serverId);
         await manualPoll(serverId);
-    await updateVipSpotlights(serverId);
-    await generateAllShoutouts(serverId);
-    await postVipShoutouts(serverId);
+        await updateVipSpotlights(serverId);
+        await runAutomatedShoutoutCycle(serverId);
         return handleSuccess('VIP shoutouts dispatched to Discord.', currentPath ?? undefined);
     } catch (error) {
         return handleError(error, 'Failed to dispatch VIP shoutouts.');
