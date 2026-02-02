@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, Calendar, Users, Megaphone } from 'lucide-react';
 import { format } from 'date-fns';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, limit, orderBy, query } from 'firebase/firestore';
 import type { CalendarEvent } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -32,7 +32,7 @@ export function UpcomingEvents() {
     setServerId(localStorage.getItem('discordServerId'));
   }, []);
 
-  const eventsQuery = React.useMemo(() => {
+  const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !serverId) return null;
     return query(
       collection(firestore, 'servers', serverId, 'calendarEvents'),
