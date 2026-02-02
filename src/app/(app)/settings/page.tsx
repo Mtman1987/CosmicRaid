@@ -21,6 +21,8 @@ import { syncDiscordData, testCalendarPostAction, resetCalendarAction } from '@/
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CopyButton } from '@/components/copy-button';
+import { AdminRoleSettings } from './_components/admin-role-settings';
+import { UISettingsCard } from './_components/ui-settings';
 
 function SyncButton() {
     const { pending } = useFormStatus();
@@ -105,11 +107,21 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="discord-token">Bot Token</Label>
+                <Input
+                  id="discord-token"
+                  type="password"
+                  placeholder="Set in your .env file"
+                  disabled
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="discord-server-id">Server ID</Label>
                 <Input id="discord-server-id" value={guildId} disabled />
               </div>
             </CardContent>
           </Card>
+          {guildId && <AdminRoleSettings serverId={guildId} />}
         </div>
         
          <div className="space-y-8 lg:col-span-1">
@@ -122,16 +134,6 @@ export default function SettingsPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="botToken">Discord Bot Token</Label>
-                            <Input
-                                id="botToken"
-                                name="botToken"
-                                type="password"
-                                placeholder="Your bot's secret token"
-                                required
-                            />
-                        </div>
                         <div className="space-y-2">
                             <Label htmlFor="sync-guild-id">Guild (Server) ID</Label>
                             <Input
@@ -157,6 +159,7 @@ export default function SettingsPage() {
                     </CardFooter>
                 </form>
             </Card>
+            <UISettingsCard />
         </div>
 
 

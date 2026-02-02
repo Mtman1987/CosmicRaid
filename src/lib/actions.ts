@@ -80,13 +80,13 @@ export async function updateLeaderboardSettings(prevState: any, formData: FormDa
  */
 export async function syncDiscordData(prevState: any, formData: FormData) {
   const guildId = formData.get('guildId') as string;
-  const botToken = formData.get('botToken') as string;
+  const botToken = process.env.DISCORD_BOT_TOKEN;
 
   if (!guildId) {
     return { status: 'error' as const, message: 'Guild ID is required.' };
   }
   if (!botToken) {
-    return { status: 'error' as const, message: 'Discord Bot Token is required.' };
+    return { status: 'error' as const, message: 'Discord Bot Token not configured on the server.' };
   }
 
   try {
@@ -254,21 +254,19 @@ export async function generateAllShoutoutsAction(prevState: any, formData: FormD
   }
 
   try {
-    const { generateAllShoutouts, postAllShoutoutsToDiscord } = await import(
-      '@/lib/automated-shoutout-system'
-    );
+    const { generateAllShoutouts } = await import('@/lib/community-shoutout-service');
     const results = await generateAllShoutouts(serverId);
     if (results.length === 0) {
       return { status: 'success' as const, results: [{ streamerName: 'N/A', success: true, message: 'No online community members found to generate shoutouts for.' }], error: undefined };
     }
-    await postAllShoutoutsToDiscord(serverId, results);
 
     const uiResults = results.map(user => ({
         streamerName: user.username,
         success: true,
-        message: 'Shoutout generated and posted successfully.'
+        message: 'Shoutout generated successfully. Ready to post.'
     }));
 
+    revalidatePath(`/shoutouts/community`);
     return { status: 'success' as const, results: uiResults, error: undefined };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'An unknown error occurred.';
@@ -364,5 +362,16 @@ export async function replyToMessageAction(prevState: any, formData: FormData) {
         return handleSuccess('Reply has been posted successfully.');
     } catch (error) {
         return handleError(error, 'Failed to post reply.');
+    }
+}
+
+export async function postNewCalendar(guildId: string, channelId: string): Promise<void> {
+    console.log(`[Action] postNewCalendar called for guild: ${guildId}, channel: ${channelId}`);
+    try {
+        const { generateAndPostCalendar } = await import('@/lib/calendar-discord-service');
+        await generateAndPostCalendar(guildId, channelId);
+    } catch (error) {
+        console.error(`[Action] Failed to post new calendar for guild ${guildId}:`, error);
+        throw error;
     }
 }
