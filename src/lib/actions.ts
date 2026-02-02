@@ -80,16 +80,16 @@ export async function updateLeaderboardSettings(prevState: any, formData: FormDa
  */
 export async function syncDiscordData(prevState: any, formData: FormData) {
   const guildId = formData.get('guildId') as string;
+  const botToken = formData.get('botToken') as string;
+
   if (!guildId) {
     return { status: 'error' as const, message: 'Guild ID is required.' };
   }
+  if (!botToken) {
+    return { status: 'error' as const, message: 'Discord Bot Token is required.' };
+  }
 
   try {
-    const botToken = process.env.DISCORD_BOT_TOKEN;
-    if (!botToken) {
-      return { status: 'error' as const, message: 'Discord bot token not found for this server.' };
-    }
-
     const headers = {
       Authorization: `Bot ${botToken}`,
     };

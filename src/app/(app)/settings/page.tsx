@@ -105,15 +105,6 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="discord-token">Bot Token</Label>
-                <Input
-                  id="discord-token"
-                  type="password"
-                  placeholder="Set in your .env file"
-                  disabled
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="discord-server-id">Server ID</Label>
                 <Input id="discord-server-id" value={guildId} disabled />
               </div>
@@ -131,6 +122,16 @@ export default function SettingsPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="botToken">Discord Bot Token</Label>
+                            <Input
+                                id="botToken"
+                                name="botToken"
+                                type="password"
+                                placeholder="Your bot's secret token"
+                                required
+                            />
+                        </div>
                         <div className="space-y-2">
                             <Label htmlFor="sync-guild-id">Guild (Server) ID</Label>
                             <Input
