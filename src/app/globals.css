@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -109,7 +110,7 @@
     90vw 90vh 1px 1px #fff, 33vw 33vh 1px 1px #fff, 66vw 66vh 1px 1px #fff,
     88vw 12vh 1px 1px #fff, 7vw 5vh 1px 1px #fff, 92vw 30vh 1px 1px #fff,
     45vw 60vh 1px 1px #fff, 75vw 80vh 1px 1px #fff, 23vw 48vh 1px 1px #fff;
-  animation-duration: 5s;
+  animation-duration: 20s;
 }
 
 /* Layer 2 - Larger, slower stars */
@@ -120,7 +121,7 @@
     70vw 5vh 2px 2px #fff, 90vw 40vh 2px 2px #fff, 45vw 90vh 2px 2px #fff,
     20vw 55vh 2px 2px #fff, 80vw 25vh 2px 2px #fff, 18vw 82vh 2px 2px #fff,
     58vw 8vh 2px 2px #fff, 83vw 95vh 2px 2px #fff, 37vw 22vh 2px 2px #fff;
-  animation-duration: 10s;
+  animation-duration: 40s;
   animation-delay: -3s;
 }
 
@@ -132,7 +133,7 @@
     48vw 5vh 1.5px 1.5px #fff, 62vw 60vh 1.5px 1.5px #fff, 85vw 15vh 1.5px 1.5px #fff,
     98vw 80vh 1.5px 1.5px #fff, 3vw 40vh 1.5px 1.5px #fff, 22vw 72vh 1.5px 1.5px #fff,
     51vw 28vh 1.5px 1.5px #fff, 77vw 52vh 1.5px 1.5px #fff, 93vw 88vh 1.5px 1.5px #fff;
-  animation-duration: 7s;
+  animation-duration: 28s;
   animation-delay: -1.5s;
 }
 
@@ -145,6 +146,6 @@
     62vw 25vh 0.5px 0.5px #fff, 72vw 75vh 0.5px 0.5px #fff, 82vw 10vh 0.5px 0.5px #fff,
     92vw 55vh 0.5px 0.5px #fff, 4vw 78vh 0.5px 0.5px #fff, 34vw 18vh 0.5px 0.5px #fff,
     64vw 92vh 0.5px 0.5px #fff, 84vw 38vh 0.5px 0.5px #fff, 99vw 72vh 0.5px 0.5px #fff;
-  animation-duration: 3s;
+  animation-duration: 12s;
   animation-delay: -0.5s;
 }
