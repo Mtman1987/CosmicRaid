@@ -5,9 +5,9 @@
 
 @layer base {
   :root {
-    --background: 232 40% 8%; /* Darker Blue Background */
+    --background: 232 40% 12%; /* Darker Blue Background */
     --foreground: 259 10% 95%;
-    --card: 260 40% 15% / 0.75; /* Darker, more saturated purple for translucent effect */
+    --card: 260 30% 20% / 0.7; /* Translucent Dark Purple */
     --card-foreground: 259 10% 95%;
     --popover: 270 10% 10%;
     --popover-foreground: 259 10% 95%;
@@ -28,9 +28,9 @@
   }
 
   .dark {
-    --background: 232 40% 8%;
+    --background: 232 40% 12%;
     --foreground: 259 10% 95%;
-    --card: 260 40% 15% / 0.75;
+    --card: 260 30% 20% / 0.7;
     --card-foreground: 259 10% 95%;
     --popover: 270 10% 10%;
     --popover-foreground: 259 10% 95%;
@@ -63,17 +63,13 @@
 
 /* Twinkling Starfield Background */
 @keyframes twinkle {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.4;
   }
   50% {
     transform: scale(1.2);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(0.8);
-    opacity: 0;
+    opacity: 1;
   }
 }
 
@@ -113,7 +109,7 @@
     90vw 90vh 1px 1px #fff, 33vw 33vh 1px 1px #fff, 66vw 66vh 1px 1px #fff,
     88vw 12vh 1px 1px #fff, 7vw 5vh 1px 1px #fff, 92vw 30vh 1px 1px #fff,
     45vw 60vh 1px 1px #fff, 75vw 80vh 1px 1px #fff, 23vw 48vh 1px 1px #fff;
-  animation-duration: 110s;
+  animation-duration: 210s;
 }
 
 /* Layer 2 - Larger, very very slow stars */
@@ -124,7 +120,7 @@
     70vw 5vh 2px 2px #fff, 90vw 40vh 2px 2px #fff, 45vw 90vh 2px 2px #fff,
     20vw 55vh 2px 2px #fff, 80vw 25vh 2px 2px #fff, 18vw 82vh 2px 2px #fff,
     58vw 8vh 2px 2px #fff, 83vw 95vh 2px 2px #fff, 37vw 22vh 2px 2px #fff;
-  animation-duration: 220s;
+  animation-duration: 320s;
   animation-delay: -3s;
 }
 
@@ -136,7 +132,7 @@
     48vw 5vh 1.5px 1.5px #fff, 62vw 60vh 1.5px 1.5px #fff, 85vw 15vh 1.5px 1.5px #fff,
     98vw 80vh 1.5px 1.5px #fff, 3vw 40vh 1.5px 1.5px #fff, 22vw 72vh 1.5px 1.5px #fff,
     51vw 28vh 1.5px 1.5px #fff, 77vw 52vh 1.5px 1.5px #fff, 93vw 88vh 1.5px 1.5px #fff;
-  animation-duration: 150s;
+  animation-duration: 250s;
   animation-delay: -1.5s;
 }
 
@@ -149,7 +145,7 @@
     62vw 25vh 0.5px 0.5px #fff, 72vw 75vh 0.5px 0.5px #fff, 82vw 10vh 0.5px 0.5px #fff,
     92vw 55vh 0.5px 0.5px #fff, 4vw 78vh 0.5px 0.5px #fff, 34vw 18vh 0.5px 0.5px #fff,
     64vw 92vh 0.5px 0.5px #fff, 84vw 38vh 0.5px 0.5px #fff, 99vw 72vh 0.5px 0.5px #fff;
-  animation-duration: 60s;
+  animation-duration: 160s;
   animation-delay: -0.5s;
 }
 
@@ -161,7 +157,7 @@
     99vw 40vh 1px 1px #fff, 19vw 88vh 1px 1px #fff, 69vw 29vh 1px 1px #fff,
     42vw 98vh 1px 1px #fff, 87vw 33vh 1px 1px #fff, 21vw 58vh 1px 1px #fff,
     56vw 82vh 1px 1px #fff, 78vw 41vh 1px 1px #fff, 31vw 11vh 1px 1px #fff;
-  animation-duration: 130s;
+  animation-duration: 230s;
   animation-delay: -5s;
 }
 
@@ -174,6 +170,8 @@
     26vw 40vh 0.5px 0.5px #fff, 71vw 85vh 0.5px 0.5px #fff, 53vw 30vh 0.5px 0.5px #fff,
     89vw 70vh 0.5px 0.5px #fff, 11vw 5vh 0.5px 0.5px #fff, 47vw 50vh 0.5px 0.5px #fff,
     67vw 95vh 0.5px 0.5px #fff, 84vw 48vh 0.5px 0.5px #fff, 3vw 68vh 0.5px 0.5px #fff;
-  animation-duration: 80s;
+  animation-duration: 180s;
   animation-delay: -2s;
 }
+
+    
