@@ -1,6 +1,13 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // This rule grants wide-open access to any document within any subcollection
+    // under the /servers/ collection path.
+    match /servers/{serverId}/{document=**} {
+      allow read, write: if true;
+    }
+
+    // You may have other top-level collections. Add a fallback for now.
     match /{document=**} {
       allow read, write: if true;
     }
