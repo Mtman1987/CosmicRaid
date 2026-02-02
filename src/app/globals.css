@@ -4,105 +4,56 @@
 
 @layer base {
   :root {
-    /* Define base HSL values that can be overridden by JS */
-    --primary-hue: 270;
-    --background-hue: 259;
-    --background-saturation: 100%;
-    --accent-hue: 181;
-    --card-hue: 259;
-    --card-saturation: 100%;
-    --card-lightness: 98%;
-    --card-alpha: 1;
-
-    --sidebar-bg-opacity: 0.9;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
-
-    --background: hsl(var(--background-hue) var(--background-saturation) 95%);
-    --foreground: hsl(270 40% 4%);
-    
-    --card: hsl(var(--card-hue) var(--card-saturation) var(--card-lightness));
-    --card-foreground: hsl(270 40% 4%);
-
-    --popover: hsl(var(--background-hue) var(--background-saturation) 98%);
-    --popover-foreground: hsl(270 40% 4%);
-    --primary: hsl(var(--primary-hue) 100% 50%);
-    --primary-foreground: hsl(var(--primary-hue) 100% 95%);
-    --secondary: hsl(260 40% 90%);
-    --secondary-foreground: hsl(270 10% 20%);
-    --muted: hsl(260 40% 92%);
-    --muted-foreground: hsl(270 5% 45%);
-    --accent: hsl(var(--accent-hue) 100% 74%);
-    --accent-foreground: hsl(270 10% 20%);
-    --destructive: hsl(0 84.2% 60.2%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(260 20% 85%);
-    --input: hsl(260 20% 85%);
-    --ring: hsl(var(--primary-hue) 100% 50%);
-    --chart-1: hsl(var(--primary-hue) 100% 50%);
-    --chart-2: hsl(260 80% 60%);
-    --chart-3: hsl(var(--accent-hue) 100% 74%);
-    --chart-4: hsl(280 90% 65%);
-    --chart-5: hsl(250 70% 55%);
   }
 
   .dark {
-    --background: hsl(270 10% 10%);
-    --foreground: hsl(259 10% 95%);
-    
-    --card-hue: 270;
-    --card-saturation: 10%;
-    --card-lightness: 12%;
-
-    --card: hsl(var(--card-hue) var(--card-saturation) var(--card-lightness));
-    --card-foreground: hsl(259 10% 95%);
-    
-    --popover: hsl(270 10% 10%);
-    --popover-foreground: hsl(259 10% 95%);
-    --primary: hsl(var(--primary-hue) 100% 65%);
-    --primary-foreground: hsl(var(--primary-hue) 10% 10%);
-    --secondary: hsl(270 10% 20%);
-    --secondary-foreground: hsl(259 10% 95%);
-    --muted: hsl(270 10% 20%);
-    --muted-foreground: hsl(259 5% 65%);
-    --accent: hsl(var(--accent-hue) 100% 74%);
-    --accent-foreground: hsl(270 10% 10%);
-    --destructive: hsl(0 62.8% 30.6%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(270 10% 25%);
-    --input: hsl(270 10% 25%);
-    --ring: hsl(var(--primary-hue) 100% 65%);
-    --chart-1: hsl(var(--primary-hue) 100% 65%);
-    --chart-2: hsl(260 80% 60%);
-    --chart-3: hsl(var(--accent-hue) 100% 74%);
-    --chart-4: hsl(280 90% 65%);
-    --chart-5: hsl(250 70% 55%);
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-/* Custom styles for the sidebar to ensure text is readable */
-@layer components {
-  .bg-sidebar {
-    background-color: hsl(var(--background-hue) var(--background-saturation) 10% / var(--sidebar-bg-opacity)); /* Translucent dark background */
-  }
-  .text-sidebar-foreground {
-    color: hsl(259 10% 95%); /* White text for high contrast */
-  }
-  .hover\:bg-sidebar-accent:hover {
-     background-color: hsl(270 10% 20% / var(--sidebar-bg-opacity)); /* Slightly lighter dark for hover */
-  }
-  .hover\:text-sidebar-accent-foreground:hover {
-    color: hsl(259 10% 95%);
-  }
-  .data-\[active=true\]\:bg-sidebar-accent {
-    background-color: hsl(var(--primary-hue) 100% 65% / 0.2); /* Use a transparent version of primary for active items */
-  }
-   .data-\[active=true\]\:text-sidebar-accent-foreground {
-    color: hsl(259 10% 95%);
   }
 }
