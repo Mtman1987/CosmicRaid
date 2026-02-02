@@ -3,7 +3,7 @@
 
 // This is a known-good, direct GIF link from Giphy.
 // Direct links are more reliable for Discord embeds than page links from sites like Tenor or broken Imgur links.
-const PLACEHOLDER_GIF_URL = 'https://media.giphy.com/media/26FmQ6EOvLpS3i396/giphy.gif';
+const PLACEHOLDER_GIF_URL = 'https://firebasestorage.googleapis.com/v0/b/studio-9468926194-e03ac.firebasestorage.app/o/fulldance-ezgif.com-resize.gif?alt=media&token=87ff1ee3-f791-4330-8b16-4813b4f7e8e9';
 
 /**
  * This service is now in a diagnostic mode.
