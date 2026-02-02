@@ -6,9 +6,11 @@ import { getAuth } from 'firebase-admin/auth';
 // It should only be imported in server-side files (e.g., server actions, API routes).
 
 if (!admin.apps.length) {
-  // In a Google Cloud environment (like App Hosting), the SDK automatically
-  // finds the credentials from the environment. No explicit configuration is needed.
-  admin.initializeApp();
+  // Explicitly initialize with the project ID from the environment.
+  // This helps the SDK find the correct credentials in the App Hosting environment.
+  admin.initializeApp({
+    projectId: process.env.GOOGLE_CLOUD_PROJECT,
+  });
 }
 
 // Export the initialized services from the default app instance.
