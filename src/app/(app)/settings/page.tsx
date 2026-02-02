@@ -15,9 +15,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Zap, Loader2 } from 'lucide-react';
-import { syncDiscordData } from '@/lib/actions';
+import { Save, Trash2, Zap, Loader2, TestTube, RefreshCcw } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { syncDiscordData, testCalendarPostAction, resetCalendarAction } from '@/lib/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { CopyButton } from '@/components/copy-button';
+import { UISettingsCard } from './_components/ui-settings';
 
 function SyncButton() {
     const { pending } = useFormStatus();
@@ -33,11 +37,46 @@ function SyncButton() {
     );
 }
 
+function TestButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button className="w-full" variant="outline" type="submit" disabled={pending}>
+            {pending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+                <TestTube className="mr-2 h-4 w-4" />
+            )}
+            Test Calendar Post
+        </Button>
+    )
+}
+
+function ResetCalendarButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button className="w-full" variant="destructive" type="submit" disabled={pending}>
+            {pending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+                <RefreshCcw className="mr-2 h-4 w-4" />
+            )}
+            Reset Calendar Data
+        </Button>
+    )
+}
+
 export default function SettingsPage() {
+  const router = useRouter();
+  const pathname = usePathname();
   const [guildId, setGuildId] = React.useState('');
+  const [testChannelId, setTestChannelId] = React.useState('');
 
   const [syncState, syncAction] = useActionState(syncDiscordData, { status: 'idle', message: '' });
+  const [testState, testAction] = useActionState(testCalendarPostAction, { status: 'idle', message: '', logs: [] });
+  const [resetState, resetAction] = useActionState(resetCalendarAction, { status: 'idle', message: '' });
   
+  const logsAsString = React.useMemo(() => (testState.logs ?? []).join('\n'), [testState.logs]);
+
   React.useEffect(() => {
     const storedGuildId = localStorage.getItem('discordServerId');
     if (storedGuildId) {
@@ -45,6 +84,10 @@ export default function SettingsPage() {
     }
   }, []);
 
+  const handleReset = () => {
+    localStorage.clear();
+    router.push('/login');
+  };
 
   return (
     <div className="space-y-8">
@@ -52,40 +95,143 @@ export default function SettingsPage() {
         title="Settings"
         description="Configure your application and integrations."
       />
-      <div className="grid gap-8 max-w-md">
-        <Card>
-            <form action={syncAction}>
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="lg:col-span-1 space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Discord Integration</CardTitle>
+              <CardDescription>
+                Connect your Discord bot and server details.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="discord-token">Bot Token</Label>
+                <Input
+                  id="discord-token"
+                  type="password"
+                  placeholder="Set in your .env file"
+                  disabled
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="discord-server-id">Server ID</Label>
+                <Input id="discord-server-id" value={guildId} disabled />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+         <div className="space-y-8 lg:col-span-1">
+            <Card>
+                <form action={syncAction}>
+                    <CardHeader>
+                        <CardTitle className="font-headline">Database Sync</CardTitle>
+                        <CardDescription>
+                            Populate your database with members, roles, and channels from your Discord server. This is required for most features.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="sync-guild-id">Guild (Server) ID</Label>
+                            <Input
+                                id="sync-guild-id"
+                                name="guildId"
+                                value={guildId}
+                                onChange={(e) => setGuildId(e.target.value)}
+                                required
+                            />
+                        </div>
+                        {syncState.status !== 'idle' && (
+                            <Alert variant={syncState.status === 'error' ? 'destructive' : 'default'}>
+                                <AlertTitle>{syncState.status === 'success' ? 'Success!' : 'Error'}</AlertTitle>
+                                <AlertDescription>
+                                    {syncState.message}
+                                    {syncState.details && <p className="text-xs mt-2">{syncState.details}</p>}
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                    </CardContent>
+                    <CardFooter>
+                        <SyncButton />
+                    </CardFooter>
+                </form>
+            </Card>
+            <UISettingsCard />
+        </div>
+
+
+        <div className="space-y-8 lg:col-span-1">
+            <Card className="border-destructive">
                 <CardHeader>
-                    <CardTitle className="font-headline">Database Sync</CardTitle>
-                    <CardDescription>
-                        Populate your database with members, roles, and channels from your Discord server. This is required for most features.
-                    </CardDescription>
+                    <CardTitle className="font-headline text-destructive">Developer Tools</CardTitle>
+                    <CardDescription>For testing and development purposes only.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="sync-guild-id">Guild (Server) ID</Label>
-                        <Input
-                            id="sync-guild-id"
-                            name="guildId"
-                            value={guildId}
-                            onChange={(e) => setGuildId(e.target.value)}
-                            required
-                        />
-                    </div>
-                    {syncState.status !== 'idle' && (
-                        <Alert variant={syncState.status === 'error' ? 'destructive' : 'default'}>
-                            <AlertTitle>{syncState.status === 'success' ? 'Success!' : 'Error'}</AlertTitle>
-                            <AlertDescription>
-                                {syncState.message}
-                            </AlertDescription>
-                        </Alert>
-                    )}
+                    <Button variant="destructive" className="w-full" onClick={handleReset}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Clear Local Storage & Reset Session
+                    </Button>
+                    
+                    <form action={testAction} className="space-y-4">
+                        <input type="hidden" name="guildId" value={guildId} />
+                         <div className="space-y-2">
+                            <Label htmlFor="test-channel-id">Test Channel ID</Label>
+                            <Input
+                                id="test-channel-id"
+                                name="channelId"
+                                value={testChannelId}
+                                onChange={(e) => setTestChannelId(e.target.value)}
+                                placeholder="Enter a channel ID to post in"
+                                required
+                            />
+                        </div>
+                        <TestButton />
+                        {testState.status !== 'idle' && (
+                            <div className="space-y-2">
+                                <Alert variant={testState.status === 'error' ? 'destructive' : 'default'}>
+                                    <AlertTitle>{testState.status === 'success' ? 'Success!' : 'Error'}</AlertTitle>
+                                    <AlertDescription>
+                                        {testState.message}
+                                    </AlertDescription>
+                                </Alert>
+                                {testState.logs && testState.logs.length > 0 && (
+                                <div className="relative">
+                                    <h4 className="text-sm font-semibold mb-2">Server Logs:</h4>
+                                    <div className="absolute top-0 right-0">
+                                        <CopyButton value={logsAsString} />
+                                    </div>
+                                    <ScrollArea className="h-48 w-full rounded-md border bg-secondary/50 p-4">
+                                        <pre className="text-xs whitespace-pre-wrap break-words">
+                                        {logsAsString}
+                                        </pre>
+                                    </ScrollArea>
+                                </div>
+                                )}
+                            </div>
+                        )}
+                    </form>
+
+                    <form action={resetAction} className="space-y-4">
+                         <input type="hidden" name="guildId" value={guildId} />
+                         <input type="hidden" name="currentPath" value={pathname} />
+                         <ResetCalendarButton />
+                         {resetState.status !== 'idle' && (
+                            <Alert variant={resetState.status === 'error' ? 'destructive' : 'default'}>
+                                <AlertTitle>{resetState.status === 'success' ? 'Success!' : 'Error'}</AlertTitle>
+                                <AlertDescription>
+                                    {resetState.message}
+                                </AlertDescription>
+                            </Alert>
+                         )}
+                    </form>
+
                 </CardContent>
                 <CardFooter>
-                    <SyncButton />
+                    <p className="text-xs text-muted-foreground">Use these tools for testing server-side functions and clearing test data.</p>
                 </CardFooter>
-            </form>
-        </Card>
+            </Card>
+        </div>
       </div>
     </div>
   );
