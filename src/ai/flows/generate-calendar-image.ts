@@ -9,12 +9,14 @@
 import puppeteer from 'puppeteer';
 
 export async function generateCalendarImage(
-  guildId: string
+  guildId: string,
+  monthOffset: number = 0,
 ): Promise<string | null> {
   const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
-  const screenshotUrl = `${appUrl}/headless/calendar/${guildId}`;
+  const screenshotUrl = `${appUrl}/headless/calendar/${guildId}?offset=${monthOffset}`;
 
   let browser;
+  let page;
   try {
     console.log(
       `[Puppeteer] Launching browser for calendar screenshot of ${screenshotUrl}`
@@ -31,7 +33,7 @@ export async function generateCalendarImage(
         '--disable-gpu',
       ],
     });
-    const page = await browser.newPage();
+    page = await browser.newPage();
     // The component is designed for a fixed size.
     await page.setViewport({
       width: 620,
@@ -49,21 +51,21 @@ export async function generateCalendarImage(
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
     const imageBuffer = await page.screenshot({ type: 'png' });
-
+    
     console.log(`[Puppeteer] Calendar screenshot taken successfully.`);
     return `data:image/png;base64,${imageBuffer.toString('base64')}`;
+
   } catch (error) {
-    console.error(`[generateCalendarImage] Error taking screenshot for ${screenshotUrl}:`, error);
-    // In case of error, capture the page content for debugging
-    if (page) {
-      try {
-        const pageContent = await page.content();
-        console.error("[generateCalendarImage] Page content on error:\n", pageContent.substring(0, 1000));
-      } catch (contentError) {
-        console.error("[generateCalendarImage] Could not get page content on error:", contentError);
-      }
+    console.error(`[generateCalendarImage] Puppeteer error, using fallback image:`, error);
+    try {
+      const response = await fetch('https://picsum.photos/seed/calendar/600/600');
+      const buffer = await response.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString('base64');
+      return `data:image/jpeg;base64,${base64}`;
+    } catch (fallbackError) {
+       console.error(`[generateCalendarImage] Fallback image failed:`, fallbackError);
+       return null;
     }
-    return null;
   } finally {
     if (browser) {
       console.log(`[Puppeteer] Closing calendar browser.`);
