@@ -207,8 +207,6 @@ export async function postNewCalendar(guildId: string, channelId: string) {
     const calendarImage = await generateCalendarImage(guildId)
     if (!calendarImage) throw new Error('Failed to generate calendar image.')
 
-    const leaderboardImage = await generateLeaderboardImage(guildId)
-
     const attachments: Array<{
       buffer: Buffer
       mime: string
@@ -229,10 +227,7 @@ export async function postNewCalendar(guildId: string, channelId: string) {
     }
 
     attachments.push(decodeImage(calendarImage, 'calendar.png'))
-    if (leaderboardImage) {
-      attachments.push(decodeImage(leaderboardImage, 'leaderboard.png'))
-    }
-
+    
     const embeds = [
       {
         title: 'Community Calendar',
@@ -242,16 +237,6 @@ export async function postNewCalendar(guildId: string, channelId: string) {
         timestamp: new Date().toISOString(),
       },
     ]
-
-    if (leaderboardImage) {
-      embeds.push({
-        title: 'Leaderboard Snapshot',
-        description: 'Top community contributors, updated just now.',
-        color: 0xf1c40f,
-        image: { url: 'attachment://leaderboard.png' },
-        timestamp: new Date().toISOString(),
-      })
-    }
 
     const payload = {
       embeds,
@@ -315,9 +300,9 @@ export async function testCalendarPostAction(prevState: any, formData: FormData)
         `[${new Date().toISOString()}] Initiating calendar post...`,
         `[${new Date().toISOString()}] Guild ID: ${guildId}`,
         `[${new Date().toISOString()}] Channel ID: ${channelId}`,
-        `[${new Date().toISOString()}] Generating calendar image via Puppeteer...`,
+        `[${new Date().toISOString()}] Generating calendar image via @vercel/og...`,
         // Simulate a delay
-        await new Promise(resolve => setTimeout(() => resolve(`[${new Date().toISOString()}] Puppeteer process finished.`), 1500)),
+        await new Promise(resolve => setTimeout(() => resolve(`[${new Date().toISOString()}] Image process finished.`), 1500)),
         `[${new Date().toISOString()}] Image generated, posting to Discord...`,
         `[${new Date().toISOString()}] Discord API response: 200 OK`,
         `[${new Date().toISOString()}] Calendar successfully posted.`

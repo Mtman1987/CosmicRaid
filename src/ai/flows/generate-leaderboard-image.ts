@@ -5,7 +5,15 @@ import * as React from 'react';
 import { db } from '@/firebase/server-init';
 import { LeaderboardImageTemplate } from '@/app/headless/leaderboard-image-template';
 import type { UserProfile, LeaderboardEntry } from '@/lib/types';
-import type { DocumentData } from 'firebase-admin/firestore';
+
+// Function to fetch font data
+const getFontData = async (url: string) => {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch font: ${response.statusText}`);
+    }
+    return response.arrayBuffer();
+};
 
 async function fetchLeaderboardData(serverId: string, limit: number = 10) {
   const leaderboardSnapshot = await db
@@ -55,6 +63,10 @@ export async function generateLeaderboardImage(
   try {
     const leaderboardEntries = await fetchLeaderboardData(guildId);
 
+    // Fetch fonts
+    const ptSansRegular = await getFontData('https://fonts.gstatic.com/s/ptsans/v17/jizaRExUiTo99u79D0-ExdGM.ttf');
+    const ptSansBold = await getFontData('https://fonts.gstatic.com/s/ptsans/v17/jizfRExUiTo99u79B_mh0O6i.ttf');
+
     const imageResponse = new ImageResponse(
       React.createElement(LeaderboardImageTemplate, {
         entries: leaderboardEntries,
@@ -62,6 +74,20 @@ export async function generateLeaderboardImage(
       {
         width: 600,
         height: 800,
+        fonts: [
+          {
+            name: 'Inter',
+            data: ptSansRegular,
+            weight: 400,
+            style: 'normal',
+          },
+          {
+            name: 'Inter',
+            data: ptSansBold,
+            weight: 700,
+            style: 'normal',
+          },
+        ]
       }
     );
 

@@ -11,8 +11,16 @@ import {
   addMonths,
 } from 'date-fns';
 import { CalendarImageTemplate } from './calendar-image-template';
-import type { CalendarEvent, UserProfile } from '@/lib/types';
-import type { DocumentData } from 'firebase-admin/firestore';
+import type { CalendarEvent } from '@/lib/types';
+
+// Function to fetch font data
+const getFontData = async (url: string) => {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch font: ${response.statusText}`);
+    }
+    return response.arrayBuffer();
+};
 
 async function fetchCalendarData(serverId: string, monthOffset: number = 0) {
   const today = new Date();
@@ -40,26 +48,8 @@ async function fetchCalendarData(serverId: string, monthOffset: number = 0) {
     } as any;
   });
 
-  const allUserIds = [
-    ...new Set(events.map((e: CalendarEvent) => e.userId).filter(Boolean)),
-  ];
-
-  const userProfiles: Record<string, UserProfile> = {};
-  if (allUserIds.length > 0) {
-    const usersSnapshot = await db
-      .collection('servers')
-      .doc(serverId)
-      .collection('users')
-      .where('discordUserId', 'in', allUserIds)
-      .get();
-    usersSnapshot.forEach((doc) => {
-      userProfiles[doc.id] = { id: doc.id, ...doc.data() } as UserProfile;
-    });
-  }
-
   return {
     events,
-    userProfiles,
     targetMonth,
     today,
   };
@@ -75,6 +65,11 @@ export async function generateCalendarImage(
       monthOffset
     );
 
+    // Fetch fonts
+    const ptSansRegular = await getFontData('https://fonts.gstatic.com/s/ptsans/v17/jizaRExUiTo99u79D0-ExdGM.ttf');
+    const ptSansBold = await getFontData('https://fonts.gstatic.com/s/ptsans/v17/jizfRExUiTo99u79B_mh0O6i.ttf');
+
+
     const imageResponse = new ImageResponse(
       React.createElement(CalendarImageTemplate, {
         events: events,
@@ -84,6 +79,20 @@ export async function generateCalendarImage(
       {
         width: 600,
         height: 600,
+        fonts: [
+          {
+            name: 'Inter',
+            data: ptSansRegular,
+            weight: 400,
+            style: 'normal',
+          },
+          {
+            name: 'Inter',
+            data: ptSansBold,
+            weight: 700,
+            style: 'normal',
+          },
+        ]
       }
     );
 
@@ -93,7 +102,6 @@ export async function generateCalendarImage(
     )}`;
   } catch (error) {
     console.error(`[generateCalendarImage] Error using @vercel/og:`, error);
-    // Fallback to a simple placeholder on error
     try {
       const response = await fetch('https://picsum.photos/seed/calendar-error/600/600');
       const buffer = await response.arrayBuffer();
