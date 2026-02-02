@@ -1,5 +1,8 @@
 'use server';
 
+import { config } from 'dotenv';
+config();
+
 import { revalidatePath } from 'next/cache';
 import { db } from '@/firebase/server-init';
 import { replyToMessage } from '@/lib/reply-service';
