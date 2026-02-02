@@ -1,15 +1,13 @@
 
-'use server';
-
 import admin from 'firebase-admin';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { getAuth, Auth } from 'firebase-admin/auth';
 
-let db: Firestore;
-let auth: Auth;
-
 // The correct Project ID for the Firestore database.
 const DATABASE_PROJECT_ID = "studio-9468926194-e03ac";
+
+let db: Firestore;
+let auth: Auth;
 
 try {
   if (!admin.apps.length) {
