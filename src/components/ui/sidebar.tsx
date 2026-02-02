@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 const sidebarVariants = cva(
-  'flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out',
+  'flex flex-col bg-card text-card-foreground transition-all duration-300 ease-in-out',
   {
     variants: {
       collapsible: {
@@ -156,7 +156,7 @@ const SidebarMenuButton = React.forwardRef<
       size={size}
       className={cn(
         'w-full justify-start gap-2',
-        isActive && 'bg-sidebar-accent text-sidebar-accent-foreground',
+        isActive && 'bg-primary/10 text-primary',
         className
       )}
       {...props}
@@ -179,7 +179,7 @@ const SidebarSeparator = React.forwardRef<
   HTMLHRElement,
   React.HTMLAttributes<HTMLHRElement>
 >(({ className, ...props }, ref) => (
-  <hr ref={ref} className={cn('border-sidebar-border', className)} {...props} />
+  <hr ref={ref} className={cn('border-border', className)} {...props} />
 ))
 SidebarSeparator.displayName = 'SidebarSeparator'
 
