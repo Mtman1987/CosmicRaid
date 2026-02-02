@@ -1,8 +1,5 @@
 'use server';
 
-import { config } from 'dotenv';
-config();
-
 import { revalidatePath } from 'next/cache';
 import { db } from '@/firebase/server-init';
 import { replyToMessage } from '@/lib/reply-service';
@@ -22,27 +19,6 @@ function handleSuccess(message: string, path?: string) {
     revalidatePath(path);
   }
   return { status: 'success' as const, message };
-}
-
-/**
- * Performs a health check by writing a timestamp to the database.
- */
-export async function checkDatabaseConnection(serverId: string) {
-  if (!serverId) {
-    return { success: false, error: 'Server ID is required.' };
-  }
-  try {
-    const healthCheckRef = db.collection('servers').doc(serverId).collection('config').doc('healthCheck');
-    await healthCheckRef.set({
-      lastChecked: Timestamp.now(),
-      status: 'ok',
-    }, { merge: true });
-    return { success: true, error: null };
-  } catch (error) {
-    console.error('[Action] Database health check failed:', error);
-    const message = error instanceof Error ? error.message : 'An unknown database error occurred.';
-    return { success: false, error: message };
-  }
 }
 
 /**
@@ -96,116 +72,6 @@ export async function updateLeaderboardSettings(prevState: any, formData: FormDa
     return handleSuccess('Leaderboard settings have been saved.', currentPath);
   } catch (error) {
     return handleError(error, 'Failed to save leaderboard settings.');
-  }
-}
-
-/**
- * Fetches data from Discord API and syncs it with Firestore.
- */
-export async function syncDiscordData(prevState: any, formData: FormData) {
-  const guildId = formData.get('guildId') as string;
-  const botToken = process.env.DISCORD_BOT_TOKEN;
-
-  if (!guildId) {
-    return { status: 'error' as const, message: 'Guild ID is required.' };
-  }
-  if (!botToken) {
-    return { status: 'error' as const, message: 'Discord Bot Token not configured on the server.' };
-  }
-
-  try {
-    const headers = {
-      Authorization: `Bot ${botToken}`,
-    };
-
-    // 1. Fetch Server Info
-    const serverResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}`, { headers });
-    if (!serverResponse.ok) throw new Error(`Failed to fetch server info: ${await serverResponse.text()}`);
-    const serverData = await serverResponse.json();
-    const serverName = serverData.name;
-
-    // 2. Fetch Roles
-    const rolesResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}/roles`, { headers });
-    if (!rolesResponse.ok) throw new Error(`Failed to fetch roles: ${await rolesResponse.text()}`);
-    const rolesData = await rolesResponse.json();
-    const roleNames = rolesData.map((r: any) => r.name).filter((name: string) => name !== '@everyone');
-
-    // 3. Fetch Channels
-    const channelsResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}/channels`, { headers });
-    if (!channelsResponse.ok) throw new Error(`Failed to fetch channels: ${await channelsResponse.text()}`);
-    const channelsData = await channelsResponse.json();
-    const textChannels = channelsData
-      .filter((c: any) => c.type === 0) // Text channels only
-      .map((c: any) => ({ id: c.id, name: c.name }));
-
-    // 4. Fetch Members (get all members with pagination)
-    let allMembers: any[] = [];
-    let after = null;
-    
-    do {
-      const url = `https://discord.com/api/v10/guilds/${guildId}/members?limit=1000${after ? `&after=${after}` : ''}`;
-      const membersResponse = await fetch(url, { headers });
-      if (!membersResponse.ok) throw new Error(`Failed to fetch members: ${await membersResponse.text()}`);
-      const membersData = await membersResponse.json();
-      
-      allMembers.push(...membersData);
-      after = membersData.length === 1000 ? membersData[membersData.length - 1].user.id : null;
-    } while (after);
-    
-    const membersData = allMembers;
-
-
-    // 5. Save to Firestore
-    const batch = db.batch();
-
-    // Public server info
-    const publicDiscordRef = db.collection('discords').doc(guildId);
-    batch.set(publicDiscordRef, { serverId: guildId, serverName }, { merge: true });
-
-    // Private server config
-    const serverRef = db.collection('servers').doc(guildId);
-    batch.set(serverRef, { serverId: guildId, serverName }, { merge: true });
-
-    // Config subcollections
-    const rolesRef = serverRef.collection('config').doc('roles');
-    batch.set(rolesRef, { list: roleNames });
-
-    const channelsRef = serverRef.collection('config').doc('channels');
-    batch.set(channelsRef, { list: textChannels });
-
-    // Member profiles
-    for (const member of membersData) {
-      if (member.user.bot) continue; // Skip bots
-      const userRef = serverRef.collection('users').doc(member.user.id);
-      const userRoles = member.roles.map((roleId: string) => rolesData.find((r: any) => r.id === roleId)?.name).filter(Boolean);
-      
-      batch.set(userRef, {
-        discordUserId: member.user.id,
-        username: member.user.username,
-        avatarUrl: member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png` : null,
-        roles: userRoles,
-        group: 'Community', // Default group
-        isOnline: false, // Placeholder
-        topic: '' // Placeholder
-      }, { merge: true });
-    }
-
-    try {
-      await batch.commit();
-      return handleSuccess(`Successfully synced ${serverName} with ${membersData.length} members, ${roleNames.length} roles, and ${textChannels.length} channels.`);
-    } catch (batchError: any) {
-      console.error('Batch commit error:', batchError);
-      // Try individual writes as fallback
-      try {
-        await db.collection('servers').doc(guildId).set({ serverId: guildId, serverName }, { merge: true });
-        return handleSuccess(`Partially synced ${serverName} - server info saved.`);
-      } catch (fallbackError) {
-        throw new Error(`Database write failed: ${batchError.message}`);
-      }
-    }
-
-  } catch (error) {
-    return handleError(error, 'An unexpected error occurred during the Discord sync.');
   }
 }
 

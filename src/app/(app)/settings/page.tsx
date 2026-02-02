@@ -1,10 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { doc, getDoc, writeBatch, Timestamp, setDoc } from 'firebase/firestore';
+import { useRouter, usePathname } from 'next/navigation';
+
 import { PageHeader } from '@/components/page-header';
 import {
   Card,
@@ -18,30 +18,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Save, Trash2, Zap, Loader2, TestTube, RefreshCcw } from 'lucide-react';
-import { useRouter, usePathname } from 'next/navigation';
-import { syncDiscordData, testCalendarPostAction, resetCalendarAction, checkDatabaseConnection } from '@/lib/actions';
+import { useActionState, useFormStatus } from 'react-dom';
+import { testCalendarPostAction, resetCalendarAction } from '@/lib/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CopyButton } from '@/components/copy-button';
 import { AdminRoleSettings } from './_components/admin-role-settings';
 import { UISettingsCard } from './_components/ui-settings';
 import { cn } from '@/lib/utils';
-import type { Timestamp } from 'firebase/firestore';
 
-
-function SyncButton() {
-    const { pending } = useFormStatus();
-    return (
-      <Button className="w-full" type="submit" disabled={pending}>
-        {pending ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Zap className="mr-2 h-4 w-4" />
-        )}
-        Sync with Discord
-      </Button>
-    );
-}
 
 function TestButton() {
     const { pending } = useFormStatus();
@@ -75,14 +60,20 @@ export default function SettingsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const firestore = useFirestore();
+
   const [guildId, setGuildId] = React.useState('');
   const [testChannelId, setTestChannelId] = React.useState('');
   
+  // State for Health Check
   type HeartbeatStatus = 'checking' | 'ok' | 'error';
   const [heartbeat, setHeartbeat] = React.useState<HeartbeatStatus>('checking');
   const [heartbeatError, setHeartbeatError] = React.useState<string | null>(null);
 
-  const [syncState, syncAction] = useActionState(syncDiscordData, { status: 'idle', message: '' });
+  // State for Sync
+  const [isSyncing, setIsSyncing] = React.useState(false);
+  const [syncMessage, setSyncMessage] = React.useState('');
+  const [syncStatus, setSyncStatus] = React.useState<'idle' | 'success' | 'error'>('idle');
+
   const [testState, testAction] = useActionState(testCalendarPostAction, { status: 'idle', message: '', logs: [] });
   const [resetState, resetAction] = useActionState(resetCalendarAction, { status: 'idle', message: '' });
   
@@ -94,46 +85,124 @@ export default function SettingsPage() {
       setGuildId(storedGuildId);
     } else {
       setHeartbeat('error');
+      setHeartbeatError('No Server ID found in local storage.');
     }
   }, []);
 
-  const healthCheckRef = useMemoFirebase(() => {
-    if (!firestore || !guildId) return null;
-    return doc(firestore, 'servers', guildId, 'config', 'healthCheck');
-  }, [firestore, guildId]);
-  
-  const { data: healthCheckData, isLoading: isHealthCheckLoading } = useDoc<{ lastChecked: Timestamp }>(healthCheckRef);
-
+  // CLIENT-SIDE Health Check
   React.useEffect(() => {
-    if (!guildId) return;
+    if (!firestore || !guildId) return;
 
-    const performCheck = async () => {
+    const performClientHealthCheck = async () => {
       setHeartbeat('checking');
       setHeartbeatError(null);
       
-      const oneDayAgo = new Date();
-      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+      const healthCheckRef = doc(firestore, 'servers', guildId, 'config', 'healthCheck');
 
-      const lastCheckTimestamp = healthCheckData?.lastChecked?.toDate();
-      
-      if (lastCheckTimestamp && lastCheckTimestamp > oneDayAgo && !isHealthCheckLoading) {
-        setHeartbeat('ok');
-        return;
-      }
+      try {
+        const docSnap = await getDoc(healthCheckRef);
+        const oneDayAgo = new Date();
+        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
-      // If timestamp is old, non-existent, or we are still loading, try a live write.
-      const result = await checkDatabaseConnection(guildId);
-      if (result.success) {
+        if (docSnap.exists() && docSnap.data().lastChecked.toDate() > oneDayAgo) {
+            setHeartbeat('ok');
+            return;
+        }
+
+        await setDoc(healthCheckRef, {
+          lastChecked: Timestamp.now(),
+          status: 'ok',
+        }, { merge: true });
+
         setHeartbeat('ok');
-      } else {
+      } catch (error) {
         setHeartbeat('error');
-        setHeartbeatError(result.error);
+        const message = error instanceof Error ? error.message : 'An unknown database error occurred.';
+        setHeartbeatError(message);
+        console.error('Client-side health check failed:', error);
       }
     };
     
-    performCheck();
-    
-  }, [guildId, healthCheckData, isHealthCheckLoading]);
+    performClientHealthCheck();
+  }, [firestore, guildId]);
+
+
+  const handleClientSideSync = async () => {
+    if (!guildId) {
+      setSyncStatus('error');
+      setSyncMessage('Guild ID is required.');
+      return;
+    }
+
+    setIsSyncing(true);
+    setSyncStatus('idle');
+    setSyncMessage('Starting sync...');
+
+    try {
+      setSyncMessage('Fetching data from Discord...');
+      const response = await fetch('/api/discord/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guildId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch data from Discord.');
+      }
+      const data = await response.json();
+      setSyncMessage('Writing to database...');
+
+      if (!firestore) throw new Error('Firestore is not initialized.');
+
+      const batch = writeBatch(firestore);
+
+      const publicDiscordRef = doc(firestore, 'discords', data.server.serverId);
+      batch.set(publicDiscordRef, data.server, { merge: true });
+
+      const serverRef = doc(firestore, 'servers', data.server.serverId);
+      batch.set(serverRef, data.server, { merge: true });
+      
+      const rolesRef = doc(serverRef, 'config', 'roles');
+      const roleNames = data.roles.map((r: any) => r.name).filter((name: string) => name !== '@everyone');
+      batch.set(rolesRef, { list: roleNames });
+
+      const channelsRef = doc(serverRef, 'config', 'channels');
+      const textChannels = data.channels
+        .filter((c: any) => c.type === 0)
+        .map((c: any) => ({ id: c.id, name: c.name }));
+      batch.set(channelsRef, { list: textChannels });
+
+      for (const member of data.members) {
+        if (member.user.bot) continue;
+        const userRef = doc(serverRef, 'users', member.user.id);
+        const userRoles = member.roles.map((roleId: string) => data.roles.find((r: any) => r.id === roleId)?.name).filter(Boolean);
+        batch.set(userRef, {
+          discordUserId: member.user.id,
+          username: member.user.username,
+          avatarUrl: member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png` : `https://cdn.discordapp.com/embed/avatars/${parseInt(member.user.discriminator) % 5}.png`,
+          roles: userRoles,
+          group: 'Community',
+          isOnline: false,
+          topic: ''
+        }, { merge: true });
+      }
+
+      await batch.commit();
+
+      setSyncStatus('success');
+      setSyncMessage(`Sync complete! Wrote ${data.members.length} members, ${data.roles.length} roles, and ${textChannels.length} channels.`);
+
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'An unexpected error occurred.';
+      setSyncStatus('error');
+      setSyncMessage(message);
+      console.error('Client-side sync error:', error);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
 
   const handleReset = () => {
     localStorage.clear();
@@ -161,52 +230,48 @@ export default function SettingsPage() {
       />
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-1 space-y-8">
-          <Card>
-            <form action={syncAction}>
-              <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-3">
-                  <span
-                    className={cn(
-                      'h-3 w-3 rounded-full',
-                      {
-                        'bg-green-500': heartbeat === 'ok',
-                        'bg-red-500': heartbeat === 'error',
-                        'bg-yellow-500 animate-pulse': heartbeat === 'checking',
-                      }
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline flex items-center gap-3">
+                    <span
+                        className={cn(
+                        'h-3 w-3 rounded-full',
+                        {
+                            'bg-green-500': heartbeat === 'ok',
+                            'bg-red-500': heartbeat === 'error',
+                            'bg-yellow-500 animate-pulse': heartbeat === 'checking',
+                        }
+                        )}
+                    />
+                    Database Sync
+                    </CardTitle>
+                    <CardDescription className={cn(heartbeat === 'error' && 'text-destructive')}>
+                        {getHeartbeatDescription()}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        <Label htmlFor="sync-guild-id">Guild (Server) ID</Label>
+                        <Input id="sync-guild-id" name="guildId" value={guildId} onChange={(e) => setGuildId(e.target.value)} required />
+                    </div>
+                    {syncStatus !== 'idle' && (
+                        <Alert variant={syncStatus === 'error' ? 'destructive' : 'default'} className="mt-4">
+                        <AlertTitle>{syncStatus === 'success' ? 'Success!' : 'Error'}</AlertTitle>
+                        <AlertDescription>{syncMessage}</AlertDescription>
+                        </Alert>
                     )}
-                  />
-                  Database Sync
-                </CardTitle>
-                <CardDescription className={cn(heartbeat === 'error' && 'text-destructive')}>
-                    {getHeartbeatDescription()}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sync-guild-id">Guild (Server) ID</Label>
-                  <Input
-                    id="sync-guild-id"
-                    name="guildId"
-                    value={guildId}
-                    onChange={(e) => setGuildId(e.target.value)}
-                    required
-                  />
-                </div>
-                {syncState.status !== 'idle' && (
-                  <Alert variant={syncState.status === 'error' ? 'destructive' : 'default'}>
-                    <AlertTitle>{syncState.status === 'success' ? 'Success!' : 'Error'}</AlertTitle>
-                    <AlertDescription>
-                      {syncState.message}
-                      {syncState.details && <p className="text-xs mt-2">{syncState.details}</p>}
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </CardContent>
-              <CardFooter>
-                <SyncButton />
-              </CardFooter>
-            </form>
-          </Card>
+                </CardContent>
+                <CardFooter>
+                    <Button className="w-full" onClick={handleClientSideSync} disabled={isSyncing || heartbeat !== 'ok'}>
+                        {isSyncing ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                        <Zap className="mr-2 h-4 w-4" />
+                        )}
+                        Sync with Discord
+                    </Button>
+                </CardFooter>
+            </Card>
           {guildId && <AdminRoleSettings serverId={guildId} />}
         </div>
         
