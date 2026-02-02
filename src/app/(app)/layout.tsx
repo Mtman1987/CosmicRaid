@@ -21,7 +21,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <FirebaseClientProvider>
       <SidebarProvider>
         <div className="flex min-h-screen">
-          <Sidebar className="border-r" collapsible="icon">
+          <Sidebar className="border-r group" collapsible="icon">
             <SidebarHeader className="p-4">
               <Link
                 href="/dashboard"
@@ -29,7 +29,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 prefetch={false}
               >
                 <BotMessageSquare className="h-8 w-8 text-primary" />
-                <h2 className="font-headline text-lg font-semibold tracking-tight">
+                <h2 className="font-headline text-lg font-semibold tracking-tight group-data-[collapsed=true]:hidden">
                   Streamer's Hub
                 </h2>
               </Link>
@@ -40,9 +40,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <SidebarFooter className="p-4 space-y-4">
               <UserNav />
               <SidebarSeparator />
-              <div className="text-center text-xs text-muted-foreground">
-                For the Space Mountain Admin, powered by Mtman1987 <Rocket className="inline h-3 w-3" />
+              <div className="text-center text-xs text-muted-foreground group-data-[collapsed=true]:hidden">
+                <div>For the Space Mountain Admin</div>
+                <div>powered by Mtman1987 <Rocket className="inline h-3 w-3" /></div>
               </div>
+              <SidebarTrigger className="hidden md:flex mx-auto" />
             </SidebarFooter>
           </Sidebar>
           <div className="flex flex-1 flex-col">

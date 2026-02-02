@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { doc } from 'firebase/firestore';
-import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -45,7 +45,7 @@ export function UserNav() {
     return (
       <div className="flex items-center gap-3">
         <Skeleton className="h-9 w-9 rounded-full" />
-        <div className="grid gap-1">
+        <div className="grid gap-1 group-data-[collapsed=true]:hidden">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-3 w-32" />
         </div>
@@ -64,7 +64,7 @@ export function UserNav() {
         )}
         <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
       </Avatar>
-      <div className="grid gap-0.5 text-sm">
+      <div className="grid gap-0.5 text-sm group-data-[collapsed=true]:hidden">
         <div className="font-medium">{displayName}</div>
         <div className="text-muted-foreground">{displayServer}</div>
       </div>
