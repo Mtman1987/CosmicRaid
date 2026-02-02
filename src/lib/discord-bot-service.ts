@@ -16,8 +16,6 @@ export async function postAllShoutoutsToDiscord(serverId: string, usersToPost: D
     return;
   }
 
-  // NOTE: This is a temporary diagnostic measure.
-  // We are using the hardcoded bot token from the environment because we suspect process.env is not propagating correctly.
   const botToken = process.env.DISCORD_BOT_TOKEN;
   if (!botToken) {
     console.error('[DiscordBot] CRITICAL FAILURE: DISCORD_BOT_TOKEN is not available in the server environment.');
