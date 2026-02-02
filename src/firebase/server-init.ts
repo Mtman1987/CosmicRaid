@@ -5,10 +5,13 @@ import { getAuth } from 'firebase-admin/auth';
 let app: admin.app.App;
 
 if (!admin.apps.length) {
-  // Explicitly initialize with the project ID from the App Hosting environment.
-  // This helps the Admin SDK correctly locate its credentials and avoids
-  // intermittent authentication errors.
+  // When running in a Google Cloud environment like App Hosting, we use
+  // applicationDefault() which automatically finds the service account credentials.
+  // Explicitly providing the projectId helps prevent the SDK from mistakenly
+  // trying to use a local credential file if GOOGLE_APPLICATION_CREDENTIALS
+  // is set in a local development environment.
   app = admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
     projectId: process.env.GCLOUD_PROJECT || process.env.GOOGLE_CLOUD_PROJECT,
   });
 } else {
