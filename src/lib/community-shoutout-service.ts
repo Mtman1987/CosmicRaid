@@ -1,8 +1,9 @@
 
 'use server';
 
-// This is the known-good GIF URL provided by the user.
-const PLACEHOLDER_GIF_URL = 'https://tenor.com/view/hello-hi-hy-hey-gif-8520159980767013609';
+// This is a known-good, direct GIF link from Imgur.
+// Direct links are more reliable for Discord embeds than page links from sites like Tenor.
+const PLACEHOLDER_GIF_URL = 'https://i.imgur.com/8N5t8Dk.gif';
 
 /**
  * This service is now in a diagnostic mode.
@@ -16,7 +17,8 @@ export async function generateAllShoutouts(serverId: string): Promise<any[]> {
   const mockUser = {
       username: 'MockStreamer',
       group: 'Community',
-      // The payload now has the GIF URL in `content` and the text in an `embed`.
+      // The payload now has the direct GIF URL in `content` and the text in an `embed`.
+      // This is the most reliable way to have Discord auto-embed a GIF.
       dailyShoutout: {
           content: PLACEHOLDER_GIF_URL,
           embeds: [
