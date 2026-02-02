@@ -13,7 +13,7 @@ type ActionType = 'calendar' | 'leaderboard' | 'shoutouts';
 
 const ENDPOINT_MAP: Record<ActionType, string> = {
   calendar: '/api/calendar/post',
-  leaderboard: '/api/leaderboard/generate',
+  leaderboard: '/api/dispatch/leaderboard',
   shoutouts: '/api/dispatch/shoutout-cycle',
 };
 
