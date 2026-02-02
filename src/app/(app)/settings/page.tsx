@@ -126,53 +126,53 @@ export default function SettingsPage() {
         description="Configure your application and integrations."
       />
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <div className="space-y-8 lg:col-span-1">
-            <Card>
-                <form action={syncAction}>
-                    <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-3">
-                             <span
-                              className={cn(
-                                'h-3 w-3 rounded-full',
-                                {
-                                  'bg-green-500': syncStatus === 'synced',
-                                  'bg-red-500 animate-pulse': syncStatus === 'not_synced',
-                                  'bg-yellow-500 animate-pulse': syncStatus === 'checking',
-                                }
-                              )}
-                            />
-                            Database Sync
-                        </CardTitle>
-                        <CardDescription>
-                            Populate your database with members, roles, and channels from your Discord server. This is required for most features.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="sync-guild-id">Guild (Server) ID</Label>
-                            <Input
-                                id="sync-guild-id"
-                                name="guildId"
-                                value={guildId}
-                                onChange={(e) => setGuildId(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {syncState.status !== 'idle' && (
-                            <Alert variant={syncState.status === 'error' ? 'destructive' : 'default'}>
-                                <AlertTitle>{syncState.status === 'success' ? 'Success!' : 'Error'}</AlertTitle>
-                                <AlertDescription>
-                                    {syncState.message}
-                                    {syncState.details && <p className="text-xs mt-2">{syncState.details}</p>}
-                                </AlertDescription>
-                            </Alert>
-                        )}
-                    </CardContent>
-                    <CardFooter>
-                        <SyncButton />
-                    </CardFooter>
-                </form>
-            </Card>
+        <div className="lg:col-span-1 space-y-8">
+          <Card>
+            <form action={syncAction}>
+              <CardHeader>
+                <CardTitle className="font-headline flex items-center gap-3">
+                  <span
+                    className={cn(
+                      'h-3 w-3 rounded-full',
+                      {
+                        'bg-green-500': syncStatus === 'synced',
+                        'bg-red-500 animate-pulse': syncStatus === 'not_synced',
+                        'bg-yellow-500 animate-pulse': syncStatus === 'checking',
+                      }
+                    )}
+                  />
+                  Database Sync
+                </CardTitle>
+                <CardDescription>
+                  Populate your database with members, roles, and channels from your Discord server. This is required for most features.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sync-guild-id">Guild (Server) ID</Label>
+                  <Input
+                    id="sync-guild-id"
+                    name="guildId"
+                    value={guildId}
+                    onChange={(e) => setGuildId(e.target.value)}
+                    required
+                  />
+                </div>
+                {syncState.status !== 'idle' && (
+                  <Alert variant={syncState.status === 'error' ? 'destructive' : 'default'}>
+                    <AlertTitle>{syncState.status === 'success' ? 'Success!' : 'Error'}</AlertTitle>
+                    <AlertDescription>
+                      {syncState.message}
+                      {syncState.details && <p className="text-xs mt-2">{syncState.details}</p>}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+              <CardFooter>
+                <SyncButton />
+              </CardFooter>
+            </form>
+          </Card>
           {guildId && <AdminRoleSettings serverId={guildId} />}
         </div>
         
