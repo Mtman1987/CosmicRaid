@@ -1,263 +1,419 @@
 {
   "entities": {
     "DiscordServer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "DiscordServer",
       "type": "object",
-      "description": "Represents a Discord server's configuration within the application.",
+      "description": "Represents a Discord server the application interacts with.",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Discord server."
+        },
         "serverId": {
           "type": "string",
-          "description": "The Discord server's unique ID."
+          "description": "The Discord server's ID (snowflake)."
         },
-        "serverName": {
-          "type": "string",
-          "description": "The name of the Discord server."
-        },
-        "adminRoles": {
-          "type": "array",
-          "items": { "type": "string" },
-          "description": "Array of role names that are considered administrative for earning admin points."
-        }
-      },
-      "required": ["serverId", "serverName"]
-    },
-    "PublicDiscordServerInfo": {
-      "title": "PublicDiscordServerInfo",
-      "type": "object",
-      "description": "Represents the public, non-sensitive information for a Discord server, used for lists.",
-       "properties": {
-        "serverId": {
-          "type": "string",
-          "description": "The Discord server's unique ID."
-        },
-        "serverName": {
+        "name": {
           "type": "string",
           "description": "The name of the Discord server."
         }
       },
-      "required": ["serverId", "serverName"]
+      "required": [
+        "id",
+        "serverId",
+        "name"
+      ]
     },
-    "UserProfile": {
-      "title": "UserProfile",
+    "DiscordChannel": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DiscordChannel",
       "type": "object",
-      "description": "Represents a user's profile within a specific Discord server.",
+      "description": "Represents a Discord channel within a server.",
       "properties": {
-        "discordUserId": {
+        "id": {
           "type": "string",
-          "description": "The user's unique ID from Discord."
+          "description": "Unique identifier for the Discord channel."
         },
-        "username": {
+        "channelId": {
           "type": "string",
-          "description": "The user's Discord username."
+          "description": "The Discord channel's ID (snowflake)."
         },
-        "avatarUrl": {
+        "discordServerId": {
           "type": "string",
-          "description": "URL of the user's Discord avatar.",
-          "format": "uri"
+          "description": "Reference to DiscordServer. (Relationship: DiscordServer 1:N DiscordChannel)"
         },
-        "isOnline": {
-          "type": "boolean"
-        },
-        "topic": {
-          "type": "string"
-        },
-        "group": {
+        "name": {
           "type": "string",
-          "enum": ["VIP", "Community", "Raid Train", "Raid Pile"]
-        },
-        "roles": {
-            "type": "array",
-            "items": { "type": "string" },
-            "description": "A list of the user's role names from the Discord server."
-        },
-        "dailyShoutout": {
-            "type": "object",
-            "description": "The AI-generated Discord embed JSON for the user's daily shoutout."
-        },
-        "shoutoutGeneratedAt": {
-            "type": "object",
-            "description": "Timestamp of when the last daily shoutout was generated.",
-            "properties": {
-                "seconds": { "type": "number" },
-                "nanoseconds": { "type": "number" }
-            }
+          "description": "The name of the Discord channel."
         }
       },
-      "required": ["discordUserId", "username"]
-    },
-    "CalendarEvent": {
-      "title": "CalendarEvent",
-      "type": "object",
-      "description": "Represents an event in a server's calendar.",
-      "properties": {
-        "eventName": { "type": "string" },
-        "eventDateTime": {
-          "type": "object",
-          "properties": { "seconds": { "type": "number" }, "nanoseconds": { "type": "number" } }
-        },
-        "description": { "type": "string" },
-        "type": { "type": "string", "enum": ["event", "meeting", "qotd", "captains-log"] },
-        "userId": { "type": "string", "description": "The ID of the user who created the event." },
-        "userAvatar": { "type": "string", "description": "The avatar URL of the user who created the event.", "format": "uri" },
-        "username": { "type": "string", "description": "The username of the user who created the event." }
-      },
-      "required": ["eventName", "eventDateTime", "description", "type", "userId", "userAvatar", "username"]
-    },
-    "LeaderboardEntry": {
-      "title": "LeaderboardEntry",
-      "type": "object",
-      "description": "Represents a user's entry on the leaderboard for a server.",
-      "properties": {
-        "userProfileId": { "type": "string" },
-        "points": { "type": "number" },
-        "lastUpdated": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userProfileId", "points"]
-    },
-    "LeaderboardSettings": {
-        "title": "LeaderboardSettings",
-        "type": "object",
-        "description": "Configuration for leaderboard point values for a specific server.",
-        "properties": {
-            "raidPoints": { "type": "number", "description": "Points for participating in a raid on another community member." },
-            "followPoints": { "type": "number", "description": "Points for following a community member's stream." },
-            "subPoints": { "type": "number", "description": "Points for subscribing to a community member." },
-            "giftedSubPoints": { "type": "number", "description": "Points for gifting a subscription in a community member's stream." },
-            "bitPoints": { "type": "number", "description": "Points per 100 bits cheered for a community member." },
-            "chatActivityPoints": { "type": "number", "description": "Points for being an active chatter in a community member's stream." },
-            "firstMessagePoints": { "type": "number", "description": "Points for sending the first message of the day in the Discord server." },
-            "messageReactionPoints": { "type": "number", "description": "Points for reacting to a message (e.g., an announcement)." },
-            "adminEventPoints": { "type": "number", "description": "Admin points for creating a calendar event." },
-            "adminLogPoints": { "type": "number", "description": "Admin points for adding a Captain's Log." },
-            "adminMessagePoints": { "type": "number", "description": "Admin points awarded for each message sent." }
-        }
+      "required": [
+        "id",
+        "channelId",
+        "discordServerId",
+        "name"
+      ]
     },
     "DiscordMessage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "DiscordMessage",
       "type": "object",
-      "description": "Represents a Discord message stored from a specific channel.",
+      "description": "Represents a Discord message stored in the application.",
       "properties": {
-        "channelId": { "type": "string" },
-        "userProfileId": { "type": "string" },
-        "messageContent": { "type": "string" },
-        "timestamp": {
-          "type": "object",
-          "properties": {
-            "seconds": { "type": "number" },
-            "nanoseconds": { "type": "number" }
-          }
-        },
-        "originalAuthor": {
-          "type": "object",
-          "properties": {
-            "name": { "type": "string" },
-            "avatar": { "type": "string", "format": "uri" }
-          }
-        },
-        "forwardedMessageId": {
+        "id": {
           "type": "string",
-          "description": "The ID of the message created in the target channel after forwarding."
+          "description": "Unique identifier for the Discord message."
         },
-        "reply": {
-          "type": "object",
-          "description": "A reply sent from the app to this message.",
-          "properties": {
-            "text": { "type": "string" },
-            "authorId": { "type": "string" },
-            "authorName": { "type": "string" },
-            "authorAvatar": { "type": "string", "format": "uri" },
-            "timestamp": {
-              "type": "object",
-              "properties": {
-                "seconds": { "type": "number" },
-                "nanoseconds": { "type": "number" }
-              }
-            }
+        "discordChannelId": {
+          "type": "string",
+          "description": "Reference to DiscordChannel. (Relationship: DiscordChannel 1:N DiscordMessage)"
+        },
+        "authorId": {
+          "type": "string",
+          "description": "The author's ID (snowflake)."
+        },
+        "authorName": {
+          "type": "string",
+          "description": "The author's display name."
+        },
+        "authorAvatarUrl": {
+          "type": "string",
+          "description": "URL of the author's avatar."
+        },
+        "content": {
+          "type": "string",
+          "description": "The content of the Discord message."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the message was sent.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "discordChannelId",
+        "authorId",
+        "authorName",
+        "content",
+        "timestamp"
+      ]
+    },
+    "LeaderboardEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LeaderboardEntry",
+      "type": "object",
+      "description": "Represents a single entry on the community leaderboard.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the leaderboard entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for the user associated with this entry."
+        },
+        "points": {
+          "type": "number",
+          "description": "The number of points the user has accumulated."
+        },
+        "rank": {
+          "type": "number",
+          "description": "The user's current rank on the leaderboard."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "points",
+        "rank"
+      ]
+    },
+    "CalendarEvent": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CalendarEvent",
+      "type": "object",
+      "description": "Represents a calendar event.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the calendar event."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the calendar event."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the calendar event."
+        },
+        "startTime": {
+          "type": "string",
+          "description": "The start time of the event.",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "The end time of the event.",
+          "format": "date-time"
+        },
+        "adminSignUpIds": {
+          "type": "array",
+          "description": "List of user IDs signed up to administrate the event.",
+          "items": {
+            "type": "string"
           }
         }
       },
-      "required": ["channelId", "userProfileId", "messageContent", "timestamp", "originalAuthor"]
+      "required": [
+        "id",
+        "title",
+        "description",
+        "startTime",
+        "endTime"
+      ]
     },
-     "ForwardingRule": {
-      "title": "ForwardingRule",
+    "ShoutoutTemplate": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ShoutoutTemplate",
       "type": "object",
-      "description": "Represents a single rule for forwarding messages from a source channel to a target channel.",
+      "description": "Represents a template for shoutout messages.",
       "properties": {
-        "sourceChannel": { "type": "string" },
-        "targetChannel": { "type": "string" },
-        "targetServer": { "type": "string" }
-      },
-      "required": ["sourceChannel", "targetChannel", "targetServer"]
-    },
-    "ActiveCalendar": {
-      "title": "ActiveCalendar",
-      "type": "object",
-      "description": "Represents an active, posted calendar embed in a Discord channel.",
-      "properties": {
-        "channelId": { "type": "string" },
-        "messageId": { "type": "string" },
-        "createdAt": {
-          "type": "object",
-          "properties": {
-            "seconds": { "type": "number" },
-            "nanoseconds": { "type": "number" }
-          }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the shoutout template."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the shoutout template (e.g., 'VIP Shoutout')."
+        },
+        "templateText": {
+          "type": "string",
+          "description": "The text of the shoutout template, with placeholders for dynamic content."
+        },
+        "shoutoutType": {
+          "type": "string",
+          "description": "Type of shoutout this template is for (e.g., VIP, Raid Train)."
         }
       },
-      "required": ["channelId", "messageId", "createdAt"]
+      "required": [
+        "id",
+        "name",
+        "templateText",
+        "shoutoutType"
+      ]
+    },
+    "Streamer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Streamer",
+      "type": "object",
+      "description": "Represents a streamer that the app is tracking.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the streamer."
+        },
+        "twitchId": {
+          "type": "string",
+          "description": "The streamer's Twitch ID."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The streamer's display name."
+        }
+      },
+      "required": [
+        "id",
+        "twitchId",
+        "displayName"
+      ]
+    },
+    "AutomatedShoutout": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AutomatedShoutout",
+      "type": "object",
+      "description": "Represents an automated shoutout configuration.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the automated shoutout configuration."
+        },
+        "streamerId": {
+          "type": "string",
+          "description": "Reference to Streamer. (Relationship: Streamer 1:N AutomatedShoutout)"
+        },
+        "shoutoutTemplateId": {
+          "type": "string",
+          "description": "Reference to ShoutoutTemplate. (Relationship: ShoutoutTemplate 1:N AutomatedShoutout)"
+        },
+        "discordChannelId": {
+          "type": "string",
+          "description": "Reference to DiscordChannel. (Relationship: DiscordChannel 1:N AutomatedShoutout)"
+        },
+        "isEnabled": {
+          "type": "boolean",
+          "description": "Indicates whether the automated shoutout is enabled."
+        }
+      },
+      "required": [
+        "id",
+        "streamerId",
+        "shoutoutTemplateId",
+        "discordChannelId",
+        "isEnabled"
+      ]
     }
   },
   "auth": {
-    "providers": ["anonymous"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/discords/{serverId}": {
-      "schema": { "$ref": "#/entities/PublicDiscordServerInfo" },
-      "description": "Public-readable collection of servers for populating UI lists. Contains non-sensitive info."
-    },
-    "/servers/{serverId}": {
-      "schema": { "$ref": "#/entities/DiscordServer" },
-      "description": "Top-level collection for each onboarded Discord Server. Contains private config and subcollections."
-    },
-    "/servers/{serverId}/users/{userId}": {
-      "schema": { "$ref": "#/entities/UserProfile" },
-      "description": "User profiles specific to a Discord server."
-    },
-    "/servers/{serverId}/calendarEvents/{eventId}": {
-      "schema": { "$ref": "#/entities/CalendarEvent" },
-      "description": "Calendar events for a specific Discord server."
-    },
-    "/servers/{serverId}/leaderboard/{entryId}": {
-      "schema": { "$ref": "#/entities/LeaderboardEntry" },
-      "description": "Leaderboard for a specific Discord server."
-    },
-     "/servers/{serverId}/adminLeaderboard/{entryId}": {
-      "schema": { "$ref": "#/entities/LeaderboardEntry" },
-      "description": "Admin-only leaderboard for a specific Discord server."
-    },
-    "/servers/{serverId}/messages/{messageId}": {
-      "schema": { "$ref": "#/entities/DiscordMessage" },
-      "description": "Archived messages for a specific Discord server, used for forwarding."
-    },
-     "/servers/{serverId}/config/forwardingRules": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "rules": {
-            "type": "array",
-            "items": { "$ref": "#/entities/ForwardingRule" }
-          }
+    "structure": [
+      {
+        "path": "/discord_servers/{discordServerId}",
+        "definition": {
+          "entityName": "DiscordServer",
+          "schema": {
+            "$ref": "#/backend/entities/DiscordServer"
+          },
+          "description": "Stores Discord server information.",
+          "params": [
+            {
+              "name": "discordServerId",
+              "description": "The unique ID of the Discord server."
+            }
+          ]
         }
       },
-      "description": "Configuration for message forwarding rules for a server."
-    },
-    "/servers/{serverId}/config/activeCalendars/{calendarId}": {
-      "schema": { "$ref": "#/entities/ActiveCalendar" },
-      "description": "A collection that tracks all active calendar embeds posted in various channels."
-    },
-    "/servers/{serverId}/config/leaderboardSettings": {
-        "schema": { "$ref": "#/entities/LeaderboardSettings" },
-        "description": "Singleton document for storing leaderboard point configuration for a server."
-    }
+      {
+        "path": "/discord_servers/{discordServerId}/discord_channels/{discordChannelId}",
+        "definition": {
+          "entityName": "DiscordChannel",
+          "schema": {
+            "$ref": "#/backend/entities/DiscordChannel"
+          },
+          "description": "Stores Discord channel information, related to a specific Discord server.",
+          "params": [
+            {
+              "name": "discordServerId",
+              "description": "The unique ID of the Discord server."
+            },
+            {
+              "name": "discordChannelId",
+              "description": "The unique ID of the Discord channel."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/discord_servers/{discordServerId}/discord_channels/{discordChannelId}/discord_messages/{discordMessageId}",
+        "definition": {
+          "entityName": "DiscordMessage",
+          "schema": {
+            "$ref": "#/backend/entities/DiscordMessage"
+          },
+          "description": "Stores Discord messages related to a specific Discord channel.",
+          "params": [
+            {
+              "name": "discordServerId",
+              "description": "The unique ID of the Discord server."
+            },
+            {
+              "name": "discordChannelId",
+              "description": "The unique ID of the Discord channel."
+            },
+            {
+              "name": "discordMessageId",
+              "description": "The unique ID of the Discord message."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/leaderboard_entries/{leaderboardEntryId}",
+        "definition": {
+          "entityName": "LeaderboardEntry",
+          "schema": {
+            "$ref": "#/backend/entities/LeaderboardEntry"
+          },
+          "description": "Stores leaderboard entries.",
+          "params": [
+            {
+              "name": "leaderboardEntryId",
+              "description": "The unique ID of the leaderboard entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/calendar_events/{calendarEventId}",
+        "definition": {
+          "entityName": "CalendarEvent",
+          "schema": {
+            "$ref": "#/backend/entities/CalendarEvent"
+          },
+          "description": "Stores calendar events.",
+          "params": [
+            {
+              "name": "calendarEventId",
+              "description": "The unique ID of the calendar event."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/shoutout_templates/{shoutoutTemplateId}",
+        "definition": {
+          "entityName": "ShoutoutTemplate",
+          "schema": {
+            "$ref": "#/backend/entities/ShoutoutTemplate"
+          },
+          "description": "Stores shoutout templates.",
+          "params": [
+            {
+              "name": "shoutoutTemplateId",
+              "description": "The unique ID of the shoutout template."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/streamers/{streamerId}",
+        "definition": {
+          "entityName": "Streamer",
+          "schema": {
+            "$ref": "#/backend/entities/Streamer"
+          },
+          "description": "Stores streamer information.",
+          "params": [
+            {
+              "name": "streamerId",
+              "description": "The unique ID of the streamer."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/automated_shoutouts/{automatedShoutoutId}",
+        "definition": {
+          "entityName": "AutomatedShoutout",
+          "schema": {
+            "$ref": "#/backend/entities/AutomatedShoutout"
+          },
+          "description": "Stores automated shoutout configurations.",
+          "params": [
+            {
+              "name": "automatedShoutoutId",
+              "description": "The unique ID of the automated shoutout configuration."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to optimize for authorization independence, scalability, and ease of debugging, adhering to the core design principles and strategy mandates. It leverages path-based ownership and denormalization for authorization independence and uses structural segregation to maintain a homogeneous security posture within each collection. It properly makes use of DBAC and avoids custom claims. The structure supports the application's core features, including Discord integration, shoutout templating, calendar events, leaderboards, and message forwarding, while ensuring secure data access and integrity.\n\nAuthorization Independence is achieved by avoiding `get()` calls in security rules.  For instance, access to `DiscordChannels` is granted implicitly based on the path `/discord_servers/{discordServerId}/discord_channels/{discordChannelId}`. This approach eliminates hierarchical authorization dependencies, enabling atomic operations and simplifying debugging. \n\nStructural Segregation is employed to maintain homogeneous security requirements within collections.  Calendar events, leaderboard entries, and Discord servers are stored in their own top-level collections, as well as shoutout templates and streamers and automated shoutouts.  This segregation simplifies the security rules. Data with different access needs are not mixed within the same collection. For example, if the app would have public vs private discord servers they would need to be in seperate collections.\n\nAccess Modeling utilizes both path-based ownership and membership maps, where appropriate.  The primary method is path-based ownership, for example, `discord_servers/{discordServerId}/discord_channels/{discordChannelId}/discord_messages/{discordMessageId}` ensures clear ownership. Since the problem did not request explicit user roles, a membership map was not appropriate.\n\nQAPs (Rules Are Not Filters) are supported through structural segregation. By storing different types of data in separate collections with well-defined security rules, we can ensure that list operations are secure and efficient. For instance, listing Discord channels for a specific server only requires querying the `/discord_servers/{discordServerId}/discord_channels` collection, without needing to filter out unauthorized documents based on content."
   }
 }

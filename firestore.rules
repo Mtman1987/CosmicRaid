@@ -1,0 +1,173 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * Core Philosophy: This ruleset enforces a "Backend-Managed Data" model. Due to the
+     * absence of user ownership fields (like `ownerId` or `creatorId`) in the data schemas,
+     * all client-side write operations (create, update, delete) are disabled to prevent
+     * unauthorized data manipulation. It is assumed that a trusted backend service using
+     * the Firebase Admin SDK is responsible for all data mutations. Read access is granted
+     * to any authenticated user, treating the data as publicly viewable within the application.
+     *
+     * Data Structure: Data is organized into several top-level collections representing
+     * distinct application features: `discord_servers`, `leaderboard_entries`, `calendar_events`,
+     * `shoutout_templates`, `streamers`, and `automated_shoutouts`. Discord data follows a
+     * logical hierarchy (`discord_servers` -> `discord_channels` -> `discord_messages`).
+     *
+     * Key Security Decisions:
+     * - Backend-Only Writes: All `create`, `update`, and `delete` permissions are explicitly
+     *   set to `false`. This is the most critical security decision, made because there is no
+     *   way to verify if a user "owns" a document.
+     * - Authenticated Reads: All data is considered readable by any user who is signed in
+     *   (including anonymous users), but not by the public internet. This supports the
+     *   application's need to display shared information like leaderboards and events.
+     * - No User Data: There are no `/users/{userId}` collections, reinforcing the model that
+     *   this database primarily stores shared, application-level data rather than
+     *   user-specific private data.
+     *
+     * Denormalization for Authorization: This ruleset cannot currently leverage denormalization
+     * as no ownership data is present in the schemas. To enable user-driven writes in the future,
+     * an ownership field (e.g., `creatorId: request.auth.uid`) would need to be denormalized
+     * onto the relevant documents.
+     *
+     * Structural Segregation: The data model correctly uses separate top-level collections
+     * for different data types. This segregation simplifies security, as uniform rules can be
+     * applied to each collection without needing to inspect document content.
+     */
+
+    // --------------------------------------------------------------------------
+    // Helper Functions
+    // --------------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     * Anonymous users are considered signed in.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+
+    // --------------------------------------------------------------------------
+    // Discord Data Collections
+    // --------------------------------------------------------------------------
+
+    /**
+     * @description Allows authenticated users to read Discord server information, but denies all client-side writes.
+     * @path /discord_servers/{discordServerId}
+     * @allow (get) Any signed-in user can read a discord_server document.
+     * @deny (create) A signed-in user cannot create a new discord_server document.
+     * @principle Assumes data is managed by a trusted backend, disabling all client writes for security.
+     */
+    match /discord_servers/{discordServerId} {
+      allow get, list: if isSignedIn();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+
+      /**
+       * @description Allows authenticated users to read Discord channel information, but denies all client-side writes.
+       * @path /discord_servers/{discordServerId}/discord_channels/{discordChannelId}
+       * @allow (get) Any signed-in user can read a discord_channel document.
+       * @deny (create) A signed-in user cannot create a new discord_channel document.
+       * @principle Assumes data is managed by a trusted backend, disabling all client writes for security.
+       */
+      match /discord_channels/{discordChannelId} {
+        allow get, list: if isSignedIn();
+        allow create: if false;
+        allow update: if false;
+        allow delete: if false;
+
+        /**
+         * @description Allows authenticated users to read Discord messages, but denies all client-side writes.
+         * @path /discord_servers/{discordServerId}/discord_channels/{discordChannelId}/discord_messages/{discordMessageId}
+         * @allow (get) Any signed-in user can read a discord_message document.
+         * @deny (create) A signed-in user cannot create a new discord_message document.
+         * @principle Assumes data is managed by a trusted backend, disabling all client writes for security.
+         */
+        match /discord_messages/{discordMessageId} {
+          allow get, list: if isSignedIn();
+          allow create: if false;
+          allow update: if false;
+          allow delete: if false;
+        }
+      }
+    }
+
+
+    // --------------------------------------------------------------------------
+    // Application Feature Collections
+    // --------------------------------------------------------------------------
+
+    /**
+     * @description Allows authenticated users to read leaderboard entries, but denies all client-side writes.
+     * @path /leaderboard_entries/{leaderboardEntryId}
+     * @allow (get) Any signed-in user can read a leaderboard_entry document.
+     * @deny (create) A signed-in user cannot create a new leaderboard_entry document.
+     * @principle Assumes data is managed by a trusted backend, disabling all client writes for security.
+     */
+    match /leaderboard_entries/{leaderboardEntryId} {
+      allow get, list: if isSignedIn();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows authenticated users to read calendar events, but denies all client-side writes.
+     * @path /calendar_events/{calendarEventId}
+     * @allow (get) Any signed-in user can read a calendar_event document.
+     * @deny (update) A signed-in user cannot update a calendar_event, even to sign up as an admin.
+     * @principle Assumes data is managed by a trusted backend, disabling all client writes for security.
+     */
+    match /calendar_events/{calendarEventId} {
+      allow get, list: if isSignedIn();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows authenticated users to read shoutout templates, but denies all client-side writes.
+     * @path /shoutout_templates/{shoutoutTemplateId}
+     * @allow (get) Any signed-in user can read a shoutout_template document.
+     * @deny (create) A signed-in user cannot create a new shoutout_template document.
+     * @principle Assumes data is managed by a trusted backend, disabling all client writes for security.
+     */
+    match /shoutout_templates/{shoutoutTemplateId} {
+      allow get, list: if isSignedIn();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows authenticated users to read streamer information, but denies all client-side writes.
+     * @path /streamers/{streamerId}
+     * @allow (get) Any signed-in user can read a streamer document.
+     * @deny (create) A signed-in user cannot create a new streamer document.
+     * @principle Assumes data is managed by a trusted backend, disabling all client writes for security.
+     */
+    match /streamers/{streamerId} {
+      allow get, list: if isSignedIn();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows authenticated users to read automated shoutout configs, but denies all client-side writes.
+     * @path /automated_shoutouts/{automatedShoutoutId}
+     * @allow (get) Any signed-in user can read an automated_shoutout document.
+     * @deny (create) A signed-in user cannot create a new automated_shoutout document.
+     * @principle Assumes data is managed by a trusted backend, disabling all client writes for security.
+     */
+    match /automated_shoutouts/{automatedShoutoutId} {
+      allow get, list: if isSignedIn();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
