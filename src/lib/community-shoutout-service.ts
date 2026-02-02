@@ -1,9 +1,9 @@
 
 'use server';
 
-// This is a known-good, direct GIF link from Imgur.
-// Direct links are more reliable for Discord embeds than page links from sites like Tenor.
-const PLACEHOLDER_GIF_URL = 'https://i.imgur.com/8N5t8Dk.gif';
+// This is a known-good, direct GIF link from Giphy.
+// Direct links are more reliable for Discord embeds than page links from sites like Tenor or broken Imgur links.
+const PLACEHOLDER_GIF_URL = 'https://media.giphy.com/media/26FmQ6EOvLpS3i396/giphy.gif';
 
 /**
  * This service is now in a diagnostic mode.
